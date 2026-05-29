@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#6B3A05" />
+<meta name="description" content="최과학과학전문학원 - N2O4/NO2 평형 시뮬레이터" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="최과학 평형앱" />
+<title>최과학과학전문학원 · N₂O₄ ⇌ 2NO₂ 평형 시뮬레이터</title>
+<style>
+  :root {
+    --brand: #6B3A05;
+    --brand-light: #FAF6EB;
+    --text: #2C2C2A;
+    --text-mu: #5F5E5A;
+    --text-mu2: #888780;
+    --surface: #FFFFFF;
+    --surface-2: #F4F1E8;
+    --border: rgba(0,0,0,0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --brand: #EF9F27;
+      --brand-light: #1a1410;
+      --text: #F1EFE8;
+      --text-mu: #B4B2A9;
+      --text-mu2: #888780;
+      --surface: #2C2C2A;
+      --surface-2: #1f1d1b;
+      --border: rgba(255,255,255,0.15);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    background: var(--brand-light);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .app { max-width: 720px; margin: 0 auto; padding: 16px; }
+  header {
+    background: var(--brand);
+    color: #FAF6EB;
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header .logo {
+    width: 38px; height: 38px;
+    background: #FAF6EB;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand); font-weight: 700; font-size: 16px;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 15px; font-weight: 600; margin: 0; line-height: 1.3; }
+  header .sub { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+  h2 { font-size: 16px; font-weight: 600; margin: 0 0 12px; color: var(--text); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+  .stat .label { font-size: 11px; color: var(--text-mu); margin-bottom: 4px; }
+  .stat .val { font-size: 19px; font-weight: 600; color: var(--text); }
+  .stat .sub { font-size: 10px; color: var(--text-mu2); margin-top: 2px; }
+  .slider-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .slider-row span { font-size: 12px; color: var(--text-mu); white-space: nowrap; }
+  input[type=range] { flex: 1; accent-color: var(--brand); }
+  .vessel-wrap {
+    background: var(--surface-2);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 260px;
+    border-radius: 8px;
+    border: 2px solid #5F5E5A;
+  }
+  .legend {
+    display: flex; justify-content: center; gap: 20px;
+    font-size: 12px; color: var(--text-mu);
+    margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+  .info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--brand);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-mu);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .info b { color: var(--text); font-weight: 600; }
+  #installBtn {
+    width: 100%;
+    background: var(--brand);
+    color: #FAF6EB;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+    margin-bottom: 10px;
+  }
+  #installBtn:active { opacity: 0.85; }
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-mu2);
+    padding: 16px 0 8px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">최</div>
+    <div>
+      <h1>최과학과학전문학원</h1>
+      <div class="sub">N₂O₄ ⇌ 2NO₂ 평형 시뮬레이터 · 화학Ⅱ</div>
+    </div>
+  </header>
+
+  <button id="installBtn">📲 홈 화면에 앱 설치</button>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">온도</div>
+      <div class="val" id="tDisp">25 °C</div>
+      <div class="sub" id="tKDisp">298 K</div>
+    </div>
+    <div class="stat">
+      <div class="label">평형상수 Kc</div>
+      <div class="val" id="kDisp">0.15</div>
+      <div class="sub">반트호프 식</div>
+    </div>
+    <div class="stat">
+      <div class="label">해리도 α</div>
+      <div class="val" id="aDisp">18%</div>
+      <div class="sub" id="cntDisp">N₂O₄ 15 / NO₂ 6</div>
+    </div>
+  </div>
+
+  <div class="slider-row">
+    <span>❄ 차가움</span>
+    <input type="range" min="0" max="150" value="25" step="1" id="tempSlider" />
+    <span>뜨거움 🔥</span>
+  </div>
+
+  <div class="vessel-wrap">
+    <canvas id="vessel" width="600" height="260"></canvas>
+  </div>
+
+  <div class="legend">
+    <div class="item">
+      <span class="dot" style="background:#E8E5DA;border:1px solid #888780;"></span>
+      <span class="dot" style="background:#E8E5DA;border:1px solid #888780;margin-left:-8px;"></span>
+      N₂O₄ (무색)
+    </div>
+    <div class="item">
+      <span class="dot" style="background:#6B3A05;"></span>
+      NO₂ (갈색)
+    </div>
+  </div>
+
+  <div class="info">
+    <b>학습 포인트</b><br/>
+    정반응 N₂O₄ → 2NO₂ 은 <b>흡열반응</b>(ΔH = +57.2 kJ/mol)이다.
+    온도를 올리면 르샤틀리에 원리에 의해 평형이 열을 흡수하는 방향(정반응)으로 이동하여,
+    갈색의 NO₂가 늘어나고 K도 커진다. 반대로 차갑게 하면 NO₂ 끼리 결합해 무색의 N₂O₄가 늘고 K는 작아진다.
+  </div>
+
+  <footer>
+    © 최과학과학전문학원 · 화학Ⅱ 평형 학습 도구<br/>
+    제작: 최미영 강사
+  </footer>
+</div>
+
+<script>
+(function() {
+  const slider = document.getElementById('tempSlider');
+  const tDisp = document.getElementById('tDisp');
+  const tKDisp = document.getElementById('tKDisp');
+  const kDisp = document.getElementById('kDisp');
+  const aDisp = document.getElementById('aDisp');
+  const cntDisp = document.getElementById('cntDisp');
+  const canvas = document.getElementById('vessel');
+  const ctx = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const N_SLOTS = 18;
+  const slots = [];
+  function W() { return canvas.getBoundingClientRect().width; }
+  function H() { return canvas.getBoundingClientRect().height; }
+  const PAD = 16;
+
+  function rand(min, max) { return min + Math.random() * (max - min); }
+
+  for (let i = 0; i < N_SLOTS; i++) {
+    slots.push({
+      cx: rand(PAD, W() - PAD),
+      cy: rand(PAD, H() - PAD),
+      vx: rand(-0.5, 0.5),
+      vy: rand(-0.5, 0.5),
+      cx2: rand(PAD, W() - PAD),
+      cy2: rand(PAD, H() - PAD),
+      vx2: rand(-0.5, 0.5),
+      vy2: rand(-0.5, 0.5),
+      angle: rand(0, Math.PI * 2),
+      isDissociated: false
+    });
+  }
+
+  function calcEquilibrium(T) {
+    const dH = 57200, R = 8.314, K_ref = 0.15, T_ref = 298, c0 = 1;
+    const K = K_ref * Math.exp(-dH/R * (1/T - 1/T_ref));
+    const alpha = (-K + Math.sqrt(K*K + 16*K*c0)) / (8*c0);
+    return { K, alpha: Math.min(1, Math.max(0, alpha)) };
+  }
+
+  function lerpColor(c1, c2, t) {
+    return `rgb(${Math.round(c1[0]+(c2[0]-c1[0])*t)},${Math.round(c1[1]+(c2[1]-c1[1])*t)},${Math.round(c1[2]+(c2[2]-c1[2])*t)})`;
+  }
+
+  let targetAlpha = 0.18, currentAlpha = 0.18;
+
+  function updateUI() {
+    const tCel = parseFloat(slider.value);
+    const tK = tCel + 273.15;
+    const { K, alpha } = calcEquilibrium(tK);
+    targetAlpha = alpha;
+    tDisp.textContent = `${Math.round(tCel)} °C`;
+    tKDisp.textContent = `${Math.round(tK)} K`;
+    kDisp.textContent = K < 0.01 ? K.toExponential(2) : K < 100 ? K.toFixed(2) : K.toExponential(2);
+    aDisp.textContent = `${Math.round(alpha * 100)}%`;
+    const nDissoc = Math.round(N_SLOTS * alpha);
+    cntDisp.textContent = `N₂O₄ ${N_SLOTS - nDissoc} / NO₂ ${nDissoc * 2}`;
+  }
+
+  function draw() {
+    currentAlpha += (targetAlpha - currentAlpha) * 0.08;
+    const nDissoc = Math.round(N_SLOTS * currentAlpha);
+    for (let i = 0; i < N_SLOTS; i++) slots[i].isDissociated = i < nDissoc;
+
+    const w = W(), h = H();
+    ctx.fillStyle = lerpColor([252, 248, 235], [110, 60, 8], currentAlpha);
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < N_SLOTS; i++) {
+      const s = slots[i];
+      s.cx += s.vx; s.cy += s.vy;
+      if (s.cx < PAD+10 || s.cx > w-PAD-10) s.vx *= -1;
+      if (s.cy < PAD+10 || s.cy > h-PAD-10) s.vy *= -1;
+      s.cx = Math.max(PAD+10, Math.min(w-PAD-10, s.cx));
+      s.cy = Math.max(PAD+10, Math.min(h-PAD-10, s.cy));
+      s.angle += 0.015;
+
+      if (s.isDissociated) {
+        s.cx2 += s.vx2; s.cy2 += s.vy2;
+        if (s.cx2 < PAD+8 || s.cx2 > w-PAD-8) s.vx2 *= -1;
+        if (s.cy2 < PAD+8 || s.cy2 > h-PAD-8) s.vy2 *= -1;
+        s.cx2 = Math.max(PAD+8, Math.min(w-PAD-8, s.cx2));
+        s.cy2 = Math.max(PAD+8, Math.min(h-PAD-8, s.cy2));
+        drawNO2(s.cx, s.cy);
+        drawNO2(s.cx2, s.cy2);
+      } else {
+        drawN2O4(s.cx, s.cy, s.angle);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+
+  function drawNO2(x, y) {
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI*2);
+    ctx.fillStyle = '#6B3A05'; ctx.fill();
+    ctx.strokeStyle = '#2A1601'; ctx.lineWidth = 0.8; ctx.stroke();
+  }
+  function drawN2O4(x, y, angle) {
+    const dx = Math.cos(angle)*6, dy = Math.sin(angle)*6;
+    ctx.fillStyle = '#EFECE2'; ctx.strokeStyle = '#5F5E5A'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(x-dx, y-dy, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x+dx, y+dy, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+
+  slider.addEventListener('input', updateUI);
+  updateUI();
+  draw();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(e => console.log('SW 등록 실패:', e));
+    });
+  }
+
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') installBtn.style.display = 'none';
+    deferredPrompt = null;
+  });
+  window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
+})();
+</script>
+</body>
+</html>

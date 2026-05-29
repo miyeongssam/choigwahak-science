@@ -1,0 +1,27 @@
+{
+  "name": "최과학과학전문학원 - N₂O₄ ⇌ 2NO₂ 평형 시뮬레이터",
+  "short_name": "최과학 평형앱",
+  "description": "온도에 따른 N₂O₄/NO₂ 평형 이동과 색 변화를 직접 조작하며 학습하는 화학 평형 시뮬레이터 (최과학과학전문학원 제작)",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF6EB",
+  "theme_color": "#6B3A05",
+  "lang": "ko",
+  "categories": ["education", "science"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
