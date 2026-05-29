@@ -273,13 +273,13 @@
     tKDisp.textContent = `${Math.round(tK)} K`;
     kDisp.textContent = K < 0.01 ? K.toExponential(2) : K < 100 ? K.toFixed(2) : K.toExponential(2);
     aDisp.textContent = `${Math.round(alpha * 100)}%`;
-    const nDissoc = Math.round(N_SLOTS * alpha);
+    const nDissoc = Math.max(1, Math.min(N_SLOTS - 1, Math.round(N_SLOTS * alpha)));
     cntDisp.textContent = `N₂O₄ ${N_SLOTS - nDissoc} / NO₂ ${nDissoc * 2}`;
   }
 
   function draw() {
     currentAlpha += (targetAlpha - currentAlpha) * 0.08;
-    const nDissoc = Math.round(N_SLOTS * currentAlpha);
+    const nDissoc = Math.max(1, Math.min(N_SLOTS - 1, Math.round(N_SLOTS * currentAlpha)));
     for (let i = 0; i < N_SLOTS; i++) slots[i].isDissociated = i < nDissoc;
 
     const w = W(), h = H();
