@@ -1,0 +1,26 @@
+{
+  "name": "온도-평형상수 탐구 (최과학)",
+  "short_name": "K vs T",
+  "description": "반트호프 식으로 발열/흡열 반응의 평형상수와 온도 관계를 인터랙티브하게 탐구하는 학습 앱",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF7F2",
+  "theme_color": "#D85A30",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
