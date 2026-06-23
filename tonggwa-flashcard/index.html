@@ -356,7 +356,8 @@ function showInstallBar(){
 function dismissInstall(){ try{localStorage.setItem('install_dismiss_v3','1');}catch(e){} var b=document.getElementById('installBar'); if(b) b.style.display='none'; }
 /* 크롬 자체 설치 팝업(WebAPK 경고 경로) 억제 */
 window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); });
-if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+/* 서비스워커 미등록: 단순 홈화면 바로가기로 설치되어 설치 경고가 뜨지 않음. 기존 등록분은 해제. */
+if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); }); }
 showInstallBar();
 init();
 </script>
