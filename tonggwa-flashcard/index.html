@@ -67,11 +67,22 @@
   .hide{display:none!important;}
   a.src{color:var(--muted); font-size:11px; text-decoration:none;}
   .empty-msg{text-align:center; color:var(--muted); padding:24px; font-size:14px;}
+  #installBar{display:none; background:var(--card); border:1px solid var(--accent); border-radius:12px; padding:12px 14px; margin-bottom:12px; font-size:13px; position:relative;}
+  #installBar .ttl{font-weight:600;}
+  #installBar .steps{color:#cbd5e1; line-height:1.6; margin-top:6px;}
+  #installBar b{color:#93c5fd;}
+  #installBar .x{position:absolute; top:8px; right:12px; cursor:pointer; color:var(--muted); font-size:16px;}
 </style>
 </head>
 <body>
 
 <h1>📚 최과학 암기 플래시카드 <span class="tag">통합과학</span></h1>
+
+<div id="installBar">
+  <span class="x" onclick="dismissInstall()">✕</span>
+  <div class="ttl">📱 홈 화면에 추가하면 앱처럼 쓸 수 있어요</div>
+  <div class="steps" id="installSteps"></div>
+</div>
 
 <!-- ===== SETUP ===== -->
 <div id="setup">
@@ -349,6 +360,24 @@ function quit(){
 }
 function resetWrong(){ if(confirm("틀린 카드 기록을 모두 지울까요?")){ wrongSet.clear(); saveWrong(); updatePool(); } }
 
+function showInstallBar(){
+  try{
+    const ua=navigator.userAgent||"";
+    const isiOS=/iPhone|iPad|iPod/i.test(ua);
+    const isAndroid=/Android/i.test(ua);
+    const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+    if(standalone) return;
+    if(!isiOS && !isAndroid) return;
+    if(localStorage.getItem('install_dismiss_v1')) return;
+    const steps=document.getElementById('installSteps');
+    if(isiOS) steps.innerHTML='Safari 하단 <b>공유</b> 버튼 → <b>"홈 화면에 추가"</b>';
+    else steps.innerHTML='Chrome 메뉴 <b>⋮</b> → <b>"홈 화면에 추가"</b> (또는 "앱 설치")';
+    document.getElementById('installBar').style.display='block';
+  }catch(e){}
+}
+function dismissInstall(){ try{localStorage.setItem('install_dismiss_v1','1');}catch(e){} document.getElementById('installBar').style.display='none'; }
+
+showInstallBar();
 init();
 </script>
 </body>
