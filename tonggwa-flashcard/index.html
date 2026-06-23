@@ -134,12 +134,18 @@
     </div>
   </div>
 
+  <div id="oxResult" class="hide" style="text-align:center;font-weight:700;font-size:17px;margin-bottom:10px;"></div>
   <div class="controls">
+    <div class="grid2 hide" id="oxBox">
+      <button class="btn ghost" style="border-color:var(--no);color:#fecaca;font-size:18px" onclick="answerOX('X')">✕ 틀리다</button>
+      <button class="btn ghost" style="border-color:var(--ok);color:#bbf7d0;font-size:18px" onclick="answerOX('O')">○ 맞다</button>
+    </div>
     <button class="btn full" id="revealBtn" onclick="reveal()">정답 확인</button>
     <div class="grid2 grade hide" id="gradeBox" style="margin-top:8px;">
       <button class="btn ghost" style="border-color:var(--no);color:#fecaca" onclick="grade(false)">✕ 모름/틀림</button>
       <button class="btn ghost" style="border-color:var(--ok);color:#bbf7d0" onclick="grade(true)">✓ 맞음</button>
     </div>
+    <button class="btn full hide" id="nextBtn" style="margin-top:8px;" onclick="nextCard()">다음 →</button>
   </div>
   <div class="stat" id="studyStat"></div>
   <button class="btn ghost full" style="margin-top:14px;" onclick="quit()">← 단원 선택으로</button>
@@ -270,14 +276,25 @@ function showCard(){
   document.getElementById("mUnit").textContent=c._unit;
   const t=document.getElementById("mType"); t.textContent=c.유형; t.className="pill "+(c.유형==="OX"?"ox":(c.유형==="단답형"?"da":"sa"));
   const d=document.getElementById("mDiff"); d.textContent=c.난이도; d.className="pill d"+c.난이도;
-  document.getElementById("mSrc").innerHTML=c.출처?`<span class="src">${c.출처}</span>`:"";
+  document.getElementById("mSrc").innerHTML="";
   document.getElementById("qText").textContent=c.문제;
   const av=document.getElementById("aVal"); av.textContent=c.정답; av.className="val "+c.정답;
   document.getElementById("aExp").textContent=c.해설||"";
   document.getElementById("ansBox").classList.remove("show");
-  document.getElementById("revealBtn").classList.remove("hide");
   document.getElementById("gradeBox").classList.add("hide");
+  document.getElementById("oxResult").classList.add("hide");
+  document.getElementById("nextBtn").classList.add("hide");
+  if(c.유형==="OX"){
+    document.getElementById("oxBox").classList.remove("hide");
+    document.getElementById("revealBtn").classList.add("hide");
+  }else{
+    document.getElementById("oxBox").classList.add("hide");
+    document.getElementById("revealBtn").classList.remove("hide");
+  }
   document.getElementById("bar").style.width=(idx/pool.length*100)+"%";
+  updateStat();
+}
+function updateStat(){
   document.getElementById("studyStat").textContent=`${idx+1} / ${pool.length}  ·  맞음 ${session.correct} / 틀림 ${session.wrong}`;
 }
 function reveal(){
@@ -286,6 +303,22 @@ function reveal(){
   document.getElementById("revealBtn").classList.add("hide");
   document.getElementById("gradeBox").classList.remove("hide");
 }
+function answerOX(choice){
+  const c=pool[idx];
+  document.getElementById("oxBox").classList.add("hide");
+  document.getElementById("ansBox").classList.add("show");
+  const ok=(choice===c.정답);
+  if(ok){ session.correct++; wrongSet.delete(cardId(c)); }
+  else{ session.wrong++; wrongSet.add(cardId(c)); }
+  saveWrong();
+  const res=document.getElementById("oxResult");
+  res.classList.remove("hide");
+  res.textContent= ok ? "✓ 정답!" : `✕ 오답 (정답: ${c.정답})`;
+  res.style.color= ok ? "var(--ok)" : "var(--no)";
+  document.getElementById("nextBtn").classList.remove("hide");
+  updateStat();
+}
+function nextCard(){ idx++; showCard(); }
 function grade(ok){
   const c=pool[idx];
   if(ok){ session.correct++; wrongSet.delete(cardId(c)); }
@@ -300,6 +333,9 @@ function finish(){
      <div style="color:var(--muted)">맞음 ${session.correct} · 틀림 ${session.wrong} (총 ${pool.length}장)</div></div>`;
   document.getElementById("revealBtn").classList.add("hide");
   document.getElementById("gradeBox").classList.add("hide");
+  document.getElementById("oxBox").classList.add("hide");
+  document.getElementById("nextBtn").classList.add("hide");
+  document.getElementById("oxResult").classList.add("hide");
   document.getElementById("studyStat").textContent= session.wrong? "‘틀린 카드만’으로 다시 도전해 보세요.":"";
 }
 function quit(){
