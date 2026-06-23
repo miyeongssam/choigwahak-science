@@ -1,7 +1,7 @@
 {
-  "name": "최과학 암기 플래시카드",
-  "short_name": "암기카드",
-  "description": "통합과학 암기 플래시카드 - 정오형·단답형·서술형",
+  "name": "최과학_플래시1",
+  "short_name": "최과학_플래시1",
+  "description": "최과학 통합과학 암기 플래시카드",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
