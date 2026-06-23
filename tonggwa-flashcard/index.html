@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>최과학 암기 플래시카드</title>
 <style>
   :root{
@@ -33,7 +35,6 @@
   .btn:disabled{opacity:.4; cursor:not-allowed;}
   .full{width:100%;}
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
-  /* unit picker */
   .units{max-height:34vh; overflow:auto; margin-top:4px;}
   .grp{font-size:12px; color:var(--muted); margin:10px 0 4px; font-weight:600;}
   .uitem{display:flex; align-items:center; gap:9px; padding:8px 6px; border-radius:8px; cursor:pointer;}
@@ -41,7 +42,6 @@
   .uitem input{width:17px; height:17px; accent-color:var(--accent);}
   .uitem .cnt{margin-left:auto; font-size:11px; color:var(--muted); background:var(--card2); padding:1px 7px; border-radius:10px;}
   .uitem.empty{opacity:.5;}
-  /* study */
   #study{display:none;}
   .meta{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-bottom:8px; flex-wrap:wrap;}
   .pill{padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600;}
@@ -84,13 +84,11 @@
   <div class="steps" id="installSteps"></div>
 </div>
 
-<!-- ===== SETUP ===== -->
 <div id="setup">
   <div class="panel">
     <h2>1. 책 선택</h2>
     <div class="row" id="bookChips"></div>
   </div>
-
   <div class="panel">
     <h2>2. 단원 선택</h2>
     <div class="row" style="margin-bottom:6px;">
@@ -99,7 +97,6 @@
     </div>
     <div class="units" id="unitList"></div>
   </div>
-
   <div class="panel">
     <h2>3. 유형 &amp; 난이도</h2>
     <div class="row" style="margin-bottom:10px;">
@@ -114,7 +111,6 @@
       <span class="chip diff on" data-diff="하">하</span>
     </div>
   </div>
-
   <div class="panel">
     <div class="grid2" style="margin-bottom:8px;">
       <button class="btn ghost" onclick="loadWrongOnly()">⭐ 틀린 카드만</button>
@@ -125,7 +121,6 @@
   </div>
 </div>
 
-<!-- ===== STUDY ===== -->
 <div id="study">
   <div class="meta">
     <span id="mUnit"></span>
@@ -134,7 +129,6 @@
     <span id="mSrc" style="margin-left:auto;"></span>
   </div>
   <div class="prog"><div id="bar"></div></div>
-
   <div class="flash">
     <div class="q" id="qText"></div>
     <div class="ans" id="ansBox">
@@ -144,7 +138,6 @@
       <div class="exp" id="aExp"></div>
     </div>
   </div>
-
   <div id="oxResult" class="hide" style="text-align:center;font-weight:700;font-size:17px;margin-bottom:10px;"></div>
   <div class="controls">
     <div class="grid2 hide" id="oxBox">
@@ -167,24 +160,14 @@ const STORE_WRONG = "choisci_wrong_v1";
 let manifest=null, unitCache={}, pool=[], idx=0, revealed=false;
 let session={correct:0, wrong:0};
 let wrongSet = loadWrong();
-
 function loadWrong(){ try{return new Set(JSON.parse(localStorage.getItem(STORE_WRONG)||"[]"));}catch(e){return new Set();} }
 function saveWrong(){ try{localStorage.setItem(STORE_WRONG, JSON.stringify([...wrongSet]));}catch(e){} }
 function cardId(c){ return c._book+"|"+c._file+"|"+c.번호; }
-
 async function init(){
-  try{
-    manifest = await (await fetch("manifest.json?"+Date.now())).json();
-  }catch(e){
-    document.getElementById("setup").innerHTML='<div class="empty-msg">manifest.json을 불러오지 못했습니다.<br>GitHub Pages 또는 로컬 서버에서 열어주세요.</div>';
-    return;
-  }
-  renderBooks();
-  await loadAllCounts();
-  renderUnits();
-  bindChips();
+  try{ manifest = await (await fetch("manifest.json?"+Date.now())).json(); }
+  catch(e){ document.getElementById("setup").innerHTML='<div class="empty-msg">manifest.json을 불러오지 못했습니다.<br>GitHub Pages 또는 로컬 서버에서 열어주세요.</div>'; return; }
+  renderBooks(); await loadAllCounts(); renderUnits(); bindChips();
 }
-
 function renderBooks(){
   const box=document.getElementById("bookChips"); box.innerHTML="";
   manifest.books.forEach((b,i)=>{
@@ -195,23 +178,17 @@ function renderBooks(){
     box.appendChild(el);
   });
 }
-
 async function loadUnit(file){
   if(unitCache[file]) return unitCache[file];
   const d = await (await fetch(file+"?"+Date.now())).json();
   unitCache[file]=d; return d;
 }
 async function loadAllCounts(){
-  for(const b of manifest.books){
-    for(const u of b.units){
-      try{ const d=await loadUnit(u.file); u._count=(d.cards||[]).length; }
-      catch(e){ u._count=0; }
-    }
-  }
+  for(const b of manifest.books){ for(const u of b.units){
+    try{ const d=await loadUnit(u.file); u._count=(d.cards||[]).length; } catch(e){ u._count=0; }
+  } }
 }
-
 function activeBooks(){ return [...document.querySelectorAll(".chip.book.on")].map(e=>e.dataset.book); }
-
 function renderUnits(){
   const list=document.getElementById("unitList"); list.innerHTML="";
   const books=activeBooks();
@@ -220,21 +197,19 @@ function renderUnits(){
     b.units.forEach((u,i)=>{
       if(u.대단원!==lastDae){
         const g=document.createElement("div"); g.className="grp";
-        g.textContent=`[${b.name}] ${u.대단원}`; list.appendChild(g); lastDae=u.대단원;
+        g.textContent="["+b.name+"] "+u.대단원; list.appendChild(g); lastDae=u.대단원;
       }
       const row=document.createElement("label");
       row.className="uitem"+(u._count?"":" empty");
-      row.innerHTML=`<input type="checkbox" data-book="${b.id}" data-file="${u.file}" ${u._count?"checked":""}>
-        <span>${u.소단원}</span><span class="cnt">${u._count}장</span>`;
+      row.innerHTML='<input type="checkbox" data-book="'+b.id+'" data-file="'+u.file+'" '+(u._count?"checked":"")+'>'
+        +'<span>'+u.소단원+'</span><span class="cnt">'+u._count+'장</span>';
       row.querySelector("input").onchange=updatePool;
       list.appendChild(row);
     });
   });
   updatePool();
 }
-
 function selectAll(v){ document.querySelectorAll('#unitList input').forEach(c=>c.checked=v); updatePool(); }
-
 function bindChips(){
   document.querySelectorAll(".chip.type").forEach(c=>c.onclick=()=>{
     document.querySelectorAll(".chip.type").forEach(x=>x.classList.remove("on"));
@@ -242,10 +217,8 @@ function bindChips(){
   });
   document.querySelectorAll(".chip.diff").forEach(c=>c.onclick=()=>{ c.classList.toggle("on"); updatePool(); });
 }
-
 function selectedType(){ return document.querySelector(".chip.type.on").dataset.type; }
 function selectedDiffs(){ return [...document.querySelectorAll(".chip.diff.on")].map(e=>e.dataset.diff); }
-
 async function gatherPool(){
   const checks=[...document.querySelectorAll('#unitList input:checked')];
   const type=selectedType(), diffs=selectedDiffs();
@@ -253,7 +226,7 @@ async function gatherPool(){
   for(const ch of checks){
     const d=await loadUnit(ch.dataset.file);
     (d.cards||[]).forEach(c=>{
-      const card={...c, _book:ch.dataset.book, _file:ch.dataset.file, _unit:d.소단원};
+      const card=Object.assign({}, c, {_book:ch.dataset.book, _file:ch.dataset.file, _unit:d.소단원});
       if(type!=="전체" && card.유형!==type) return;
       if(diffs.length && !diffs.includes(card.난이도)) return;
       cards.push(card);
@@ -261,14 +234,11 @@ async function gatherPool(){
   }
   return cards;
 }
-
 async function updatePool(){
   const cards=await gatherPool();
-  document.getElementById("poolStat").textContent=`출제 대상: ${cards.length}장  (틀린 카드 누적 ${wrongSet.size}장)`;
+  document.getElementById("poolStat").textContent="출제 대상: "+cards.length+"장  (틀린 카드 누적 "+wrongSet.size+"장)";
 }
-
-function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;} return a; }
 async function start(fromWrong){
   let cards = await gatherPool();
   if(fromWrong){ cards = cards.filter(c=>wrongSet.has(cardId(c))); }
@@ -279,7 +249,6 @@ async function start(fromWrong){
   showCard();
 }
 function loadWrongOnly(){ selectAll(true); start(true); }
-
 function showCard(){
   if(idx>=pool.length){ return finish(); }
   revealed=false;
@@ -306,7 +275,7 @@ function showCard(){
   updateStat();
 }
 function updateStat(){
-  document.getElementById("studyStat").textContent=`${idx+1} / ${pool.length}  ·  맞음 ${session.correct} / 틀림 ${session.wrong}`;
+  document.getElementById("studyStat").textContent=(idx+1)+" / "+pool.length+"  ·  맞음 "+session.correct+" / 틀림 "+session.wrong;
 }
 function reveal(){
   revealed=true;
@@ -324,7 +293,7 @@ function answerOX(choice){
   saveWrong();
   const res=document.getElementById("oxResult");
   res.classList.remove("hide");
-  res.textContent= ok ? "✓ 정답!" : `✕ 오답 (정답: ${c.정답})`;
+  res.textContent= ok ? "✓ 정답!" : "✕ 오답 (정답: "+c.정답+")";
   res.style.color= ok ? "var(--ok)" : "var(--no)";
   document.getElementById("nextBtn").classList.remove("hide");
   updateStat();
@@ -339,9 +308,9 @@ function grade(ok){
 function finish(){
   document.getElementById("bar").style.width="100%";
   document.querySelector(".flash").innerHTML=
-    `<div class="done"><div class="big">${session.wrong?"💪":"🎉"}</div>
-     <div style="font-size:18px;font-weight:600;margin-bottom:6px;">학습 완료!</div>
-     <div style="color:var(--muted)">맞음 ${session.correct} · 틀림 ${session.wrong} (총 ${pool.length}장)</div></div>`;
+    '<div class="done"><div class="big">'+(session.wrong?"💪":"🎉")+'</div>'
+    +'<div style="font-size:18px;font-weight:600;margin-bottom:6px;">학습 완료!</div>'
+    +'<div style="color:var(--muted)">맞음 '+session.correct+' · 틀림 '+session.wrong+' (총 '+pool.length+'장)</div></div>';
   document.getElementById("revealBtn").classList.add("hide");
   document.getElementById("gradeBox").classList.add("hide");
   document.getElementById("oxBox").classList.add("hide");
@@ -352,14 +321,13 @@ function finish(){
 function quit(){
   document.getElementById("study").style.display="none";
   document.querySelector(".flash").innerHTML=
-    `<div class="q" id="qText"></div>
-     <div class="ans" id="ansBox"><div class="label">정답</div><div class="val" id="aVal"></div>
-     <div class="label">해설</div><div class="exp" id="aExp"></div></div>`;
+    '<div class="q" id="qText"></div>'
+    +'<div class="ans" id="ansBox"><div class="label">정답</div><div class="val" id="aVal"></div>'
+    +'<div class="label">해설</div><div class="exp" id="aExp"></div></div>';
   document.getElementById("setup").style.display="block";
   updatePool();
 }
 function resetWrong(){ if(confirm("틀린 카드 기록을 모두 지울까요?")){ wrongSet.clear(); saveWrong(); updatePool(); } }
-
 function showInstallBar(){
   try{
     const ua=navigator.userAgent||"";
@@ -376,7 +344,7 @@ function showInstallBar(){
   }catch(e){}
 }
 function dismissInstall(){ try{localStorage.setItem('install_dismiss_v1','1');}catch(e){} document.getElementById('installBar').style.display='none'; }
-
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 showInstallBar();
 init();
 </script>
