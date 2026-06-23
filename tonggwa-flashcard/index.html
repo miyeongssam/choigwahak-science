@@ -6,6 +6,12 @@
 <meta name="theme-color" content="#2563eb">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="최과학_플래시1">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>최과학 암기 플래시카드</title>
 <style>
   :root{
@@ -356,8 +362,7 @@ function showInstallBar(){
 function dismissInstall(){ try{localStorage.setItem('install_dismiss_v3','1');}catch(e){} var b=document.getElementById('installBar'); if(b) b.style.display='none'; }
 /* 크롬 자체 설치 팝업(WebAPK 경고 경로) 억제 */
 window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); });
-/* 서비스워커 미등록: 단순 홈화면 바로가기로 설치되어 설치 경고가 뜨지 않음. 기존 등록분은 해제. */
-if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); }); }
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 showInstallBar();
 init();
 </script>
