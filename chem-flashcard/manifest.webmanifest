@@ -1,7 +1,7 @@
 {
-  "name": "최과학_화학Ⅰ",
-  "short_name": "최과학_화학Ⅰ",
-  "description": "최과학 고2 화학Ⅰ 암기 플래시카드",
+  "name": "최과학_화학",
+  "short_name": "최과학_화학",
+  "description": "최과학 고등 화학 암기 플래시카드",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
