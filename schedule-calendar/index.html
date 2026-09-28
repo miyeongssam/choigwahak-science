@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b6cb0">
+<title>최과학 일정</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f6f7f9; --card:#fff; --ink:#1f2430; --sub:#7a8494;
+  --jikbo:#e0455a; --bogang:#e8842c; --jeonggyu:#2f9e63; --gaegang:#2b6cb0; --hyugang:#9aa3b0; --suneung:#7b5cd6;
+  --today:#fff7dd; --todayline:#f2b705;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--ink);padding-bottom:40px}
+header{position:sticky;top:0;z-index:10;background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.08);padding:14px 16px 10px}
+header h1{font-size:18px;display:flex;align-items:center;gap:8px}
+header h1 .logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2b6cb0,#5aa3e8);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:700}
+#todayLabel{font-size:12.5px;color:var(--sub);margin-top:3px}
+.chips{display:flex;gap:6px;margin-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chip{flex:0 0 auto;font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid #dde2e9;background:#fff;color:var(--sub);cursor:pointer;user-select:none}
+.chip.on{color:#fff;border-color:transparent}
+.chip.on[data-f="전체"]{background:#1f2430}
+.chip.on[data-f="직보"]{background:var(--jikbo)}
+.chip.on[data-f="보강"]{background:var(--bogang)}
+.chip.on[data-f="정규"]{background:var(--jeonggyu)}
+.chip.on[data-f="개강"]{background:var(--gaegang)}
+.chip.on[data-f="휴강"]{background:var(--hyugang)}
+main{padding:12px 12px 0;max-width:560px;margin:0 auto}
+.monthTitle{font-size:15px;font-weight:700;margin:18px 4px 8px;color:#333}
+.day{background:var(--card);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;gap:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.day.today{background:var(--today);border:1.5px solid var(--todayline)}
+.day.past{opacity:.45}
+.dcol{flex:0 0 52px;text-align:center;padding-top:2px}
+.dcol .num{font-size:17px;font-weight:700}
+.dcol .wd{font-size:11.5px;color:var(--sub)}
+.dcol .wd.sat{color:#2b6cb0}.dcol .wd.sun{color:#e0455a}
+.dcol .tbadge{display:inline-block;margin-top:4px;font-size:10px;background:var(--todayline);color:#5c4300;border-radius:6px;padding:1px 6px;font-weight:700}
+.evs{flex:1;min-width:0}
+.ev{display:flex;align-items:baseline;gap:7px;padding:3px 0;font-size:13.5px}
+.ev .time{flex:0 0 44px;font-variant-numeric:tabular-nums;color:var(--sub);font-size:12.5px}
+.ev .tag{flex:0 0 auto;font-size:10.5px;color:#fff;border-radius:5px;padding:1.5px 6px;font-weight:600}
+.tag.직보{background:var(--jikbo)}.tag.보강{background:var(--bogang)}.tag.정규{background:var(--jeonggyu)}
+.tag.개강{background:var(--gaegang)}.tag.휴강{background:var(--hyugang)}.tag.수능{background:var(--suneung)}
+.ev .tt{flex:1;min-width:0}
+.ev .memo{display:block;font-size:11.5px;color:var(--sub)}
+.ev.dim{opacity:.6}
+.note{background:#eef3fa;border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.65;color:#3a4656;margin-bottom:8px}
+.note b{color:#2b6cb0}
+.foot{max-width:560px;margin:22px auto 0;text-align:center;font-size:11.5px;color:var(--sub);padding:0 12px}
+#toTodayBtn{position:fixed;right:14px;bottom:18px;background:#1f2430;color:#fff;border:none;border-radius:999px;padding:10px 16px;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.25);display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="logo">최</span>최과학 일정 <span style="font-size:12px;color:var(--sub);font-weight:400">직보·보강·수업</span></h1>
+  <div id="todayLabel"></div>
+  <div class="chips" id="chips">
+    <span class="chip on" data-f="전체">전체</span>
+    <span class="chip" data-f="직보">직보</span>
+    <span class="chip" data-f="보강">보강</span>
+    <span class="chip" data-f="정규">정규</span>
+    <span class="chip" data-f="개강">개강</span>
+    <span class="chip" data-f="휴강">휴강</span>
+  </div>
+</header>
+<main id="main"></main>
+<div class="foot">최과학 과학전문학원 · 2026 2학기 중간~기말 · 확정본 2026-09-28</div>
+<button id="toTodayBtn">오늘로 이동</button>
+<script>
+// type: 직보 | 보강 | 정규 | 개강 | 휴강 | 수능
+const EVENTS = [
+ // ===== 10월 =====
+ {d:"2026-10-01",t:"09:30",type:"직보",tt:"여고2 화학 직보"},
+ {d:"2026-10-01",t:"12:30",type:"직보",tt:"여고1 통과 직보"},
+ {d:"2026-10-01",t:"16:15",type:"정규",tt:"생명 정규",memo:"남고2만 · 효소"},
+ {d:"2026-10-02",t:"15:15",type:"정규",tt:"화학 정규",memo:"남고2만 · 총정리 (토요반 완규·재현 합류)"},
+ {d:"2026-10-03",t:"12:00",type:"정규",tt:"남고1 정규"},
+ {d:"2026-10-03",t:"15:00",type:"수능",tt:"수능물리"},
+ {d:"2026-10-03",t:"18:00",type:"휴강",tt:"화학 없음"},
+ {d:"2026-10-04",t:"12:00",type:"정규",tt:"남고2 물리 정규"},
+ {d:"2026-10-04",t:"15:00",type:"보강",tt:"물리 보강",memo:"포물선·상대성 논서술"},
+ {d:"2026-10-04",t:"18:00",type:"정규",tt:"남고1 정규",memo:"+한재원·이지원"},
+ {d:"2026-10-04",t:"",type:"휴강",tt:"여고1 15시 없음",memo:"시험기간"},
+ {d:"2026-10-05",t:"09:00",type:"보강",tt:"남고1 보강"},
+ {d:"2026-10-05",t:"12:00",type:"직보",tt:"여고2 물리 직보",memo:"+남고2 문풀보강"},
+ {d:"2026-10-05",t:"15:00",type:"직보",tt:"남고2 물리 직보"},
+ {d:"2026-10-06",t:"11:00",type:"직보",tt:"여고2 생명 직보"},
+ {d:"2026-10-06",t:"15:00",type:"직보",tt:"이지원 직보",memo:"수도여고1 통과"},
+ {d:"2026-10-07",t:"12:00",type:"직보",tt:"남고1 직보"},
+ {d:"2026-10-08",t:"10:30",type:"정규",tt:"남고2 생명",memo:"시험대비"},
+ {d:"2026-10-08",t:"16:15",type:"휴강",tt:"생명 정규 휴강"},
+ {d:"2026-10-09",t:"15:15",type:"정규",tt:"남고2 화학 정규",memo:"토요반 합반"},
+ {d:"2026-10-10",t:"",type:"휴강",tt:"전체 휴강",memo:"남고1·수능물리·화학"},
+ {d:"2026-10-11",t:"12:00",type:"직보",tt:"남고2 화학 직보"},
+ {d:"2026-10-11",t:"15:00",type:"개강",tt:"여고1 기말 1차시 개강"},
+ {d:"2026-10-11",t:"18:00",type:"휴강",tt:"남고1 휴강"},
+ {d:"2026-10-12",t:"10:30",type:"직보",tt:"남고2 생명 직보"},
+ {d:"2026-10-12",t:"15:15",type:"개강",tt:"여고2 물리 기말 1차시",memo:"여고 일요반+월요반 합쳐 수업"},
+ {d:"2026-10-12",t:"18:00",type:"직보",tt:"한재원 직보",memo:"영등포고1 통과"},
+ {d:"2026-10-15",t:"16:15",type:"개강",tt:"여고2 생명 기말 1차시",memo:"효소"},
+ {d:"2026-10-16",t:"",type:"휴강",tt:"화학 금요반 휴강",memo:"박연우 → 17일 토요반"},
+ {d:"2026-10-17",t:"12:00",type:"개강",tt:"남고1 토요반 기말 1차시"},
+ {d:"2026-10-17",t:"15:00",type:"수능",tt:"수능물리"},
+ {d:"2026-10-17",t:"18:00",type:"개강",tt:"화학 기말 1차시",memo:"여고2만 · 일회성 토요반"},
+ {d:"2026-10-18",t:"12:00",type:"휴강",tt:"물리 일요 수업 없음",memo:"월요반으로 진행"},
+ {d:"2026-10-18",t:"15:00",type:"정규",tt:"여고1 2차시",memo:"+이지원"},
+ {d:"2026-10-18",t:"18:00",type:"개강",tt:"남고1 일요반 1차시",memo:"+한재원"},
+ {d:"2026-10-19",t:"15:15",type:"정규",tt:"고2 물리 정규",memo:"통합 월요반"},
+ {d:"2026-10-22",t:"16:15",type:"정규",tt:"생명 정규",memo:"남고2 합류"},
+ {d:"2026-10-23",t:"15:15",type:"개강",tt:"화학 금요반 개강",memo:"남고2 합류"},
+ {d:"2026-10-24",t:"12:00",type:"정규",tt:"남고1 정규"},
+ {d:"2026-10-24",t:"15:00",type:"수능",tt:"수능물리"},
+ {d:"2026-10-24",t:"18:00",type:"정규",tt:"화학 토요반"},
+ {d:"2026-10-25",t:"15:00",type:"정규",tt:"여고1 정규",memo:"+이지원"},
+ {d:"2026-10-25",t:"18:00",type:"정규",tt:"남고1 정규",memo:"+한재원"},
+ {d:"2026-10-26",t:"15:15",type:"정규",tt:"고2 물리 정규"},
+ {d:"2026-10-29",t:"16:15",type:"정규",tt:"생명 정규"},
+ {d:"2026-10-30",t:"15:15",type:"정규",tt:"화학 금요반"},
+ // ===== 11월 회차 (10/31부터) — 주말 반 =====
+ {d:"2026-10-31",t:"12:00",type:"정규",tt:"남고1 정규",memo:"11월 1회차"},
+ {d:"2026-10-31",t:"15:00",type:"수능",tt:"수능물리"},
+ {d:"2026-10-31",t:"18:00",type:"정규",tt:"화학 토요반",memo:"11월 1회차"},
+ {d:"2026-11-01",t:"15:00",type:"정규",tt:"여고1 정규",memo:"11월 1회차 · +이지원"},
+ {d:"2026-11-01",t:"18:00",type:"정규",tt:"남고1 정규",memo:"11월 1회차 · +한재원"},
+];
+
+// 11·12월 회차 구획 (주말 쌍 기준)
+const NOTES = {
+ "11월": "회차 구획(주말 쌍 기준): <b>10/31·11/1</b> / 11/7·8 / 11/14·15 / 11/21·22 — 총 4회.<br>주중 고2(월 물리 · 목 생명 · 금 화학)도 같은 주 단위.<br>11/7(토)·11/8(일) 예비고1 통과 개강, 11/9(월) 예비고1 물화특강 개강.",
+ "12월": "회차 구획: 11/28·29 / 12/5·6 / 12/12·13 + <b>직보 1회</b>(2기말, 일정 확정 시 등록) — 총 4회.<br>12/17 기말대비 종강 예정 · 12/26(토) 예비고2 개강 예정."
+};
+
+const WD = ["일","월","화","수","목","금","토"];
+function ymd(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
+const todayStr = ymd(new Date());
+
+let filter = "전체";
+function matches(e){
+  if(filter==="전체") return true;
+  if(filter==="정규") return e.type==="정규"||e.type==="수능";
+  return e.type===filter;
+}
+
+function render(){
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  // group by date
+  const byDate = {};
+  EVENTS.forEach(e=>{ if(!matches(e)) return; (byDate[e.d]=byDate[e.d]||[]).push(e); });
+  const dates = Object.keys(byDate).sort();
+  let curMonth = "";
+  dates.forEach(d=>{
+    const m = d.slice(5,7).replace(/^0/,"")+"월";
+    const isNov = (d>="2026-10-31");
+    const label = isNov ? "11월 회차 (10/31~)" : m+" 일정";
+    if(label!==curMonth){
+      curMonth = label;
+      const h = document.createElement("div"); h.className="monthTitle"; h.textContent="📌 "+label;
+      main.appendChild(h);
+      if(isNov && NOTES["11월"]){ const n=document.createElement("div"); n.className="note"; n.innerHTML=NOTES["11월"]; main.appendChild(n); }
+    }
+    const dt = new Date(d+"T00:00:00");
+    const wd = WD[dt.getDay()];
+    const row = document.createElement("div");
+    row.className = "day"+(d===todayStr?" today":"")+(d<todayStr?" past":"");
+    if(d===todayStr) row.id = "todayRow";
+    const wdCls = dt.getDay()===0?"sun":(dt.getDay()===6?"sat":"");
+    row.innerHTML = '<div class="dcol"><div class="num">'+d.slice(5,7).replace(/^0/,"")+"/"+d.slice(8,10).replace(/^0/,"")+'</div><div class="wd '+wdCls+'">'+wd+"요일</div>"+(d===todayStr?'<div class="tbadge">오늘</div>':"")+"</div>";
+    const evs = document.createElement("div"); evs.className="evs";
+    byDate[d].sort((a,b)=>(a.t||"99").localeCompare(b.t||"99")).forEach(e=>{
+      const div = document.createElement("div");
+      div.className = "ev"+(e.type==="휴강"?" dim":"");
+      div.innerHTML = '<span class="time">'+(e.t||"—")+'</span><span class="tag '+(e.type==="수능"?"정규":e.type)+'">'+e.type+'</span><span class="tt">'+e.tt+(e.memo?'<span class="memo">'+e.memo+"</span>":"")+"</span>";
+      evs.appendChild(div);
+    });
+    row.appendChild(evs);
+    main.appendChild(row);
+  });
+  // 12월 예고
+  const h = document.createElement("div"); h.className="monthTitle"; h.textContent="📌 12월 회차 (예정)";
+  main.appendChild(h);
+  const n = document.createElement("div"); n.className="note"; n.innerHTML=NOTES["12월"]; main.appendChild(n);
+}
+
+document.getElementById("chips").addEventListener("click",ev=>{
+  const c = ev.target.closest(".chip"); if(!c) return;
+  filter = c.dataset.f;
+  document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===c));
+  render();
+});
+
+const tl = document.getElementById("todayLabel");
+const now = new Date();
+tl.textContent = "오늘 "+(now.getMonth()+1)+"월 "+now.getDate()+"일 ("+WD[now.getDay()]+") · 화요일 학원 휴무";
+
+render();
+
+// scroll to today
+const tr = document.getElementById("todayRow");
+if(tr){ setTimeout(()=>tr.scrollIntoView({behavior:"smooth",block:"center"}),200); }
+const btn = document.getElementById("toTodayBtn");
+if(tr){ btn.style.display="block"; btn.onclick=()=>tr.scrollIntoView({behavior:"smooth",block:"center"}); }
+
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
