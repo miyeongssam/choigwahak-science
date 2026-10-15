@@ -106,7 +106,7 @@ details.panel summary{cursor:pointer;font-weight:600;font-size:15px;min-height:2
 }
 @media (min-width:900px){
   .wrap.app{padding:14px 18px 30px}
-  .lay{grid-template-columns:minmax(0,1fr) 400px;grid-template-areas:"fig ctrl" "fig side";grid-template-rows:auto 1fr;column-gap:20px}
+  .lay{grid-template-columns:minmax(0,1fr) 440px;grid-template-areas:"fig ctrl" "fig side";grid-template-rows:auto 1fr;column-gap:20px}
   #fig{max-height:calc(100vh - 100px);width:auto;max-width:100%;margin:0 auto}
   .figcol{display:flex;justify-content:center;align-items:flex-start}
   .card{font-size:22px;min-height:62px}
@@ -160,7 +160,7 @@ const DATA = (function(){
       {t:"line", x1:210, y1:136, x2:210, y2:196, ar:1},
       {t:"line", x1:213, y1:166, x2:252, y2:166, ar:1, cls:"thin"},
       {t:"line", x1:210, y1:281, x2:210, y2:436, ar:1},
-      {t:"line", x1:213, y1:410, x2:262, y2:410, ar:1, cls:"thin"},
+      {t:"line", x1:213, y1:410, x2:294, y2:410, ar:1, cls:"thin"},
       {t:"line", x1:210, y1:521, x2:210, y2:552, ar:1}
     ],
     nodes:[
@@ -187,7 +187,7 @@ const DATA = (function(){
     key:"tca", tab:"TCA 회로", sub:"미토콘드리아 기질", vb:[420,612], simple:true,
     title:{x:204, y:332, t:"TCA 회로"},
     shapes:[
-      {t:"loop", cx:210, cy:330, rx:132, ry:190, arrows:[0, 66, 118, 180, 242, 295]},
+      {t:"loop", cx:210, cy:330, rx:132, ry:190, arrows:[0, 54, 106, 198, 242, 308]},
       {t:"line", x1:210, y1:90, x2:210, y2:138, ar:1},
       {t:"line", p1:T(66), x2:273, y2:266, ar:1, cls:"thin"},
       {t:"line", p1:T(118), x2:303, y2:410, ar:1, cls:"thin"},
@@ -223,7 +223,7 @@ const DATA = (function(){
     key:"calvin", tab:"캘빈 회로", sub:"엽록체 스트로마", vb:[420,600], mult:true,
     title:{x:200, y:300, t:"캘빈 회로"},
     shapes:[
-      {t:"loop", cx:210, cy:318, rx:132, ry:172, arrows:[0, 112, 247]},
+      {t:"loop", cx:210, cy:318, rx:132, ry:172, arrows:[0, 95, 282]},
       {t:"line", x1:210, y1:72, x2:210, y2:142, ar:1},
       {t:"line", x1:312, y1:368, p2:C(116), ar:1, cls:"thin"},
       {t:"line", x1:116, y1:372, p2:C(247), ar:1, cls:"thin"},
