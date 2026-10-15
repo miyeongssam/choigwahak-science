@@ -21,7 +21,7 @@ sub,sup{font-size:.62em;line-height:0}
   .wrap{max-width:1600px}
   .lay{grid-template-columns:1.5fr 1fr;grid-template-areas:"stage pick";align-items:start}
 }
-.ions{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+.ions{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
 .ionb{background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:6px 4px;
   cursor:pointer;font-family:inherit;text-align:center;line-height:1.25}
 .ionb b{display:block;font-size:19px}
@@ -239,14 +239,20 @@ function cardHTML(ion, kind){
   const dots = Array.from({length: ion.q}, () => `<i>${kind === "cat" ? "+" : "−"}</i>`).join("");
   return `<div class="card ${kind}"><div class="sym">${H(kind === "cat" ? catText(ion) : anText(ion))}</div><div class="chg">${dots}</div></div>`;
 }
+// 개수만 바뀌면 카드만 더하거나 빼기 (새 카드만 튀어나오게)
+function fillTray(tray, ion, kind, n){
+  if(tray.dataset.ion !== ion.id){ tray.innerHTML = ""; tray.dataset.ion = ion.id; }
+  while(tray.children.length > n) tray.lastElementChild.remove();
+  while(tray.children.length < n) tray.insertAdjacentHTML("beforeend", cardHTML(ion, kind));
+}
 function render(){
   document.querySelectorAll("#catList .ionb").forEach(b => b.classList.toggle("on", b.dataset.id === cat.id));
   document.querySelectorAll("#anList .ionb").forEach(b => b.classList.toggle("on", b.dataset.id === an.id));
   $("catLbl").innerHTML = `양이온 ${H(catText(cat))} <span class="muted" style="font-weight:500">× ${nC}</span>`;
   $("anLbl").innerHTML  = `음이온 ${H(anText(an))} <span class="muted" style="font-weight:500">× ${nA}</span>`;
   $("catN").textContent = nC; $("anN").textContent = nA;
-  $("catTray").innerHTML = Array.from({length:nC}, () => cardHTML(cat, "cat")).join("");
-  $("anTray").innerHTML  = Array.from({length:nA}, () => cardHTML(an, "an")).join("");
+  fillTray($("catTray"), cat, "cat", nC);
+  fillTray($("anTray"), an, "an", nA);
   const plus = cat.q * nC, minus = an.q * nA, mx = Math.max(plus, minus, 6);
   $("plusV").textContent = "+" + plus; $("minusV").textContent = "−" + minus;
   $("plusF").style.width = (plus / mx * 100) + "%"; $("minusF").style.width = (minus / mx * 100) + "%";
