@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>암기 문제 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+  .units{max-height:40vh;overflow:auto}
+  .grp{font-size:12px;color:var(--muted);margin:10px 0 4px;font-weight:600}
+  .uitem{display:flex;align-items:center;gap:9px;padding:8px 6px;border-radius:8px;cursor:pointer;font-size:14px}
+  .uitem input{width:18px;height:18px;accent-color:var(--accent)}
+  .uitem .cnt{margin-left:auto;font-size:11px;color:var(--muted);background:var(--card2);padding:1px 8px;border-radius:10px;white-space:nowrap}
+  .uitem.empty{opacity:.45}
+  .stat{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
+  .tagline{display:flex;gap:6px;font-size:12px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap}
+  .tagline span{background:var(--card2);padding:2px 8px;border-radius:10px}
+  #play{max-width:760px;margin:0 auto}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1 id="ttl">암기 문제<small>OX · ①~⑤ · 카드 — 틀린 것만 다시 반복</small></h1></header>
+<div class="wrap">
+  <div id="setup">
+    <div class="panel" id="pBooks"><h2>1. 교재</h2><div class="row" id="bookChips"></div></div>
+    <div class="panel" id="pUnits">
+      <h2>2. 단원</h2>
+      <div class="row" style="margin-bottom:6px"><span class="chip" id="allOn">전체 선택</span><span class="chip" id="allOff">전체 해제</span></div>
+      <div class="units" id="unitList"><div class="muted">불러오는 중…</div></div>
+    </div>
+    <div class="panel">
+      <h2>3. 유형</h2>
+      <div class="row" id="typeChips"></div>
+      <h2 style="margin-top:14px">4. 푸는 방식</h2>
+      <div class="row" id="modeChips"></div>
+      <div class="note" style="margin-top:6px" id="modeNote"></div>
+      <h2 style="margin-top:14px">5. 한 번에 풀 문제 수</h2>
+      <div class="row" id="cntChips"></div>
+    </div>
+    <div class="panel">
+      <button class="btn full" id="go">🔀 섞어서 시작</button>
+      <div class="grid2" style="margin-top:8px">
+        <button class="btn ghost" id="goWrong">⭐ 틀린 문제만</button>
+        <button class="btn ghost" id="resetWrong">틀린 기록 지우기</button>
+      </div>
+      <div class="stat" id="poolStat"></div>
+    </div>
+  </div>
+  <div id="play" class="hide"></div>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+const P = new URLSearchParams(location.search);
+const SUBJ = P.get("b"), WRONG_ONLY = P.get("wrong") === "1";
+const $ = s => document.querySelector(s);
+let BOOKS = [], cache = {};
+
+// ---- 틀린 문제 기록 (예전 플래시카드 앱 기록도 가져옴) ----
+const WKEY = "quizWrong";
+let wrong = new Set(CS.store.get(WKEY, []));
+if(!CS.store.get("quizMigrated", false)){
+  ["choisci_wrong_v1", "choisci_chem_wrong_v1"].forEach(k => { try{ JSON.parse(localStorage.getItem(k) || "[]").forEach(id => wrong.add(id)); }catch(e){} });
+  CS.store.set(WKEY, [...wrong]); CS.store.set("quizMigrated", true);
+}
+const saveWrong = () => CS.store.set(WKEY, [...wrong]);
+const cardId = c => c._book + "|" + c._file + "|" + c.번호;
+
+// ---- 선택 칩 ----
+const TYPES = ["전체", "OX", "단답형", "서술형"];
+const MODES = [{id:"quiz", name:"문제 풀기", note:"OX는 O/X, 단답형은 ①~⑤ 고르기, 서술형은 정답 보고 스스로 채점"},
+               {id:"card", name:"카드 넘기기", note:"모든 문제를 카드로 — 생각해 보고 정답 확인 후 스스로 채점"}];
+const COUNTS = [10, 20, 0];
+let sel = { type: CS.store.get("qType", "전체"), mode: CS.store.get("qMode", "quiz"), cnt: CS.store.get("qCnt", 10) };
+function chips(box, items, cur, label, onPick){
+  box.innerHTML = "";
+  items.forEach(it => {
+    const c = document.createElement("span");
+    c.className = "chip" + (it === cur || it.id === cur ? " on" : "");
+    c.textContent = label(it);
+    c.onclick = () => onPick(it);
+    box.appendChild(c);
+  });
+}
+function drawChips(){
+  chips($("#typeChips"), TYPES, sel.type, t => t, t => { sel.type = t; CS.store.set("qType", t); drawChips(); stat(); });
+  chips($("#modeChips"), MODES, sel.mode, m => m.name, m => { sel.mode = m.id; CS.store.set("qMode", m.id); drawChips(); });
+  chips($("#cntChips"), COUNTS, sel.cnt, n => n ? n + "문제" : "전부", n => { sel.cnt = n; CS.store.set("qCnt", n); drawChips(); });
+  $("#modeNote").textContent = MODES.find(m => m.id === sel.mode).note;
+}
+
+async function loadUnit(file){
+  if(cache[file]) return cache[file];
+  const r = await fetch("data/" + file, {cache:"no-cache"});
+  if(!r.ok) throw new Error(file);
+  return cache[file] = await r.json();
+}
+
+async function init(){
+  drawChips();
+  let d;
+  try{ d = await (await fetch("data/books.json", {cache:"no-cache"})).json(); }
+  catch(e){ $("#unitList").innerHTML = '<div class="muted">문제 목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; return; }
+  BOOKS = d.books.filter(b => !SUBJ || b.subject === SUBJ);
+  if(SUBJ === "tong") $("#ttl").firstChild.textContent = "통합과학 암기 문제";
+  if(SUBJ === "chem") $("#ttl").firstChild.textContent = "화학 암기 문제";
+  if(WRONG_ONLY) $("#ttl").firstChild.textContent = "오답 노트";
+  await Promise.all(BOOKS.flatMap(b => b.units.map(async u => {
+    try{ u._count = ((await loadUnit(u.file)).cards || []).length; }catch(e){ u._count = 0; }
+  })));
+  const on = CS.store.get("qBooks_" + (SUBJ || "all"), null);
+  BOOKS.forEach((b, i) => b._on = on ? on.includes(b.id) : true);
+  if(WRONG_ONLY){ $("#pBooks").classList.add("hide"); $("#pUnits").classList.add("hide"); $("#go").textContent = "⭐ 틀린 문제 섞어서 시작"; $("#goWrong").classList.add("hide"); }
+  drawBooks(); drawUnits();
+}
+function drawBooks(){
+  chips($("#bookChips"), BOOKS, BOOKS.find(b => b._on), b => b.name, b => { b._on = !b._on; CS.store.set("qBooks_" + (SUBJ || "all"), BOOKS.filter(x => x._on).map(x => x.id)); drawBooks(); drawUnits(); });
+  [...$("#bookChips").children].forEach((c, i) => c.classList.toggle("on", BOOKS[i]._on));
+}
+function drawUnits(){
+  const box = $("#unitList"); box.innerHTML = "";
+  BOOKS.filter(b => b._on).forEach(b => {
+    let last = null;
+    b.units.forEach(u => {
+      if(u.대단원 !== last){ const g = document.createElement("div"); g.className = "grp"; g.textContent = "[" + b.name + "] " + u.대단원; box.appendChild(g); last = u.대단원; }
+      const row = document.createElement("label");
+      row.className = "uitem" + (u._count ? "" : " empty");
+      row.innerHTML = `<input type="checkbox" ${u._count ? "checked" : "disabled"}><span>${CS.esc(u.소단원)}</span><span class="cnt">${u._count ? u._count + "문제" : "준비 중"}</span>`;
+      const cb = row.querySelector("input"); cb._b = b; cb._u = u; cb.onchange = stat;
+      box.appendChild(row);
+    });
+  });
+  stat();
+}
+$("#allOn").onclick = () => { document.querySelectorAll("#unitList input:not(:disabled)").forEach(c => c.checked = true); stat(); };
+$("#allOff").onclick = () => { document.querySelectorAll("#unitList input").forEach(c => c.checked = false); stat(); };
+
+async function gather(all){
+  const picks = all ? BOOKS.flatMap(b => b.units.filter(u => u._count).map(u => ({b, u})))
+                    : [...document.querySelectorAll("#unitList input:checked")].map(c => ({b: c._b, u: c._u}));
+  const out = [];
+  for(const {b, u} of picks){
+    const d = await loadUnit(u.file);
+    (d.cards || []).forEach(c => out.push(Object.assign({}, c, {_book: b.id, _file: u.file, _unit: u.소단원})));
+  }
+  return out;
+}
+const typeOk = c => sel.type === "전체" || c.유형 === sel.type;
+async function stat(){
+  const cards = WRONG_ONLY ? (await gather(true)).filter(c => wrong.has(cardId(c))) : (await gather(false)).filter(typeOk);
+  $("#poolStat").textContent = WRONG_ONLY ? `틀린 문제 ${cards.filter(typeOk).length}개` : `출제 대상 ${cards.length}문제 · 틀린 문제 누적 ${wrong.size}개`;
+}
+
+// ---- 카드 → 문제 변환 ----
+function optionsInQuestion(c){
+  // "(정지 관성 / 운동 관성)" 처럼 문제 안에 고를 말이 있으면 그것을 보기로
+  const m = [...c.문제.matchAll(/\(([^()]*\/[^()]*)\)/g)];
+  for(const x of m){
+    const opts = x[1].split("/").map(s => s.trim()).filter(Boolean);
+    if(opts.length >= 2 && opts.length <= 5 && opts.includes(String(c.정답).trim())) return opts;
+  }
+  return null;
+}
+function toQuestion(c, pool){
+  const exp = c.해설 ? CS.esc(c.해설) : "";
+  const tag = `<div class="tagline"><span>${CS.esc(c._unit)}</span><span>${c.유형}</span>${c.출처 ? `<span>${CS.esc(c.출처)}</span>` : ""}</div>`;
+  const q = tag + CS.esc(c.문제);
+  const base = { id: cardId(c), _c: c };
+  if(sel.mode === "card" || c.유형 === "서술형")
+    return Object.assign(base, { type: "card", q, a: CS.esc(c.정답), exp });
+  if(c.유형 === "OX" && (c.정답 === "O" || c.정답 === "X"))
+    return Object.assign(base, { type: "ox", q, answer: c.정답, exp });
+  const ans = String(c.정답).trim();
+  let choices = optionsInQuestion(c);
+  if(choices){
+    choices = choices.map(CS.esc);
+    return Object.assign(base, { q, choices, answer: choices.indexOf(CS.esc(ans)), exp });
+  }
+  // 같은 단원 단답 정답 → 같은 교재 단답 정답 순으로 오답 보기
+  const near = CS.shuffle(pool.filter(x => x._file === c._file && x.유형 === "단답형").map(x => String(x.정답).trim()));
+  const far = CS.shuffle(pool.filter(x => x._book === c._book && x._file !== c._file && x.유형 === "단답형").map(x => String(x.정답).trim()));
+  const bad = s => s === ans || s.includes(ans) || ans.includes(s) || s.length > 40;
+  // 정답과 길이·문장 모양이 비슷한 것부터 (긴 문장 사이에 짧은 단어 하나만 있으면 정답이 티 남)
+  const sentence = s => /[다요]\.?$/.test(s);
+  const score = s => Math.abs(s.length - ans.length) / Math.max(ans.length, 4) + (sentence(s) !== sentence(ans) ? 2 : 0);
+  const uniq = [...new Set(near.concat(far))].filter(s => !bad(s));
+  const close = uniq.filter(s => score(s) <= 1.2), rest = uniq.filter(s => score(s) > 1.2).sort((a, b) => score(a) - score(b));
+  const dis = CS.shuffle(close.filter(s => near.includes(s))).concat(CS.shuffle(close.filter(s => !near.includes(s))), rest);
+  if(dis.length < 3) return Object.assign(base, { type: "card", q, a: CS.esc(c.정답), exp });
+  const mc = CS.makeChoices(ans, dis, 5);
+  return Object.assign(base, { q, choices: mc.choices.map(CS.esc), answer: mc.answer, exp });
+}
+
+let POOL = [], ALL = [];
+async function begin(onlyWrong){
+  ALL = WRONG_ONLY || onlyWrong ? await gather(WRONG_ONLY) : await gather(false);
+  POOL = ALL.filter(typeOk);
+  if(onlyWrong || WRONG_ONLY) POOL = POOL.filter(c => wrong.has(cardId(c)));
+  if(!POOL.length){ CS.toast(onlyWrong || WRONG_ONLY ? "틀린 문제가 없어요" : "선택한 단원에 문제가 없어요"); return; }
+  $("#setup").classList.add("hide"); $("#play").classList.remove("hide");
+  const n = sel.cnt || POOL.length;
+  const round = CS.QuizRound($("#play"), {
+    count: Math.min(n, POOL.length),
+    make: k => CS.shuffle(POOL).slice(0, k).map(c => toQuestion(c, ALL)),
+    onResult: (q, ok) => { if(ok) wrong.delete(q.id); else wrong.add(q.id); saveWrong(); },
+    endButtons: [{ label: "← 단원 선택으로", onClick: quit }]
+  });
+  round.start();
+  window.scrollTo({top:0});
+}
+function quit(){ $("#play").classList.add("hide"); $("#setup").classList.remove("hide"); stat(); }
+$("#go").onclick = () => begin(false);
+$("#goWrong").onclick = () => begin(true);
+$("#resetWrong").onclick = () => { if(confirm("틀린 문제 기록을 모두 지울까요?")){ wrong.clear(); saveWrong(); stat(); } };
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+/* 최과학 과학 앱 공통 스타일 — 모든 하위 앱이 ../common/common.css 로 불러 씀 */
+:root{
+  --bg:#0f172a; --card:#1e293b; --card2:#243044; --line:#334155;
+  --text:#e2e8f0; --muted:#94a3b8; --accent:#3b82f6; --accent2:#2563eb;
+  --ok:#22c55e; --no:#ef4444; --warn:#f59e0b;
+  /* 과목 색 */
+  --c-tong:#14b8a6; --c-phy:#f97316; --c-chem:#a855f7; --c-bio:#22c55e; --c-tool:#64748b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans CJK KR",sans-serif;
+  -webkit-text-size-adjust:100%}
+body{min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:12px 16px 40px}
+a{color:#93c5fd}
+
+/* 상단 막대 */
+.top{position:sticky;top:0;z-index:20;background:rgba(15,23,42,.94);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 8px) 16px 8px;
+  display:flex;align-items:center;gap:10px}
+.top .back{color:var(--text);text-decoration:none;font-size:15px;padding:7px 12px;border-radius:10px;
+  background:var(--card2);border:1px solid var(--line);white-space:nowrap}
+.top h1{font-size:18px;margin:0;line-height:1.3;flex:1;min-width:0}
+.top h1 small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.top .tools{display:flex;gap:6px}
+
+/* 공통 부품 */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.panel h2{font-size:14px;color:var(--muted);margin:0 0 10px;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{background:var(--accent2);color:#fff;border:none;border-radius:11px;padding:11px 16px;cursor:pointer;
+  font-weight:600;font-size:15px;font-family:inherit;line-height:1.3}
+.btn.ghost{background:var(--card2);border:1px solid var(--line);color:var(--text);font-weight:500}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:9px}
+.btn.on{background:var(--accent2);border-color:var(--accent);color:#fff}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.full{width:100%}
+.chip{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:20px;padding:7px 14px;
+  cursor:pointer;font-size:13px;user-select:none;font-family:inherit}
+.chip.on{background:var(--accent2);border-color:var(--accent);color:#fff}
+.muted{color:var(--muted)}
+.hide{display:none!important}
+.center{text-align:center}
+.note{font-size:13px;color:var(--muted);line-height:1.6}
+.adv{border:1px dashed var(--warn);border-radius:12px;padding:10px 12px;background:rgba(245,158,11,.07);font-size:14px;line-height:1.6}
+.adv b{color:#fcd34d}
+
+/* 슬라이더 */
+.slider{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:14px}
+.slider input[type=range]{width:100%;accent-color:var(--accent)}
+.slider .v{min-width:72px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* 그림 영역 */
+canvas,svg.fig{display:block;width:100%;background:#0b1222;border:1px solid var(--line);border-radius:12px;touch-action:none}
+
+/* 알림 */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#111827;
+  border:1px solid var(--line);color:#fff;padding:10px 16px;border-radius:12px;opacity:0;transition:.2s;
+  z-index:50;font-size:14px;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* ===== 문제 풀이(QuizRound) 공통 화면 ===== */
+.qz-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+.qz-prog{height:6px;background:var(--card2);border-radius:6px;overflow:hidden;margin-bottom:10px}
+.qz-prog>div{height:100%;background:var(--accent);width:0;transition:width .2s}
+.qz-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px}
+.qz-q{font-size:18px;line-height:1.65;margin-bottom:14px;word-break:keep-all}
+.qz-fig{margin:0 0 12px}
+.qz-ch{display:flex;flex-direction:column;gap:8px}
+.qz-ch button{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--card2);color:var(--text);
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;font-family:inherit;cursor:pointer;line-height:1.5}
+.qz-ch button .n{font-weight:700;color:#93c5fd;min-width:22px}
+.qz-ch button.right{border-color:var(--ok);background:rgba(34,197,94,.15)}
+.qz-ch button.wrong{border-color:var(--no);background:rgba(239,68,68,.15)}
+.qz-ch.ox{flex-direction:row}
+.qz-ch.ox button{flex:1;justify-content:center;font-size:26px;font-weight:700;padding:16px}
+.qz-exp{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:15px;line-height:1.65;color:#cbd5e1}
+.qz-exp .res{font-weight:700;font-size:16px;margin-bottom:4px}
+.qz-exp .res.ok{color:var(--ok)} .qz-exp .res.no{color:var(--no)}
+.qz-done{text-align:center;padding:16px 4px}
+.qz-done .big{font-size:44px;font-weight:800;margin:6px 0}
+.qz-wl{text-align:left;margin:12px 0;font-size:14px;line-height:1.6}
+.qz-wl li{margin-bottom:6px}
+
+@media (min-width:900px){
+  .top h1{font-size:22px}
+  .qz-q{font-size:22px}
+  .qz-ch button{font-size:19px}
+}
