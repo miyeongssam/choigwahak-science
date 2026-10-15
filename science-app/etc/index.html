@@ -64,7 +64,7 @@
 <div class="wrap">
   <div class="tabs">
     <button class="btn ghost" id="tabMito">미토콘드리아 내막<small>세포 호흡</small></button>
-    <button class="btn ghost" id="tabChl">엽록체 틸라코이드 막<small>광합성 명반응</small></button>
+    <button class="btn ghost" id="tabChl">엽록체 타이라코이드 막<small>광합성 명반응</small></button>
   </div>
 
   <div class="main">
@@ -135,10 +135,10 @@
       <colgroup><col class="cn"><col class="ck"><col><col></colgroup>
       <thead><tr><th>번호</th><th>비교</th><th class="mi">미토콘드리아</th><th class="ch">엽록체</th></tr></thead>
       <tbody>
-        <tr><td class="n">1</td><td class="k">막 이름</td><td>내막</td><td>틸라코이드 막</td></tr>
+        <tr><td class="n">1</td><td class="k">막 이름</td><td>내막</td><td>타이라코이드 막</td></tr>
         <tr><td class="n">2</td><td class="k">전자 공급원</td><td>NADH, FADH₂</td><td>H₂O</td></tr>
         <tr><td class="n">3</td><td class="k">최종 전자 수용체</td><td>O₂</td><td>NADP⁺ (비순환)</td></tr>
-        <tr><td class="n">4</td><td class="k">H⁺가 쌓이는 곳</td><td>막 사이 공간</td><td>틸라코이드 내부</td></tr>
+        <tr><td class="n">4</td><td class="k">H⁺가 쌓이는 곳</td><td>막 사이 공간</td><td>타이라코이드 내부</td></tr>
         <tr><td class="n">5</td><td class="k">ATP 생성 장소</td><td>기질</td><td>스트로마</td></tr>
         <tr><td class="n">6</td><td class="k">에너지원</td><td>유기물 산화</td><td>빛</td></tr>
         <tr><td class="n">7</td><td class="k">생성물</td><td>H₂O (+ ATP)</td><td>O₂, NADPH (+ ATP)</td></tr>
@@ -183,7 +183,7 @@ const GEO = {
     brackets: [[.05, .66]]
   },
   chl: {
-    top: "틸라코이드 내부", bot: "스트로마",
+    top: "타이라코이드 내부", bot: "스트로마",
     pool: [0.33, 0.80],
     prot: [
       {id:"PSII", x:.06,  w:.11,  y:195, h:155, fill:"#15803d", basic:"광계 Ⅱ", adv2:"P680", nc:true},
@@ -487,8 +487,8 @@ function sendChl(){
   const yP = 262;
   const toPSI = [
     P(.245, 282, () => say("전자 전달계로 전자가 넘어간다.", "<b>플라스토퀴논(PQ)</b>: 전자를 받아 막 안에서 옮긴다.")),
-    P(.3425, yP, () => { pumpH(.362); say("전자 전달계: 전자가 지나가며 H⁺가 <b>스트로마 → 틸라코이드 내부</b>로 퍼 올려진다.", "<b>사이토크롬 b₆f 복합체</b>: 전자를 넘기며 H⁺를 스트로마 → 틸라코이드 내부로 퍼 올린다."); }),
-    P(.44, M1-16, () => say("작은 전자 운반체가 틸라코이드 내부 쪽에서 전자를 광계 Ⅰ로 옮긴다.", "<b>플라스토시아닌(PC)</b>: 틸라코이드 내부 쪽에서 전자를 광계 Ⅰ로 옮긴다."))
+    P(.3425, yP, () => { pumpH(.362); say("전자 전달계: 전자가 지나가며 H⁺가 <b>스트로마 → 타이라코이드 내부</b>로 퍼 올려진다.", "<b>사이토크롬 b₆f 복합체</b>: 전자를 넘기며 H⁺를 스트로마 → 타이라코이드 내부로 퍼 올린다."); }),
+    P(.44, M1-16, () => say("작은 전자 운반체가 타이라코이드 내부 쪽에서 전자를 광계 Ⅰ로 옮긴다.", "<b>플라스토시아닌(PC)</b>: 타이라코이드 내부 쪽에서 전자를 광계 Ⅰ로 옮긴다."))
   ];
   let pts;
   if(!S.cyc){
@@ -496,7 +496,7 @@ function sendChl(){
       P(.115, 150, () => {
         pop(X(.10), 150, "½O₂ ↑", "#7dd3fc", .85);
         addPool(X(.22), 150); addPool(X(.24), 175);
-        say("<b>물의 광분해</b>: H₂O → 2H⁺ + ½O₂ + 2e⁻. 전자는 광계 Ⅱ로, H⁺는 틸라코이드 내부에 쌓이고, O₂는 밖으로 나간다.");
+        say("<b>물의 광분해</b>: H₂O → 2H⁺ + ½O₂ + 2e⁻. 전자는 광계 Ⅱ로, H⁺는 타이라코이드 내부에 쌓이고, O₂는 밖으로 나간다.");
       }, 0.4),
       P(.115, yP, () => { flash(X(.115), yP); say("<b>광계 Ⅱ</b>가 빛을 받아 전자가 들뜬다(에너지가 높아진다).", "<b>광계 Ⅱ</b>(반응 중심 P680)가 빛을 받아 전자가 들뜬다."); }, 0.5)
     ].concat(toPSI, [
@@ -547,7 +547,7 @@ function applyTab(){
   $("infoChl").classList.toggle("hide", mito);
   $("advMito").classList.toggle("hide", !mito);
   $("advChl").classList.toggle("hide", mito);
-  $("figTitle").textContent = mito ? "미토콘드리아 내막 (세포 호흡)" : "엽록체 틸라코이드 막 (광합성 명반응)";
+  $("figTitle").textContent = mito ? "미토콘드리아 내막 (세포 호흡)" : "엽록체 타이라코이드 막 (광합성 명반응)";
   figwrap.classList.toggle("cyc", !mito && S.cyc);
   $("faChl").classList.toggle("hide", S.cyc);
   $("faCyc").classList.toggle("hide", !S.cyc);
@@ -560,7 +560,7 @@ function reset(){
   tokens = []; eActive = 0; passed = 0; nextKind = "NADH";
   build(); resetPool(); renderPool(true); applyTab(); applyAdv(); kick();
   if(S.tab === "mito") say("「NADH 전자 보내기」나 「FADH₂ 전자 보내기」를 눌러 보세요. 전자가 지나가는 동안 H⁺가 <b>막 사이 공간</b>으로 퍼 올려지고, ATP 합성 효소를 지나 <b>기질</b>로 돌아오며 ATP가 만들어집니다.");
-  else say(S.cyc ? "「빛 비추기」를 누르면 전자가 광계 Ⅰ에서 나와 전자 전달계를 돌아 <b>광계 Ⅰ로 되돌아옵니다</b>." : "「빛 비추기」를 눌러 보세요. 물이 분해되어 나온 전자가 광계 Ⅱ → 전자 전달계 → 광계 Ⅰ → NADP⁺로 갑니다. H⁺는 <b>틸라코이드 내부</b>에 쌓입니다.");
+  else say(S.cyc ? "「빛 비추기」를 누르면 전자가 광계 Ⅰ에서 나와 전자 전달계를 돌아 <b>광계 Ⅰ로 되돌아옵니다</b>." : "「빛 비추기」를 눌러 보세요. 물이 분해되어 나온 전자가 광계 Ⅱ → 전자 전달계 → 광계 Ⅰ → NADP⁺로 갑니다. H⁺는 <b>타이라코이드 내부</b>에 쌓입니다.");
 }
 
 $("tabMito").onclick = () => { if(S.tab !== "mito"){ S.tab = "mito"; CS.store.set("etc_tab", S.tab); reset(); } };
@@ -591,12 +591,12 @@ const QS = [
   { id:"etc3", type:"ox", q:"세포 호흡의 전자 전달계에서 최종 전자 수용체는 O₂이다.", answer:"O",
     exp:"O₂가 전자와 H⁺를 받아 <b>H₂O</b>가 된다." },
   { id:"etc4", q:"미토콘드리아에서 전자 전달이 일어날 때 H⁺가 퍼 올려져 쌓이는 곳은?",
-    choices:["미토콘드리아 기질", "막 사이 공간", "틸라코이드 내부", "스트로마", "세포질"], answer:1,
-    exp:"H⁺는 <b>기질 → 막 사이 공간</b>으로 퍼 올려져 막 사이 공간에 쌓인다. 틸라코이드 내부는 <b>엽록체</b>에서 H⁺가 쌓이는 곳이다." },
+    choices:["미토콘드리아 기질", "막 사이 공간", "타이라코이드 내부", "스트로마", "세포질"], answer:1,
+    exp:"H⁺는 <b>기질 → 막 사이 공간</b>으로 퍼 올려져 막 사이 공간에 쌓인다. 타이라코이드 내부는 <b>엽록체</b>에서 H⁺가 쌓이는 곳이다." },
   { id:"etc5", q:"엽록체에서 ATP 합성 효소에 의해 ATP가 만들어지는 곳은?",
-    choices:["틸라코이드 내부", "미토콘드리아 기질", "스트로마", "막 사이 공간", "틸라코이드 막 속"], answer:2,
-    exp:"H⁺가 <b>틸라코이드 내부 → 스트로마</b>로 ATP 합성 효소를 지나 흐르며, ATP는 <b>스트로마</b> 쪽에서 만들어진다. (미토콘드리아는 기질 쪽)" },
-  { id:"etc6", type:"ox", q:"'복합체 Ⅰ~Ⅳ'는 엽록체 틸라코이드 막의 전자 전달계를 부르는 이름이다.", answer:"X",
+    choices:["타이라코이드 내부", "미토콘드리아 기질", "스트로마", "막 사이 공간", "타이라코이드 막 속"], answer:2,
+    exp:"H⁺가 <b>타이라코이드 내부 → 스트로마</b>로 ATP 합성 효소를 지나 흐르며, ATP는 <b>스트로마</b> 쪽에서 만들어진다. (미토콘드리아는 기질 쪽)" },
+  { id:"etc6", type:"ox", q:"'복합체 Ⅰ~Ⅳ'는 엽록체 타이라코이드 막의 전자 전달계를 부르는 이름이다.", answer:"X",
     exp:"복합체 Ⅰ~Ⅴ는 <b>미토콘드리아(세포 호흡)</b> 쪽 이름이다. 엽록체는 <b>광계 Ⅱ → 사이토크롬 b₆f → 광계 Ⅰ</b> 이라고 부른다." },
   { id:"etc7", type:"ox", q:"순환 전자 흐름에서는 ATP는 만들어지지만 NADPH와 O₂는 만들어지지 않는다.", answer:"O",
     exp:"순환 전자 흐름은 <b>광계 Ⅰ만</b> 관여하고 전자가 광계 Ⅰ로 되돌아온다. 물이 분해되지 않으므로 O₂가 없고, NADP⁺로 전자가 가지 않으므로 NADPH도 없다. H⁺ 농도 기울기로 ATP만 생긴다." },
@@ -606,10 +606,10 @@ const QS = [
   { id:"etc9", type:"ox", q:"FADH₂의 전자가 전자 전달계를 지날 때는 NADH의 전자가 지날 때보다 퍼 올려지는 H⁺가 적어, 만들어지는 ATP도 적다.", answer:"O",
     exp:"FADH₂의 전자는 H⁺를 퍼 올리지 않는 복합체 Ⅱ로 들어오므로 H⁺를 퍼 올리는 단계가 하나 적다(Ⅲ·Ⅳ만). 그래서 ATP가 더 적게 만들어진다." },
   { id:"etc10", q:"미토콘드리아와 엽록체의 전자 전달에 대한 설명으로 옳은 것은?",
-    choices:["미토콘드리아에서 H⁺는 기질에서 막 사이 공간으로 퍼 올려진다.", "엽록체에서 H⁺는 틸라코이드 내부에서 스트로마로 퍼 올려진다.", "엽록체 전자 전달의 에너지원은 유기물의 산화이다.", "미토콘드리아의 전자 전달 결과 O₂가 생성된다.", "두 경우 모두 ATP는 H⁺가 쌓인 쪽 공간에서 만들어진다."], answer:0,
-    exp:"② 엽록체에서는 <b>스트로마 → 틸라코이드 내부</b>로 퍼 올린다. ③ 엽록체의 에너지원은 <b>빛</b>이다. ④ 미토콘드리아에서는 O₂가 <b>소비</b>되어 H₂O가 생성된다. ⑤ ATP는 H⁺가 흘러 들어가는 쪽(기질, 스트로마)에서 만들어진다." },
+    choices:["미토콘드리아에서 H⁺는 기질에서 막 사이 공간으로 퍼 올려진다.", "엽록체에서 H⁺는 타이라코이드 내부에서 스트로마로 퍼 올려진다.", "엽록체 전자 전달의 에너지원은 유기물의 산화이다.", "미토콘드리아의 전자 전달 결과 O₂가 생성된다.", "두 경우 모두 ATP는 H⁺가 쌓인 쪽 공간에서 만들어진다."], answer:0,
+    exp:"② 엽록체에서는 <b>스트로마 → 타이라코이드 내부</b>로 퍼 올린다. ③ 엽록체의 에너지원은 <b>빛</b>이다. ④ 미토콘드리아에서는 O₂가 <b>소비</b>되어 H₂O가 생성된다. ⑤ ATP는 H⁺가 흘러 들어가는 쪽(기질, 스트로마)에서 만들어진다." },
   { id:"etc11", type:"ox", q:"광합성에서 물이 분해되어 생긴 H⁺는 스트로마에 쌓인다.", answer:"X",
-    exp:"물의 광분해는 <b>틸라코이드 내부</b>에서 일어나며, 생긴 H⁺는 틸라코이드 내부에 쌓인다." },
+    exp:"물의 광분해는 <b>타이라코이드 내부</b>에서 일어나며, 생긴 H⁺는 타이라코이드 내부에 쌓인다." },
   { id:"etc12", type:"ox", q:"미토콘드리아의 ATP 합성 효소는 H⁺가 막 사이 공간에서 기질로 이동할 때 ATP를 만든다.", answer:"O",
     exp:"H⁺ 농도가 높은 막 사이 공간에서 낮은 기질로 H⁺가 확산하며, 기질 쪽에서 ADP + P<i>i</i> → ATP가 일어난다." }
 ];

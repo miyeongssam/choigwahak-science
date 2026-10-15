@@ -121,9 +121,9 @@ table.cmp .hl{color:#fdba74;font-weight:700}
   <table class="cmp">
    <thead><tr><th></th><th>🌿 엽록체</th><th>🔋 미토콘드리아</th></tr></thead>
    <tbody>
-    <tr><th>막 이름</th><td>틸라코이드 막</td><td>미토콘드리아 내막</td></tr>
+    <tr><th>막 이름</th><td>타이라코이드 막</td><td>미토콘드리아 내막</td></tr>
     <tr><th>에너지원</th><td>빛 에너지<br><span class="muted">(빛을 받아 들뜬 전자가 전자 전달계로)</span></td><td>유기물 산화로 얻은 NADH · FADH₂의 전자</td></tr>
-    <tr><th>H⁺가 쌓이는 곳<br><span class="muted">(H⁺ 농도 높음, pH 낮음)</span></th><td class="hl">틸라코이드 내부</td><td class="hl">막 사이 공간</td></tr>
+    <tr><th>H⁺가 쌓이는 곳<br><span class="muted">(H⁺ 농도 높음, pH 낮음)</span></th><td class="hl">타이라코이드 내부</td><td class="hl">막 사이 공간</td></tr>
     <tr><th>H⁺가 빠져나가는 쪽<br><span class="muted">(= ATP 생성 장소)</span></th><td class="hl">스트로마</td><td class="hl">미토콘드리아 기질</td></tr>
     <tr><th>공통점</th><td colspan="2">전자 전달계가 H⁺를 능동 수송해 농도 기울기를 만들고, H⁺가 농도 기울기에 따라 ATP 합성 효소를 통해 확산하며 ATP가 합성된다(화학 삼투).</td></tr>
    </tbody>
@@ -141,7 +141,7 @@ table.cmp .hl{color:#fdba74;font-weight:700}
 const PI = Math.PI, TAU = 2 * PI;
 const FONT = '-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans CJK KR",sans-serif';
 const MODES = {
-  chl: { n: 14, top: "틸라코이드 내부", bot: "스트로마", mem: "틸라코이드 막", org: "시금치 엽록체",
+  chl: { n: 14, top: "타이라코이드 내부", bot: "스트로마", mem: "타이라코이드 막", org: "시금치 엽록체",
          on: "☀️ 빛 끄기", off: "☀️ 빛 켜기", memCol: "#365314", headCol: "#166534" },
   mit: { n: 8, top: "막 사이 공간", bot: "미토콘드리아 기질", mem: "미토콘드리아 내막", org: "소 미토콘드리아",
          on: "⚡ 전자 공급 끄기", off: "⚡ 전자 공급 켜기", memCol: "#7c2d12", headCol: "#9a3412" }
@@ -149,6 +149,7 @@ const MODES = {
 const K_SYN = 0.1;     // 초당 H⁺ 통과 수 = K_SYN × 농도 차 (1× 기준)
 const P_PUMP = 2.4;    // 전자 전달계가 퍼 올리는 H⁺ 수/초 (1× 기준)
 const H0 = 20;         // 처음 양쪽 H⁺ 개수(같음 → 기울기 0)
+const P_WATER = 0.5;   // 엽록체: 물의 광분해 횟수/초 (1번에 H⁺ 2개가 타이라코이드 내부로)
 
 let mode = CS.store.get("atp_mode", "chl");
 let adv = CS.store.get("atp_adv", false);
@@ -182,9 +183,11 @@ function geom(){
   g.outStart = [g.sx + g.R - 4, g.mB - 18]; g.outEnd = [g.aX, g.mB + 18];
   g.etcTop = [g.ex + 24, g.mT - 22]; g.etcBot = [g.ex + 24, g.mB + 22];
   // 입자를 두지 않을 구역
-  g.exTop = [[g.ex - 90, 0, g.ex + 70, g.mT], [g.sx - g.R - 10, g.mT - 50, g.aX + 30, g.mT], [VW / 2 - 170, 0, VW / 2 + 170, 64]];
+  g.water = [g.ex + 34, g.mT - 46];   // 물의 광분해 표시 위치(타이라코이드 내부)
+  g.nadph = narrow ? [g.ex, g.mB + 222] : [g.ex, g.mB + 84];   // NADP⁺ 환원 표시 위치(스트로마)
+  g.exTop = [[g.ex - 90, 0, g.ex + 70, g.mT], [g.ex + 20, g.mT - 72, g.ex + 210, g.mT], [g.sx - g.R - 10, g.mT - 50, g.aX + 30, g.mT], [VW / 2 - 170, 0, VW / 2 + 170, 64]];
   g.exBot = [[g.sx - 112, g.mB, g.sx + 140, g.headY + 100], [g.ex - 75, g.mB, g.ex + 75, g.mB + 130],
-             [VW / 2 - 190, VH - 56, VW / 2 + 190, VH], [g.sx - 260, g.headY - 40, g.sx - 100, g.headY + 62]];
+             [VW / 2 - 190, VH - 56, VW / 2 + 190, VH], [g.ex - 95, g.nadph[1] - 14, g.ex + 95, g.nadph[1] + 40], [g.sx - 260, g.headY - 40, g.sx - 100, g.headY + 62]];
   return g;
 }
 function resize(){
@@ -211,7 +214,7 @@ function randIn(region){
 function reset(){
   const n = MODES[mode].n;
   S = { n, step: TAU / n, Ltop: H0, Lbot: H0, topDots: [], botDots: [], flights: [], pops: [], elec: [],
-        pumpOn: false, paused: false, pumpAcc: 0, synAcc: 0, elecAcc: 0,
+        pumpOn: false, paused: false, pumpAcc: 0, waterAcc: 0, synAcc: 0, elecAcc: 0,
         stepsDone: 0, ringV: PI / 2, loaded: [], atp: 0, kPrev: 0, t: 0 };
   for(let i = 0; i < n; i++) S.loaded.push(i !== 0);   // 통로 입구 앞 조각만 비어 있음
   rebuildVisual();
@@ -253,6 +256,21 @@ function completeStep(visual){
     addFlight([G.outStart, G.outEnd, [home.x, home.y]], 0.6, "out", () => S.botDots.push(home));
   } else if(visual){ S.botDots.push(randIn("bot")); }
 }
+// 엽록체: 물의 광분해(H₂O → 2H⁺ + ½O₂)로 H⁺ 2개가 타이라코이드 내부에 더해지고,
+// NADP⁺ 환원(NADP⁺ + 2e⁻ + H⁺ → NADPH)에 스트로마의 H⁺ 1개가 쓰인다
+function waterSplit(){
+  if(S.Ltop + S.Lbot >= 60) return;
+  for(let i = 0; i < 2; i++){
+    S.Ltop++;
+    const home = randIn("top");
+    addFlight([[G.water[0] + 20 * i, G.water[1] + 6], [home.x, home.y]], 0.8, "water", () => S.topDots.push(home));
+  }
+  if(S.Lbot > 3){
+    S.Lbot--;
+    const d = takeDot(S.botDots) || randIn("bot");
+    addFlight([[d.x, d.y], G.nadph], 0.8, "nadph", () => {});
+  }
+}
 function launchPump(){
   S.Lbot--; S.Ltop++;
   const d = takeDot(S.botDots, G.etcBot[0], G.etcBot[1]) || randIn("bot");
@@ -268,6 +286,10 @@ function tick(dt){
     if(S.pumpOn){
       S.pumpAcc += P_PUMP * sdt;
       while(S.pumpAcc >= 1){ S.pumpAcc -= 1; if(S.Lbot > 3) launchPump(); else { S.pumpAcc = 0; break; } }
+      if(mode === "chl"){
+        S.waterAcc += P_WATER * sdt;
+        while(S.waterAcc >= 1){ S.waterAcc -= 1; waterSplit(); }
+      }
       S.elecAcc += 3 * sdt;
       while(S.elecAcc >= 1){ S.elecAcc -= 1; S.elec.push({ t: 0 }); }
     }
@@ -419,6 +441,11 @@ function drawETC(c, g, M, t){
       }
       txt(c, "빛", g.ex - 80, 92, 24, "#fde047", "center", "800");
     }
+    c.globalAlpha = on ? 1 : 0.35;
+    txt(c, "H₂O → 2H⁺ + ½O₂", g.water[0] - 6, g.water[1] - 4, 16, "#bae6fd", "left", "700");
+    txt(c, "물의 광분해", g.water[0] - 6, g.water[1] - 24, 13, "#94a3b8", "left", "600");
+    txt(c, "NADP⁺ + H⁺ → NADPH", g.nadph[0], g.nadph[1] + 22, 15, "#bae6fd", "center", "700");
+    c.globalAlpha = 1;
   } else {
     // NADH의 전자가 기질 쪽에서 전자 전달계로 들어감
     const ax = x1 + w / 2;
@@ -568,8 +595,8 @@ function updateUI(){
 }
 function stepsHTML(){
   if(mode === "chl") return `
-   <li><span class="no">1</span><span><b>빛</b>을 받으면 전자가 틸라코이드 막의 <b>전자 전달계</b>를 따라 이동한다. 이때 H⁺가 <b>스트로마 → 틸라코이드 내부</b>로 능동 수송된다.</span></li>
-   <li><span class="no">2</span><span>틸라코이드 내부에 H⁺가 쌓여 <b>H⁺ 농도 기울기</b>가 생긴다. (내부 H⁺ 농도 높음 = pH 낮음)</span></li>
+   <li><span class="no">1</span><span><b>빛</b>을 받으면 전자가 타이라코이드 막의 <b>전자 전달계</b>를 따라 이동한다. 이때 H⁺가 <b>스트로마 → 타이라코이드 내부</b>로 능동 수송된다. 또 <b>물의 광분해</b>(H₂O → 2H⁺ + ½O₂)로 생긴 H⁺도 타이라코이드 내부에 더해진다. (스트로마의 H⁺ 일부는 NADP⁺가 NADPH로 환원될 때 쓰인다.)</span></li>
+   <li><span class="no">2</span><span>타이라코이드 내부에 H⁺가 쌓여 <b>H⁺ 농도 기울기</b>가 생긴다. (내부 H⁺ 농도 높음 = pH 낮음)</span></li>
    <li><span class="no">3</span><span>H⁺가 농도 기울기에 따라 <b>ATP 합성 효소</b>를 통해 스트로마 쪽으로 <b>확산</b>한다. 이때 고리와 축이 돌아 <b>스트로마</b>에서 ADP + Pi → <b>ATP</b>가 합성된다. → <b>화학 삼투</b></span></li>
    <li><span class="no">4</span><span>빛을 끄면 퍼 올리기가 멈추고, 농도 차가 줄어들면서 회전이 느려지다 멈춘다.</span></li>`;
   return `
@@ -646,8 +673,8 @@ let rzT; window.addEventListener("resize", () => { clearTimeout(rzT); rzT = setT
 /* ---------- 확인 문제 ---------- */
 const QS = [
   { id: "atp1", q: "엽록체에서 ATP 합성 효소에 의해 ATP가 만들어지는 장소는?",
-    ans: "스트로마", dis: ["틸라코이드 내부", "엽록체 외막과 내막 사이", "세포질", "미토콘드리아 기질"],
-    exp: "ATP 합성 효소의 머리(F₁)는 <b>스트로마 쪽</b>으로 튀어나와 있다. H⁺가 틸라코이드 내부 → 스트로마로 확산할 때 스트로마에서 ATP가 만들어진다. 틸라코이드 내부는 H⁺가 쌓이는 곳이다." },
+    ans: "스트로마", dis: ["타이라코이드 내부", "엽록체 외막과 내막 사이", "세포질", "미토콘드리아 기질"],
+    exp: "ATP 합성 효소의 머리(F₁)는 <b>스트로마 쪽</b>으로 튀어나와 있다. H⁺가 타이라코이드 내부 → 스트로마로 확산할 때 스트로마에서 ATP가 만들어진다. 타이라코이드 내부는 H⁺가 쌓이는 곳이다." },
   { id: "atp2", q: "미토콘드리아에서 ATP 합성 효소에 의해 ATP가 만들어지는 장소는?",
     ans: "미토콘드리아 기질", dis: ["막 사이 공간", "미토콘드리아 외막", "세포질", "스트로마"],
     exp: "H⁺는 막 사이 공간에 쌓였다가 ATP 합성 효소를 통해 <b>기질</b>로 확산한다. ATP 합성 효소의 머리(F₁)가 기질 쪽에 있어 ATP는 기질에서 만들어진다." },
@@ -655,10 +682,10 @@ const QS = [
     ans: "농도 기울기에 따른 확산", dis: ["ATP를 소모하는 능동 수송", "전자 전달계의 에너지를 쓰는 능동 수송", "삼투", "세포내 섭취"],
     exp: "H⁺는 농도가 높은 쪽에서 낮은 쪽으로 ATP 합성 효소를 통해 <b>확산</b>한다(에너지를 쓰지 않음). 에너지를 써서 H⁺를 거꾸로 퍼 올리는 능동 수송은 <b>전자 전달계</b>가 한다. 삼투는 물의 이동이다." },
   { id: "atp4", q: "빛이 비치고 있는 엽록체에 대한 설명으로 옳지 <u>않은</u> 것은?",
-    ans: "ATP는 틸라코이드 내부에서 생성된다.",
-    keep: ["틸라코이드 내부의 H⁺ 농도는 스트로마보다 높다.", "틸라코이드 내부의 pH는 스트로마보다 낮다.",
-           "전자 전달계는 H⁺를 스트로마에서 틸라코이드 내부로 이동시킨다.", "ATP 합성 효소의 머리 부분은 스트로마 쪽으로 튀어나와 있다."],
-    exp: "ATP는 <b>스트로마</b>에서 생성된다. 틸라코이드 내부는 H⁺가 쌓여 H⁺ 농도가 높고 pH가 낮은 곳이다." },
+    ans: "ATP는 타이라코이드 내부에서 생성된다.",
+    keep: ["타이라코이드 내부의 H⁺ 농도는 스트로마보다 높다.", "타이라코이드 내부의 pH는 스트로마보다 낮다.",
+           "전자 전달계는 H⁺를 스트로마에서 타이라코이드 내부로 이동시킨다.", "ATP 합성 효소의 머리 부분은 스트로마 쪽으로 튀어나와 있다."],
+    exp: "ATP는 <b>스트로마</b>에서 생성된다. 타이라코이드 내부는 H⁺가 쌓여 H⁺ 농도가 높고 pH가 낮은 곳이다." },
   { id: "atp5", q: "세포 호흡이 활발한 미토콘드리아에 대한 설명으로 옳지 <u>않은</u> 것은?",
     ans: "미토콘드리아 기질은 막 사이 공간보다 pH가 낮다.",
     keep: ["전자 전달계는 H⁺를 기질에서 막 사이 공간으로 능동 수송한다.", "막 사이 공간의 H⁺ 농도는 기질보다 높다.",
@@ -668,20 +695,20 @@ const QS = [
     ans: "막을 경계로 형성된 H⁺ 농도 기울기", dis: ["ATP 합성 효소가 직접 흡수한 빛 에너지", "ATP가 분해될 때 나오는 에너지", "ATP 합성 효소에서 직접 분해되는 포도당", "물이 증발할 때의 열"],
     exp: "빛 에너지(엽록체)나 NADH의 전자(미토콘드리아)는 전자 전달계가 <b>H⁺ 농도 기울기를 만드는 데</b> 쓰인다. ATP 합성 효소는 그 <b>H⁺ 농도 기울기</b>에 따라 H⁺가 확산하는 힘으로 ATP를 만든다." },
   { id: "atp7", q: "빛을 받고 있던 엽록체에서 빛을 끈 직후 나타나는 변화로 옳은 것은?",
-    ans: "틸라코이드 내부와 스트로마 사이의 H⁺ 농도 차가 점점 줄어든다.",
-    dis: ["전자 전달계가 H⁺를 더 빠르게 퍼 올린다.", "틸라코이드 내부의 pH가 점점 낮아진다.", "ATP 합성 속도가 점점 빨라진다.", "H⁺가 ATP 합성 효소를 통해 스트로마에서 틸라코이드 내부로 이동한다."],
-    exp: "빛이 없으면 전자 전달이 멈춰 H⁺를 퍼 올리지 못한다. 쌓여 있던 H⁺는 틸라코이드 내부 → 스트로마로 빠져나가므로 농도 차가 줄고(내부 pH는 높아짐), ATP 합성도 느려지다 멈춘다." },
+    ans: "타이라코이드 내부와 스트로마 사이의 H⁺ 농도 차가 점점 줄어든다.",
+    dis: ["전자 전달계가 H⁺를 더 빠르게 퍼 올린다.", "타이라코이드 내부의 pH가 점점 낮아진다.", "ATP 합성 속도가 점점 빨라진다.", "H⁺가 ATP 합성 효소를 통해 스트로마에서 타이라코이드 내부로 이동한다."],
+    exp: "빛이 없으면 전자 전달이 멈춰 H⁺를 퍼 올리지 못한다. 쌓여 있던 H⁺는 타이라코이드 내부 → 스트로마로 빠져나가므로 농도 차가 줄고(내부 pH는 높아짐), ATP 합성도 느려지다 멈춘다." },
   { id: "atp8", q: "엽록체와 미토콘드리아의 ATP 합성에 대한 <b>공통점</b>으로 옳은 것은?",
     ans: "H⁺가 ATP 합성 효소를 통해 농도가 높은 쪽에서 낮은 쪽으로 이동할 때 ATP가 합성된다.",
     dis: ["둘 다 빛 에너지를 이용해 H⁺ 농도 기울기를 만든다.", "둘 다 H⁺ 농도가 높은 쪽에서 ATP가 만들어진다.", "둘 다 NADH의 전자가 전자 전달계로 들어간다.", "둘 다 막 사이 공간에 H⁺가 쌓인다."],
-    exp: "두 소기관 모두 <b>화학 삼투</b>로 ATP를 만든다. 에너지원(빛 / NADH·FADH₂의 전자)과 H⁺가 쌓이는 곳(틸라코이드 내부 / 막 사이 공간)은 다르다. ATP는 둘 다 H⁺ 농도가 <b>낮은 쪽</b>(스트로마 / 기질)에서 만들어진다." },
+    exp: "두 소기관 모두 <b>화학 삼투</b>로 ATP를 만든다. 에너지원(빛 / NADH·FADH₂의 전자)과 H⁺가 쌓이는 곳(타이라코이드 내부 / 막 사이 공간)은 다르다. ATP는 둘 다 H⁺ 농도가 <b>낮은 쪽</b>(스트로마 / 기질)에서 만들어진다." },
   { id: "atp9", q: "미토콘드리아에서 H⁺의 이동 방향을 바르게 짝 지은 것은? (전자 전달계를 통한 이동 / ATP 합성 효소를 통한 이동)",
     ans: "기질 → 막 사이 공간 / 막 사이 공간 → 기질",
     dis: ["막 사이 공간 → 기질 / 기질 → 막 사이 공간", "기질 → 막 사이 공간 / 기질 → 막 사이 공간", "막 사이 공간 → 기질 / 막 사이 공간 → 기질", "세포질 → 기질 / 기질 → 세포질"],
     exp: "전자 전달계는 에너지를 써서 H⁺를 <b>기질 → 막 사이 공간</b>으로 능동 수송한다. 쌓인 H⁺는 ATP 합성 효소를 통해 <b>막 사이 공간 → 기질</b>로 확산한다." },
-  { id: "atp10", q: "틸라코이드 막에 H⁺가 자유롭게 지나갈 수 있는 구멍이 많이 생겨 H⁺ 농도 기울기가 사라졌다. 이때 일어나는 일로 옳은 것은?",
+  { id: "atp10", q: "타이라코이드 막에 H⁺가 자유롭게 지나갈 수 있는 구멍이 많이 생겨 H⁺ 농도 기울기가 사라졌다. 이때 일어나는 일로 옳은 것은?",
     ans: "ATP 합성 효소를 통한 ATP 합성이 거의 일어나지 않는다.",
-    dis: ["ATP 합성 효소의 회전이 더 빨라진다.", "ATP 합성 효소가 H⁺를 능동 수송하여 ATP를 더 많이 만든다.", "틸라코이드 내부의 pH가 스트로마보다 훨씬 낮아진다.", "ATP가 틸라코이드 내부에서 만들어지기 시작한다."],
+    dis: ["ATP 합성 효소의 회전이 더 빨라진다.", "ATP 합성 효소가 H⁺를 능동 수송하여 ATP를 더 많이 만든다.", "타이라코이드 내부의 pH가 스트로마보다 훨씬 낮아진다.", "ATP가 타이라코이드 내부에서 만들어지기 시작한다."],
     exp: "ATP 합성 효소는 <b>H⁺ 농도 기울기</b>가 있어야 돈다. 기울기가 사라지면 H⁺가 ATP 합성 효소를 지나갈 까닭이 없어 고리가 멈추고, ATP 합성이 거의 일어나지 않는다." }
 ];
 function makeQuiz(){

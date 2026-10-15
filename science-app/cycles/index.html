@@ -165,19 +165,19 @@ const DATA = (function(){
     ],
     nodes:[
       {x:305, y:34, rows:[[L("장소:"), S("pl_cyto","place","세포질")]]},
-      {x:210, y:96, box:1, rows:[[S("glc","name","포도당")],[S("glc_c","c","6C")]]},
+      {x:210, y:96, box:1, rows:[[S("glc","name","포도당")],[S("glc_c","c","C6")]]},
       {x:112, y:166, rows:[[L("해당 과정")]]},
       {x:330, y:166, flow:"out", stage:"해당 과정 (포도당 1분자당)", rows:[[S("gl_atp","e","ATP"), N("gl_atp_n",2), L("(순생성)")],[S("gl_nadh","e","NADH"), N("gl_nadh_n",2)]]},
-      {x:210, y:242, box:1, rows:[[N("pyr_n",2), S("pyr","name","피루브산")],[S("pyr_c","c","3C")]]},
+      {x:210, y:242, box:1, rows:[[N("pyr_n",2), S("pyr","name","피루브산")],[S("pyr_c","c","C3")]]},
       {x:305, y:346, rows:[[L("장소:"), S("pl_mito","place","미토콘드리아 기질")]]},
       {x:108, y:410, rows:[[L("피루브산 산화")],[L("(피루브산 1분자당)")]]},
       {x:330, y:410, flow:"out", group:1, stage:"피루브산 산화 (피루브산 1분자당)", rows:[[S("po_co2","e","CO₂")],[S("po_nadh","e","NADH")]]},
-      {x:210, y:482, box:1, rows:[[S("acc","name","아세틸 CoA")],[S("acc_c","c","2C")]]},
+      {x:210, y:482, box:1, rows:[[S("acc","name","아세틸 CoA")],[S("acc_c","c","C2")]]},
       {x:210, y:572, rows:[[L("TCA 회로로")]]}
     ],
     checks(V){ return [
-      {txt:`포도당 ${V("glc_c")}C = 피루브산 ${V("pyr_n")} × ${V("pyr_c")}C`, l:V("glc_c"), r:V("pyr_n")*V("pyr_c")},
-      {txt:`피루브산 ${V("pyr_c")}C = 아세틸 CoA ${V("acc_c")}C + CO₂ 1C`, l:V("pyr_c"), r:V("acc_c")+1}
+      {txt:`포도당 C${V("glc_c")} = 피루브산 ${V("pyr_n")} × C${V("pyr_c")}`, l:V("glc_c"), r:V("pyr_n")*V("pyr_c")},
+      {txt:`피루브산 C${V("pyr_c")} = 아세틸 CoA C${V("acc_c")} + CO₂ C1`, l:V("pyr_c"), r:V("acc_c")+1}
     ]; }
   };
 
@@ -195,13 +195,13 @@ const DATA = (function(){
       {t:"line", p1:T(295), x2:116, y2:252, ar:1, cls:"thin"}
     ],
     nodes:[
-      {x:210, y:50, box:1, rows:[[S("t_acc","name","아세틸 CoA")],[S("t_acc_c","c","2C")]]},
-      {x:122, y:184, box:1, rows:[[S("oaa","name","옥살아세트산")],[S("oaa_c","c","4C")]]},
-      {x:298, y:184, box:1, rows:[[S("cit","name","시트르산")],[S("cit_c","c","6C")]]},
-      {x:342, y:335, box:1, rows:[[S("akg","name","α-케토글루타르산",{simple:"5탄소 화합물"})],[S("akg_c","c","5C",{hideSimple:1})]]},
-      {x:288, y:486, box:1, rows:[[S("suc","name","숙신산",{simple:"4탄소 화합물"})],[S("suc_c","c","4C",{hideSimple:1})]]},
-      {x:132, y:486, box:1, rows:[[S("fum","name","푸마르산",{simple:"4탄소 화합물"})],[S("fum_c","c","4C",{hideSimple:1})]]},
-      {x:78, y:330, box:1, rows:[[S("mal","name","말산",{simple:"4탄소 화합물"})],[S("mal_c","c","4C",{hideSimple:1})]]},
+      {x:210, y:50, box:1, rows:[[S("t_acc","name","아세틸 CoA")],[S("t_acc_c","c","C2")]]},
+      {x:122, y:184, box:1, rows:[[S("oaa","name","옥살아세트산")],[S("oaa_c","c","C4")]]},
+      {x:298, y:184, box:1, rows:[[S("cit","name","시트르산")],[S("cit_c","c","C6")]]},
+      {x:342, y:335, box:1, rows:[[S("akg","name","α-케토글루타르산",{simple:"5탄소 화합물"})],[S("akg_c","c","C5",{hideSimple:1})]]},
+      {x:288, y:486, box:1, rows:[[S("suc","name","석신산",{simple:"4탄소 화합물"})],[S("suc_c","c","C4",{hideSimple:1})]]},
+      {x:132, y:486, box:1, rows:[[S("fum","name","푸마르산",{simple:"4탄소 화합물"})],[S("fum_c","c","C4",{hideSimple:1})]]},
+      {x:78, y:330, box:1, rows:[[S("mal","name","말산",{simple:"4탄소 화합물"})],[S("mal_c","c","C4",{hideSimple:1})]]},
       {x:238, y:262, flow:"out", group:1, rows:[[S("t1_co2","e","CO₂")],[S("t1_nadh","e","NADH")]]},
       {x:236, y:410, flow:"out", group:1, rows:[[S("t2_co2","e","CO₂"), S("t2_nadh","e","NADH")],[S("t2_atp","e","ATP")]]},
       {x:210, y:550, flow:"out", rows:[[S("t3_fadh","e","FADH₂")]]},
@@ -209,11 +209,11 @@ const DATA = (function(){
       {x:210, y:592, rows:[[L("장소:"), S("pl_tca","place","미토콘드리아 기질")]]}
     ],
     checks(V, tally){ return [
-      {txt:`아세틸 CoA ${V("t_acc_c")}C + 옥살아세트산 ${V("oaa_c")}C = 시트르산 ${V("cit_c")}C`, l:V("t_acc_c")+V("oaa_c"), r:V("cit_c")},
-      {txt:`시트르산 ${V("cit_c")}C = α-케토글루타르산 ${V("akg_c")}C + CO₂ 1C`, l:V("cit_c"), r:V("akg_c")+1},
-      {txt:`α-케토글루타르산 ${V("akg_c")}C = 숙신산 ${V("suc_c")}C + CO₂ 1C`, l:V("akg_c"), r:V("suc_c")+1},
-      {txt:`숙신산 → 푸마르산 → 말산 → 옥살아세트산: ${V("suc_c")}C → ${V("fum_c")}C → ${V("mal_c")}C → ${V("oaa_c")}C`, l:V("suc_c"), r:(V("fum_c")===V("suc_c") && V("mal_c")===V("suc_c")) ? V("oaa_c") : -1},
-      {txt:`들어온 탄소: 아세틸 CoA ${V("t_acc_c")}C = 나간 CO₂ ${tally.out["CO₂"]||0}개`, l:V("t_acc_c"), r:tally.out["CO₂"]||0}
+      {txt:`아세틸 CoA C${V("t_acc_c")} + 옥살아세트산 C${V("oaa_c")} = 시트르산 C${V("cit_c")}`, l:V("t_acc_c")+V("oaa_c"), r:V("cit_c")},
+      {txt:`시트르산 C${V("cit_c")} = α-케토글루타르산 C${V("akg_c")} + CO₂ C1`, l:V("cit_c"), r:V("akg_c")+1},
+      {txt:`α-케토글루타르산 C${V("akg_c")} = 석신산 C${V("suc_c")} + CO₂ C1`, l:V("akg_c"), r:V("suc_c")+1},
+      {txt:`석신산 → 푸마르산 → 말산 → 옥살아세트산: C${V("suc_c")} → C${V("fum_c")} → C${V("mal_c")} → C${V("oaa_c")}`, l:V("suc_c"), r:(V("fum_c")===V("suc_c") && V("mal_c")===V("suc_c")) ? V("oaa_c") : -1},
+      {txt:`들어온 탄소: 아세틸 CoA C${V("t_acc_c")} = 나간 CO₂ ${tally.out["CO₂"]||0}개`, l:V("t_acc_c"), r:tally.out["CO₂"]||0}
     ]; }
   };
 
@@ -231,21 +231,21 @@ const DATA = (function(){
     ],
     nodes:[
       {x:210, y:50, box:1, flow:"in", rows:[[N("c_co2_n",3), S("c_co2","e","CO₂")]]},
-      {x:112, y:192, box:1, rows:[[N("rubp_n",3), S("rubp","name","RuBP")],[S("rubp_c","c","5C")]]},
-      {x:308, y:192, box:1, rows:[[N("pg3_n",6), S("pg3","name","3PG")],[S("pg3_c","c","3C")]]},
+      {x:112, y:192, box:1, rows:[[N("rubp_n",3), S("rubp","name","RuBP")],[S("rubp_c","c","C5")]]},
+      {x:308, y:192, box:1, rows:[[N("pg3_n",6), S("pg3","name","3PG")],[S("pg3_c","c","C3")]]},
       {x:262, y:345, flow:"in", group:1, rows:[[N("cv_atp_n",6), S("cv_atp","e","ATP")],[N("cv_nadph_n",6), S("cv_nadph","e","NADPH")]]},
-      {x:210, y:490, box:1, rows:[[N("pgal_n",6), S("pgal","name","PGAL")],[S("pgal_c","c","3C")]]},
+      {x:210, y:490, box:1, rows:[[N("pgal_n",6), S("pgal","name","PGAL")],[S("pgal_c","c","C3")]]},
       {x:150, y:358, flow:"in", rows:[[N("rg_atp_n",3), S("rg_atp","e","ATP")]]},
       {x:152, y:428, rows:[[N("back_n",5), S("back","name","PGAL")]]},
       {x:350, y:540, rows:[[N("out_n",1), S("out","name","PGAL")],[L("→ 포도당 합성", "→ 포도당 1분자")]]},
       {x:110, y:572, rows:[[L("장소: 엽록체"), S("pl_str","place","스트로마")]]}
     ],
     checks(V){ return [
-      {txt:`CO₂ ${V("c_co2_n")} × 1C + RuBP ${V("rubp_n")} × ${V("rubp_c")}C = 3PG ${V("pg3_n")} × ${V("pg3_c")}C`, l:V("c_co2_n")*1 + V("rubp_n")*V("rubp_c"), r:V("pg3_n")*V("pg3_c")},
-      {txt:`3PG ${V("pg3_n")} × ${V("pg3_c")}C = PGAL ${V("pgal_n")} × ${V("pgal_c")}C`, l:V("pg3_n")*V("pg3_c"), r:V("pgal_n")*V("pgal_c")},
+      {txt:`CO₂ ${V("c_co2_n")} × C1 + RuBP ${V("rubp_n")} × C${V("rubp_c")} = 3PG ${V("pg3_n")} × C${V("pg3_c")}`, l:V("c_co2_n")*1 + V("rubp_n")*V("rubp_c"), r:V("pg3_n")*V("pg3_c")},
+      {txt:`3PG ${V("pg3_n")} × C${V("pg3_c")} = PGAL ${V("pgal_n")} × C${V("pgal_c")}`, l:V("pg3_n")*V("pg3_c"), r:V("pgal_n")*V("pgal_c")},
       {txt:`PGAL ${V("pgal_n")} = 밖으로 ${V("out_n")} + 회로에 남음 ${V("back_n")}`, l:V("pgal_n"), r:V("out_n")+V("back_n")},
-      {txt:`PGAL ${V("back_n")} × ${V("pgal_c")}C = RuBP ${V("rubp_n")} × ${V("rubp_c")}C`, l:V("back_n")*V("pgal_c"), r:V("rubp_n")*V("rubp_c")},
-      {txt:`밖으로 나간 PGAL ${V("out_n")} × ${V("pgal_c")}C = 들어온 CO₂ ${V("c_co2_n")} × 1C`, l:V("out_n")*V("pgal_c"), r:V("c_co2_n")}
+      {txt:`PGAL ${V("back_n")} × C${V("pgal_c")} = RuBP ${V("rubp_n")} × C${V("rubp_c")}`, l:V("back_n")*V("pgal_c"), r:V("rubp_n")*V("rubp_c")},
+      {txt:`밖으로 나간 PGAL ${V("out_n")} × C${V("pgal_c")} = 들어온 CO₂ ${V("c_co2_n")} × C1`, l:V("out_n")*V("pgal_c"), r:V("c_co2_n")}
     ]; }
   };
   return {glyco, tca, calvin};
@@ -262,7 +262,7 @@ const CYC = {
   val(d, id, o){
     const s = CYC.slots(d).find(x => x.id === id);
     if(!s) throw new Error("no slot " + id);
-    return s.k === "n" ? s.v * (d.mult ? o.m : 1) : parseInt(s.t, 10);
+    return s.k === "n" ? s.v * (d.mult ? o.m : 1) : parseInt(String(s.t).replace(/\D/g, ""), 10);
   },
   tally(d, o){ // flow 노드의 조효소·에너지 개수 합
     const t = {out:{}, in:{}};
@@ -281,15 +281,15 @@ const KIND = {name:"물질 이름", c:"탄소 수", e:"조효소 · 에너지", 
 const FS = {name:16.5, c:15.5, e:15.5, n:17, place:15.5, lab:14};
 const PH = 32, PADX = 9, GAP = 5, RGAP = 5, BOXP = 6;
 const POOL = {
-  c:["1C","2C","3C","4C","5C","6C"],
+  c:["C1","C2","C3","C4","C5","C6"],
   e:["CO₂","NADH","FADH₂","ATP","NADPH","O₂","H₂O"],
-  place:["세포질","미토콘드리아 기질","스트로마","틸라코이드 막","미토콘드리아 내막"],
-  names:["포도당","피루브산","아세틸 CoA","옥살아세트산","시트르산","α-케토글루타르산","숙신산","푸마르산","말산","RuBP","3PG","PGAL"],
+  place:["세포질","미토콘드리아 기질","스트로마","타이라코이드 막","미토콘드리아 내막"],
+  names:["포도당","피루브산","아세틸 CoA","옥살아세트산","시트르산","α-케토글루타르산","석신산","푸마르산","말산","RuBP","3PG","PGAL"],
   generic:["3탄소 화합물","4탄소 화합물","5탄소 화합물","6탄소 화합물"],
   n:[1,2,3,4,5,6,9,10,12,15,18]
 };
 const TABS = ["glyco","tca","calvin"];
-const st = Object.assign({tab:"tca", diff:6, simple:true, m:1}, CS.store.get("cycles_set", {}));
+const st = Object.assign({tab:"tca", diff:6, simple:false, m:1}, CS.store.get("cycles_set", {}));
 st.reveal = false;
 let miss = CS.store.get("cycles_miss", {});
 let R = null;            // 현재 판

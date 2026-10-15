@@ -163,8 +163,8 @@ const ANIONS = [
   {id:"CO3", s:"CO₃", q:2, name:"탄산 이온", poly:true},
   {id:"PO4", s:"PO₄", q:3, name:"인산 이온", poly:true}
 ];
-// 전하 맞추기는 되지만 실제로는 안정한 화합물로 거의 존재하지 않는 조합 → 문제에서 제외
-const RARE = new Set(["Ag|OH","NH4|O","NH4|OH","NH4|S","Cu|I","Fe3|I","Fe3|S","Fe3|CO3","Al|CO3"]);
+// 교과 과정에서 다루지 않는 조합 → 문제에서 제외(원장님 확인, NH₄OH는 자주 나오므로 문제에 포함)
+const RARE = new Set(["Ag|OH","NH4|O","NH4|S","Cu|I","Fe3|I","Fe3|S","Fe3|CO3","Al|CO3"]);
 const catText = c => c.s + charge(c.q, 1);
 const anText  = a => a.s + charge(a.q, -1);
 const baseName = ion => ion.name.replace(/ 이온$/, "");
