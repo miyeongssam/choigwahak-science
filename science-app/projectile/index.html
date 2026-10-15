@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>포물선 운동 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.lay{display:grid;grid-template-columns:1fr;gap:12px}
+.lay>*{min-width:0}
+.figbox{position:relative}
+.ctl .row{margin-bottom:8px}
+.ctl .lbl{font-size:13px;color:var(--muted);min-width:64px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.tabs .btn{padding:10px 6px;font-size:14px}
+.res{display:grid;grid-template-columns:1fr;gap:6px}
+.res .it{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:15px;line-height:1.5}
+.res .it b{color:#fde68a;font-size:17px;font-variant-numeric:tabular-nums}
+.res .it .f{color:var(--muted);font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+table.cmp{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+table.cmp th,table.cmp td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left}
+table.cmp th{color:var(--muted);font-weight:500;font-size:13px}
+table.cmp tr.best td{color:#fde68a;font-weight:700}
+.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.play{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;margin-top:10px}
+.sec-title{font-size:17px;margin:18px 0 8px}
+@media (min-width:1000px){
+  .wrap{max-width:1680px}
+  .lay{grid-template-columns:minmax(0,1fr) 400px;align-items:start}
+  .lay .ctl{position:sticky;top:76px}
+  .res .it{font-size:16px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>포물선 운동<small>물리 · 수평으로 던지기와 비스듬히 던지기, 성분 분해</small></h1></header>
+<div class="wrap">
+  <div class="lay">
+    <div class="figbox">
+      <canvas id="cv"></canvas>
+      <div class="play">
+        <button class="btn" id="bPlay">▶ 던지기</button>
+        <button class="btn ghost" id="bStep">한 칸 ⏭</button>
+        <button class="btn ghost" id="bSlow">느리게</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="panel" id="explain" style="margin-top:10px"></div>
+    </div>
+    <div class="ctl">
+      <div class="tabs">
+        <button class="btn ghost" data-mode="horiz">수평으로<br>던지기</button>
+        <button class="btn ghost" data-mode="angle">비스듬히<br>던지기</button>
+        <button class="btn ghost" data-mode="cmp">여러 각도<br>비교</button>
+      </div>
+      <div class="panel">
+        <div id="slH" class="slider"><span>높이 h</span><input type="range" id="h" min="5" max="100" step="5"><span class="v" id="hv"></span></div>
+        <div class="slider"><span>속력 v₀</span><input type="range" id="v0" min="1" max="40" step="1"><span class="v" id="v0v"></span></div>
+        <div id="slT" class="slider"><span>각도 θ</span><input type="range" id="th" min="5" max="85" step="1"><span class="v" id="thv"></span></div>
+        <div class="row"><span class="lbl">중력 가속도</span>
+          <button class="chip" data-g="9.8">g = 9.8 m/s²</button><button class="chip" data-g="10">g = 10 m/s²</button></div>
+        <div class="row" id="rowDt"><span class="lbl">점 간격</span>
+          <button class="chip" data-dt="0.1">0.1 s</button><button class="chip" data-dt="0.2">0.2 s</button><button class="chip" data-dt="0.5">0.5 s</button></div>
+        <div class="row" id="rowShow"><span class="lbl">보기</span>
+          <button class="chip" data-tg="shadow">성분 그림자</button>
+          <button class="chip" data-tg="vec">속도 벡터</button>
+          <button class="chip" data-tg="ff" id="chipFF">자유 낙하 비교</button></div>
+      </div>
+      <div class="panel">
+        <h2 id="resTitle">계산 결과</h2>
+        <div class="res" id="res"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec-title">확인 문제 <span class="muted" style="font-size:13px;font-weight:400">(g = 10 m/s², 공기 저항 무시)</span></h2>
+  <div id="quiz" style="max-width:760px"></div>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+/*QUIZ-START*/
+const PQ = (function(){
+  const G = 10;
+  const f = x => { const r = Math.round(x * 100) / 100; return String(r); };
+  // 보기 만들기: 정답 문자열 + 오답 후보 → 5개 보기
+  function mk(id, q, ans, dists, unit, exp, chk){
+    const u = unit ? " " + unit : "";
+    const A = f(ans) + u;
+    const ds = [];
+    const push = v => { if(typeof v === "number"){ if(!(v >= 0) || !isFinite(v)) return; v = f(v) + u; } if(v !== A && ds.indexOf(v) < 0) ds.push(v); };
+    CS.shuffle(dists).forEach(push);
+    // 부족하면 채우기
+    const pad = typeof ans === "number" ? [ans * 2, ans / 2, ans * 3, ans + 1, ans + 2, ans * 4, ans + 5, ans + 10] : [];
+    pad.forEach(push);
+    const mc = CS.makeChoices(A, ds, 5);
+    return { id, q, choices: mc.choices, answer: mc.answer, exp, _ans: A, _chk: chk };
+  }
+  function mkText(id, q, A, dists, exp, chk){
+    const mc = CS.makeChoices(A, dists.filter(d => d !== A), 5);
+    return { id, q, choices: mc.choices, answer: mc.answer, exp, _ans: A, _chk: chk };
+  }
+  const comp = () => { const vy = CS.pick([10, 15, 20, 25, 30, 40]), vx = CS.pick([5, 10, 15, 20, 30]); return { vx, vy }; };
+  const T = {
+    flightComp(){
+      const { vx, vy } = comp(), ans = 2 * vy / G;
+      return mk("T-c-" + vx + "-" + vy, `지면에서 공을 비스듬히 던졌다. 처음 속도의 수평 성분은 ${vx} m/s, 수직 성분은 ${vy} m/s이다. 공이 다시 지면에 닿을 때까지 걸린 시간(비행 시간)은?`,
+        ans, [vy / G, 4 * vy / G, 2 * vx / G, (vx + vy) / G, vy / G + 1], "s",
+        `수직 방향만 보면 위로 ${vy} m/s로 던진 운동이다. 올라가는 시간 = ${vy}/10 = ${f(vy / G)} s, 내려오는 시간도 같다.<br>T = 2v<sub>y</sub>/g = 2×${vy}/10 = <b>${f(ans)} s</b>. 수평 성분은 비행 시간과 관계없다.`,
+        { k: "T", vx, vy });
+    },
+    flight30(){
+      const v0 = CS.pick([20, 30, 40, 50, 60]), vy = v0 / 2, ans = 2 * vy / G;
+      return mk("T-30-" + v0, `지면에서 수평면과 30°의 각으로 공을 ${v0} m/s로 던졌다. 비행 시간은? (sin30° = 1/2)`,
+        ans, [vy / G, 2 * v0 / G, v0 / (2 * G) * 3, ans + 2], "s",
+        `T = 2v₀sinθ/g = 2×${v0}×(1/2)/10 = <b>${f(ans)} s</b>`, { k: "T", v0, th: 30 });
+    },
+    height(){
+      let vy, txt, chk;
+      if(Math.random() < 0.5){ vy = CS.pick([10, 20, 30, 40]); const vx = CS.pick([10, 15, 20]);
+        txt = `지면에서 공을 비스듬히 던졌다. 처음 속도의 수평 성분은 ${vx} m/s, 수직 성분은 ${vy} m/s이다. 공이 올라가는 최고점의 높이는?`; chk = { k: "H", vx, vy }; }
+      else { const v0 = CS.pick([20, 40, 60]); vy = v0 / 2;
+        txt = `지면에서 수평면과 30°의 각으로 공을 ${v0} m/s로 던졌다. 최고점의 높이는? (sin30° = 1/2)`; chk = { k: "H", v0, th: 30 }; }
+      const ans = vy * vy / (2 * G);
+      return mk("H-" + txt.length + "-" + vy, txt, ans, [vy * vy / G, vy * vy / (4 * G), vy / G * vy / G, ans + 5, 4 * ans], "m",
+        `최고점에서는 수직 속도가 0이다. H = v<sub>y</sub>²/2g = ${vy}²/(2×10) = <b>${f(ans)} m</b>`, chk);
+    },
+    tTop(){
+      const { vx, vy } = comp(), ans = vy / G;
+      return mk("tH-" + vx + "-" + vy, `지면에서 비스듬히 던진 공의 처음 속도는 수평 성분 ${vx} m/s, 수직 성분 ${vy} m/s이다. 던진 순간부터 최고점에 도달할 때까지 걸린 시간은?`,
+        ans, [2 * ans, ans / 2, vx / G, (vx + vy) / G, ans + 1], "s",
+        `최고점에서 수직 속도가 0이 된다. 0 = v<sub>y</sub> − gt 에서 t = ${vy}/10 = <b>${f(ans)} s</b>`, { k: "tH", vx, vy });
+    },
+    range(){
+      if(Math.random() < 0.6){
+        const { vx, vy } = comp(), t = 2 * vy / G, ans = vx * t;
+        return mk("R-c-" + vx + "-" + vy, `지면에서 공을 비스듬히 던졌다. 처음 속도의 수평 성분은 ${vx} m/s, 수직 성분은 ${vy} m/s이다. 공이 지면에 다시 닿을 때까지 이동한 수평 거리는?`,
+          ans, [vx * vy / G, 4 * vx * vy / G, 2 * vy * vy / G, 2 * vx * vx / G, ans + 10], "m",
+          `비행 시간 T = 2×${vy}/10 = ${f(t)} s. 수평 방향은 등속 운동이므로 R = v<sub>x</sub>T = ${vx}×${f(t)} = <b>${f(ans)} m</b>`, { k: "R", vx, vy });
+      }
+      const v0 = CS.pick([10, 20, 30]), ans = v0 * v0 / G;
+      return mk("R-45-" + v0, `지면에서 수평면과 45°의 각으로 공을 ${v0} m/s로 던졌다. 수평 도달 거리는? (sin90° = 1)`,
+        ans, [v0 * v0 / (2 * G), 2 * v0 * v0 / G, v0 / G * 10, ans + 10], "m",
+        `R = v₀²sin2θ/g = ${v0}²×sin90°/10 = <b>${f(ans)} m</b>`, { k: "R", v0, th: 45 });
+    },
+    hFall(){
+      const t = CS.pick([1, 2, 3, 4, 5]), h = G / 2 * t * t, v0 = CS.pick([2, 5, 10, 15, 20]);
+      if(Math.random() < 0.5)
+        return mk("hT-" + h + "-" + v0, `높이 ${f(h)} m인 곳에서 공을 수평 방향으로 ${v0} m/s로 던졌다. 공이 지면에 닿을 때까지 걸린 시간은?`,
+          t, [2 * t, t + 1, t - 1, h / G, h / v0, v0 / G], "s",
+          `수직 방향은 자유 낙하와 같다. h = ½gt² 에서 t = √(2h/g) = √(2×${f(h)}/10) = <b>${t} s</b>. 던진 속력 ${v0} m/s와는 관계없다.`, { k: "hT", h, v0 });
+      const ans = v0 * t;
+      return mk("hR-" + h + "-" + v0, `높이 ${f(h)} m인 곳에서 공을 수평 방향으로 ${v0} m/s로 던졌다. 지면에 닿을 때까지 이동한 수평 거리는?`,
+        ans, [2 * ans, ans / 2, v0 * t * t, h, ans + v0], "m",
+        `낙하 시간 t = √(2h/g) = ${t} s. 수평 방향은 등속이므로 R = v₀t = ${v0}×${t} = <b>${f(ans)} m</b>`, { k: "hR", h, v0 });
+    },
+    sameRange(){
+      const th = CS.pick([15, 20, 25, 30, 35, 40]), ans = (90 - th) + "°";
+      const pool = [45, 2 * th, 90 - th + 10, 90 - th - 10, th + 45, 180 - th, 60, 75].filter(a => a !== th && a !== 90 - th && a > 0 && a < 90);
+      return mkText("same-" + th, `같은 속력으로 지면에서 공을 비스듬히 던진다. ${th}°로 던졌을 때와 수평 도달 거리가 같은 다른 각도는?`,
+        ans, CS.shuffle([...new Set(pool)]).map(a => a + "°"),
+        `R = v₀²sin2θ/g 이고 sin2θ = sin(180° − 2θ) = sin2(90° − θ) 이다. 그래서 두 각의 합이 90°이면 도달 거리가 같다. ${th}° + <b>${90 - th}°</b> = 90°`, { k: "same", th });
+    },
+    angleConcept(){
+      const c = CS.pick([0, 1, 2]), ch = ["15°", "30°", "45°", "60°", "75°"];
+      if(c === 0) return mkText("ang-max", `같은 속력으로 지면에서 15°, 30°, 45°, 60°, 75°로 공을 던질 때, 수평 도달 거리가 가장 먼 각도는?`, "45°", ch,
+        `R = v₀²sin2θ/g 에서 sin2θ가 가장 큰 것은 2θ = 90°, 즉 <b>θ = 45°</b>일 때이다.`, { k: "angmax" });
+      if(c === 1) return mkText("ang-H", `같은 속력으로 지면에서 15°, 30°, 45°, 60°, 75°로 공을 던질 때, 최고점이 가장 높은 각도는?`, "75°", ch,
+        `H = v₀²sin²θ/2g — 처음 속도의 수직 성분 v₀sinθ가 클수록 높이 올라간다. 가장 큰 각 <b>75°</b>.`, { k: "angH" });
+      return mkText("ang-T", `같은 속력으로 지면에서 15°, 30°, 45°, 60°, 75°로 공을 던질 때, 공중에 머무는 시간이 가장 긴 각도는?`, "75°", ch,
+        `T = 2v₀sinθ/g — 수직 성분이 가장 큰 <b>75°</b>일 때 가장 오래 떠 있다. (도달 거리가 가장 먼 45°와 다르다!)`, { k: "angT" });
+    },
+    horizConcept(){
+      const c = CS.pick([0, 1, 2, 3]);
+      const R = ["변하지 않는다", "1/2배", "√2배", "2배", "4배"];
+      if(c === 0) return mkText("hc-t", `같은 높이에서 공을 수평 방향으로 던진다. 던지는 속력을 2배로 하면 지면에 닿을 때까지 걸리는 시간은?`, "변하지 않는다", R,
+        `낙하 시간은 t = √(2h/g)로 높이만으로 정해진다. 수평 속력은 수직 운동에 영향을 주지 않으므로 <b>변하지 않는다</b>.`, { k: "hc-t" });
+      if(c === 1) return mkText("hc-R", `같은 높이에서 공을 수평 방향으로 던진다. 던지는 속력을 2배로 하면 수평 도달 거리는?`, "2배", R,
+        `낙하 시간은 그대로이고 R = v₀t 이므로 도달 거리는 <b>2배</b>가 된다.`, { k: "hc-R" });
+      if(c === 2) return mkText("hc-h", `같은 속력으로 수평 방향으로 공을 던진다. 던지는 높이를 4배로 하면 지면에 닿을 때까지 걸리는 시간은?`, "2배", R,
+        `t = √(2h/g) 이므로 h가 4배이면 t는 √4 = <b>2배</b>가 된다.`, { k: "hc-h" });
+      return mkText("hc-ff", `같은 높이에서 동시에, 공 A는 수평 방향으로 던지고 공 B는 가만히 놓아 떨어뜨렸다. 공기 저항을 무시할 때 지면에 먼저 닿는 공은?`,
+        "A와 B가 동시에 닿는다", ["A가 먼저 닿는다", "B가 먼저 닿는다", "A와 B가 동시에 닿는다", "A를 던진 속력에 따라 다르다", "질량이 큰 공이 먼저 닿는다"],
+        `두 공 모두 수직 방향 처음 속도가 0이고 가속도가 g로 같다. 수직 운동이 똑같으므로 <b>동시에</b> 닿는다.`, { k: "hc-ff" });
+    },
+    speedUp(){
+      const c = CS.pick([0, 1, 2]), R = ["변하지 않는다", "1/2배", "√2배", "2배", "4배"];
+      const what = ["수평 도달 거리", "최고점 높이", "비행 시간"][c], ans = ["4배", "4배", "2배"][c];
+      const why = ["R = v₀²sin2θ/g ∝ v₀²", "H = v₀²sin²θ/2g ∝ v₀²", "T = 2v₀sinθ/g ∝ v₀"][c];
+      return mkText("su-" + c, `지면에서 같은 각도로 공을 던질 때, 던지는 속력 v₀를 2배로 하면 ${what}는?`, ans, R,
+        `${why} 이므로 <b>${ans}</b>가 된다.`, { k: "su", c });
+    },
+    topSpeed(){
+      const tri = CS.pick([[15, 20, 25], [20, 15, 25], [30, 40, 50], [40, 30, 50], [6, 8, 10], [8, 6, 10], [12, 16, 20]]);
+      const [vx, vy, v0] = tri;
+      if(Math.random() < 0.6)
+        return mk("top-" + vx + "-" + vy, `지면에서 ${v0} m/s로 비스듬히 던진 공의 처음 속도는 수평 성분 ${vx} m/s, 수직 성분 ${vy} m/s이다. 최고점에서 공의 속력은?`,
+          vx, [0, vy, v0, v0 / 2, vx / 2], "m/s",
+          `최고점에서는 수직 성분만 0이 되고, 수평 성분은 처음과 같이 그대로이다. 속력 = <b>${vx} m/s</b> (0이 아니다!)`, { k: "top", vx, vy });
+      return mkText("acc-top", `지면에서 비스듬히 던진 공이 최고점에 있을 때, 공의 가속도는?`, "연직 아래 방향, 10 m/s²",
+        ["0", "연직 아래 방향, 10 m/s²", "연직 위 방향, 10 m/s²", "수평 방향, 10 m/s²", "운동 방향, 5 m/s²"],
+        `공에 작용하는 힘은 중력뿐이므로 어디에서나 가속도는 <b>연직 아래 방향으로 g = 10 m/s²</b>이다. 최고점에서 0인 것은 수직 속도이다.`, { k: "acc" });
+    }
+  };
+  const KEYS = Object.keys(T);
+  function make(n){
+    const out = [], seen = new Set();
+    let order = CS.shuffle(KEYS), guard = 0;
+    while(out.length < n && guard++ < 500){
+      if(!order.length) order = CS.shuffle(KEYS);
+      const q = T[order.pop()]();
+      if(seen.has(q.q)) continue;
+      seen.add(q.q); out.push(q);
+    }
+    return out;
+  }
+  return { make, types: T, f };
+})();
+/*QUIZ-END*/
+
+(function(){
+const $ = id => document.getElementById(id);
+const cv = $("cv"), ctx = cv.getContext("2d");
+const DEF = { mode: "horiz", g: 9.8, h: 20, v0h: 10, v0a: 20, th: 45, v0c: 20, dt: 0.2, shadow: true, vec: true, ff: true, slow: false };
+const S = Object.assign({}, DEF, CS.store.get("proj_v1", {}));
+const save = () => CS.store.set("proj_v1", S);
+const ANG = [15, 30, 45, 60, 75], ACOL = ["#38bdf8", "#a78bfa", "#facc15", "#f472b6", "#4ade80"];
+const C = { ball: "#f97316", xs: "#22d3ee", ys: "#f472b6", ff: "#a3e635", v: "#fde047", grid: "#1e293b", axis: "#64748b", txt: "#94a3b8" };
+const rad = d => d * Math.PI / 180;
+const f2 = x => (Math.round(x * 100) / 100).toFixed(2).replace(/\.?0+$/, "");
+const fx = (x, d) => x.toFixed(d);
+
+let tcur = 0, playing = false, last = 0, W = 0, H = 0, dpr = 1;
+
+function v0(){ return S.mode === "horiz" ? S.v0h : S.mode === "angle" ? S.v0a : S.v0c; }
+// 궤적 정보
+function shot(thDeg){
+  const g = S.g, u = v0();
+  if(S.mode === "horiz"){
+    const T = Math.sqrt(2 * S.h / g);
+    return { T, R: u * T, Hm: S.h, tH: 0, x0: 0, y0: S.h, vx: u, vy0: 0 };
+  }
+  const th = rad(thDeg), vx = u * Math.cos(th), vy0 = u * Math.sin(th);
+  const T = 2 * vy0 / g;
+  return { T, R: vx * T, Hm: vy0 * vy0 / (2 * g), tH: vy0 / g, x0: 0, y0: 0, vx, vy0 };
+}
+function pos(s, t){ return { x: s.x0 + s.vx * t, y: s.y0 + s.vy0 * t - 0.5 * S.g * t * t }; }
+function niceStep(range, n){
+  const raw = range / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p;
+}
+function maxT(){ return S.mode === "cmp" ? Math.max(...ANG.map(a => shot(a).T)) : shot(S.th).T; }
+
+function margins(){
+  const big = W >= 900, vec = S.vec && S.mode !== "cmp";
+  const vl = vec ? Math.min(big ? 120 : 70, W * 0.18) : 0;
+  return { big, fs: big ? 15 : 12, mL: big ? 74 : 54, mB: (big ? 44 : 36) + vl * 0.9, mT: (big ? 34 : 28) + vl * 0.35, mR: (big ? 24 : 14) + vl, vl };
+}
+function extents(){
+  let xm, ym;
+  if(S.mode === "cmp"){ const u = v0(); xm = u * u / S.g; ym = shot(75).Hm; }
+  else { const s = shot(S.th); xm = Math.max(s.R, 0.5); ym = Math.max(s.Hm, 0.5); }
+  return { xm: xm * 1.06, ym: ym * 1.15 };
+}
+function resize(){
+  dpr = window.devicePixelRatio || 1;
+  W = cv.clientWidth;
+  if(innerWidth >= 1000) H = Math.max(360, Math.round(Math.min(W * 0.66, innerHeight - 170)));
+  else {
+    const m = margins(), e = extents();
+    const want = m.mT + m.mB + (W - m.mL - m.mR) * e.ym / e.xm;
+    H = Math.round(Math.max(240, Math.min(want, W * 1.25, innerHeight * 0.62)));
+  }
+  cv.style.height = H + "px";
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  draw();
+}
+
+function arrow(x1, y1, x2, y2, col, w){
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+  if(L < 2) return;
+  const hl = Math.min(12, L * 0.4), a = Math.atan2(dy, dx);
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w || 3;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - hl * 0.8 * Math.cos(a), y2 - hl * 0.8 * Math.sin(a)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - hl * Math.cos(a - 0.4), y2 - hl * Math.sin(a - 0.4));
+  ctx.lineTo(x2 - hl * Math.cos(a + 0.4), y2 - hl * Math.sin(a + 0.4)); ctx.closePath(); ctx.fill();
+}
+function dot(x, y, r, col, alpha){ ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
+
+function draw(){
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const M = margins(), big = M.big, fs = M.fs, mL = M.mL, mB = M.mB, mT = M.mT, mR = M.mR;
+  const { xm, ym } = extents();
+  const sc = Math.min((W - mL - mR) / xm, (H - mT - mB) / ym);
+  const ox = mL, oy = H - mB;
+  const X = x => ox + x * sc, Y = y => oy - y * sc;
+  const xVis = (W - mL - mR) / sc, yVis = (H - mT - mB) / sc;
+  // 땅
+  ctx.fillStyle = "#1a1408"; ctx.fillRect(1, oy, W - 2, H - oy - 1);
+  // 격자
+  const st = niceStep(Math.max(xVis, yVis), big ? 10 : 6);
+  ctx.font = fs + "px sans-serif"; ctx.lineWidth = 1;
+  ctx.fillStyle = C.txt;
+  for(let x = 0; x <= xVis + 1e-9; x += st){
+    ctx.strokeStyle = C.grid; ctx.beginPath(); ctx.moveTo(X(x), Y(0)); ctx.lineTo(X(x), mT); ctx.stroke();
+    if(X(x) < W - (big ? 70 : 52)){ ctx.textAlign = "center"; ctx.fillText(+x.toPrecision(6) + "", X(x), oy + fs + 8); }
+  }
+  for(let y = 0; y <= yVis + 1e-9; y += st){
+    ctx.strokeStyle = C.grid; ctx.beginPath(); ctx.moveTo(ox, Y(y)); ctx.lineTo(W - mR, Y(y)); ctx.stroke();
+    ctx.textAlign = "right"; ctx.fillText(+y.toPrecision(6) + "", ox - (big ? 26 : 20), Y(y) + fs * 0.35);
+  }
+  ctx.textAlign = "right"; ctx.fillText("x (m)", W - 8, oy + fs + 8);
+  ctx.textAlign = "left";
+  ctx.fillText("y (m)", ox + 6, mT - 8);
+  // 축 (지면)
+  ctx.strokeStyle = C.axis; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(W - 2, oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox, mT); ctx.stroke();
+
+  if(S.mode === "cmp"){ drawCmp(X, Y, big); }
+  else drawOne(X, Y, sc, big, ox, oy);
+  // 시간
+  ctx.fillStyle = "#e2e8f0"; ctx.font = "600 " + (big ? 20 : 15) + "px sans-serif"; ctx.textAlign = "right";
+  ctx.fillText("t = " + tcur.toFixed(2) + " s", W - 10, (big ? 26 : 20));
+}
+
+function drawOne(X, Y, sc, big, ox, oy){
+  const s = shot(S.th), t = Math.min(tcur, s.T), dt = S.dt;
+  const r = big ? 9 : 7, rs = big ? 5 : 4;
+  // 전체 궤적(흐리게)
+  ctx.setLineDash([5, 6]); ctx.strokeStyle = "rgba(249,115,22,.35)"; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for(let i = 0; i <= 120; i++){ const p = pos(s, s.T * i / 120); i ? ctx.lineTo(X(p.x), Y(p.y)) : ctx.moveTo(X(p.x), Y(p.y)); }
+  ctx.stroke(); ctx.setLineDash([]);
+  // 지나온 궤적
+  ctx.strokeStyle = C.ball; ctx.lineWidth = 2.5; ctx.beginPath();
+  for(let i = 0; i <= 120; i++){ const p = pos(s, t * i / 120); i ? ctx.lineTo(X(p.x), Y(p.y)) : ctx.moveTo(X(p.x), Y(p.y)); }
+  ctx.stroke();
+  // 스트로보 점
+  const n = Math.floor(t / dt + 1e-9);
+  const xsY = oy + (big ? 0 : 0), ysX = ox - (big ? 13 : 10);
+  for(let k = 0; k <= n; k++){
+    const tk = k * dt, p = pos(s, tk);
+    if(S.shadow){
+      ctx.fillStyle = C.xs; ctx.fillRect(X(p.x) - 3, xsY - 3, 6, 6);
+      ctx.fillStyle = C.ys; ctx.fillRect(ysX - 3, Y(p.y) - 3, 6, 6);
+    }
+    if(S.mode === "horiz" && S.ff){ dot(X(0), Y(S.h - 0.5 * S.g * tk * tk), rs, C.ff, 0.75); }
+    dot(X(p.x), Y(p.y), rs, C.ball, 0.8);
+  }
+  const p = pos(s, t), vy = s.vy0 - S.g * t;
+  // 그림자 안내선
+  if(S.shadow){
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = "rgba(148,163,184,.6)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(p.x), Y(p.y)); ctx.lineTo(X(p.x), oy); ctx.moveTo(X(p.x), Y(p.y)); ctx.lineTo(ysX, Y(p.y)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = C.xs; ctx.beginPath(); ctx.arc(X(p.x), xsY, r - 1, 0, 7); ctx.fill();
+    ctx.fillStyle = C.ys; ctx.beginPath(); ctx.arc(ysX, Y(p.y), r - 1, 0, 7); ctx.fill();
+  }
+  // 자유 낙하 공
+  if(S.mode === "horiz" && S.ff){
+    const yf = S.h - 0.5 * S.g * t * t;
+    ctx.setLineDash([2, 5]); ctx.strokeStyle = "rgba(163,230,53,.7)"; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(yf)); ctx.lineTo(X(p.x), Y(p.y)); ctx.stroke(); ctx.setLineDash([]);
+    dot(X(0), Y(yf), r, C.ff);
+  }
+  dot(X(p.x), Y(p.y), r, C.ball);
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), r, 0, 7); ctx.stroke();
+  // 속도 벡터
+  if(S.vec){
+    const vmax = Math.hypot(s.vx, Math.max(Math.abs(s.vy0), Math.abs(s.vy0 - S.g * s.T)));
+    const k = margins().vl / Math.max(vmax, 1e-6);
+    const bx = X(p.x), by = Y(p.y);
+    arrow(bx, by, bx + s.vx * k, by, C.xs, big ? 3.5 : 2.5);
+    arrow(bx, by, bx, by - vy * k, C.ys, big ? 3.5 : 2.5);
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = "rgba(226,232,240,.45)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(bx + s.vx * k, by); ctx.lineTo(bx + s.vx * k, by - vy * k); ctx.lineTo(bx, by - vy * k); ctx.stroke(); ctx.setLineDash([]);
+    arrow(bx, by, bx + s.vx * k, by - vy * k, C.v, big ? 4 : 3);
+    ctx.font = "600 " + (big ? 16 : 13) + "px sans-serif"; ctx.textAlign = "left";
+    const tx = bx + s.vx * k, ty = by - vy * k, L = Math.hypot(tx - bx, ty - by) || 1;
+    ctx.fillStyle = C.v; ctx.textAlign = "left";
+    ctx.fillText("v = " + Math.hypot(s.vx, vy).toFixed(1), tx + (tx - bx) / L * 10 + 4, ty + (ty - by) / L * 10 + (vy < 0 ? 12 : -2));
+    ctx.fillStyle = C.xs; ctx.textAlign = "center";
+    ctx.fillText("vx = " + s.vx.toFixed(1), bx + s.vx * k / 2, vy < 0 ? by - 8 : by + (big ? 20 : 16));
+    ctx.fillStyle = C.ys; ctx.textAlign = "right";
+    if(Math.abs(vy) > 0.05) ctx.fillText("vy = " + vy.toFixed(1), bx - 8, by - vy * k + (vy < 0 ? 0 : 10));
+  }
+  // 최고점 표시
+  if(S.mode === "angle" && tcur >= s.tH){
+    const ph = pos(s, s.tH);
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(253,230,138,.5)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(ph.y)); ctx.lineTo(X(ph.x), Y(ph.y)); ctx.lineTo(X(ph.x), Y(0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = "#fde68a"; ctx.font = (big ? 15 : 12) + "px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("최고점 H = " + f2(s.Hm) + " m", X(ph.x), Y(ph.y) - (big ? 16 : 12));
+  }
+}
+
+function drawCmp(X, Y, big){
+  const t = tcur;
+  ANG.forEach((a, i) => {
+    const s = shot(a), te = Math.min(t, s.T);
+    ctx.strokeStyle = ACOL[i]; ctx.globalAlpha = 0.3; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]);
+    ctx.beginPath();
+    for(let j = 0; j <= 100; j++){ const p = pos(s, s.T * j / 100); j ? ctx.lineTo(X(p.x), Y(p.y)) : ctx.moveTo(X(p.x), Y(p.y)); }
+    ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    ctx.lineWidth = a === 45 ? 4 : 2.5; ctx.beginPath();
+    for(let j = 0; j <= 100; j++){ const p = pos(s, te * j / 100); j ? ctx.lineTo(X(p.x), Y(p.y)) : ctx.moveTo(X(p.x), Y(p.y)); }
+    ctx.stroke();
+    const p = pos(s, te);
+    dot(X(p.x), Y(p.y), big ? 8 : 6, ACOL[i]);
+    // 꼭대기 근처 각도 이름
+    const ph = pos(s, s.tH);
+    if(t >= s.tH){ ctx.fillStyle = ACOL[i]; ctx.font = "600 " + (big ? 16 : 12) + "px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(a + "°", X(ph.x), Y(ph.y) - 8); }
+  });
+  // 착지점: 30°·60° 같음 표시
+  const R45 = shot(45).R, R30 = shot(30).R, R15 = shot(15).R;
+  if(t >= shot(60).T){
+    const fsz = big ? 15 : 12;
+    const lab = (txt, x, y, col) => { ctx.font = "600 " + fsz + "px sans-serif";
+      const w = ctx.measureText(txt).width; let cx = Math.min(Math.max(x, w / 2 + 4), W - w / 2 - 4);
+      ctx.fillStyle = "rgba(11,18,34,.85)"; ctx.fillRect(cx - w / 2 - 3, y - fsz, w + 6, fsz + 5);
+      ctx.fillStyle = col; ctx.textAlign = "center"; ctx.fillText(txt, cx, y); };
+    lab("45°: 가장 멀리", X(R45), Y(0) - (big ? 12 : 9) - (fsz + 10), "#fde047");
+    lab("30° = 60°", X(R30), Y(0) - (big ? 12 : 9), "#c4b5fd");
+    lab("15° = 75°", X(R15), Y(0) - (big ? 12 : 9), "#86efac");
+  }
+}
+
+function legend(){
+  let h = "";
+  if(S.mode === "cmp") h = ANG.map((a, i) => `<span><i style="background:${ACOL[i]}"></i>${a}°</span>`).join("");
+  else {
+    h = `<span><i style="background:${C.ball}"></i>공 (${S.dt} s마다 점)</span>`;
+    if(S.shadow) h += `<span><i style="background:${C.xs};border-radius:2px"></i>수평 그림자(x축)</span><span><i style="background:${C.ys};border-radius:2px"></i>수직 그림자(y축)</span>`;
+    if(S.vec) h += `<span><i style="background:${C.v}"></i>속도 v</span>`;
+    if(S.mode === "horiz" && S.ff) h += `<span><i style="background:${C.ff}"></i>같은 높이에서 자유 낙하</span>`;
+  }
+  $("legend").innerHTML = h;
+}
+
+function results(){
+  const g = S.g, gs = String(g), u = v0();
+  let h = "", ex = "";
+  if(S.mode === "horiz"){
+    const s = shot(), vyE = g * s.T;
+    $("resTitle").textContent = "수평으로 던지기 — 계산 결과";
+    h = `<div class="it">낙하(비행) 시간 <b>${f2(s.T)} s</b><div class="f">t = √(2h/g) = √(2×${S.h}/${gs})</div></div>
+      <div class="it">수평 도달 거리 <b>${f2(s.R)} m</b><div class="f">R = v₀t = ${u}×${f2(s.T)}</div></div>
+      <div class="it">최고점 높이 <b>${S.h} m</b> (출발점)<div class="f">처음부터 수직 속도가 0이고 아래로만 빨라진다 → 최고점 도달 시간 0 s</div></div>
+      <div class="it">땅에 닿는 순간 <b>v<sub>x</sub> = ${u}, v<sub>y</sub> = ${f2(vyE)} m/s</b><div class="f">v<sub>y</sub> = gt, 속력 √(v<sub>x</sub>² + v<sub>y</sub>²) = ${f2(Math.hypot(u, vyE))} m/s</div></div>`;
+    ex = `<div class="note" style="font-size:15px"><b style="color:${C.xs}">수평 방향</b>: 힘이 없다 → <b>등속 운동</b>. x축 그림자 점의 간격이 일정하다.<br>
+      <b style="color:${C.ys}">수직 방향</b>: 중력만 작용 → <b>자유 낙하(등가속도)</b>. y축 그림자 점의 간격이 점점 커진다.<br>
+      <b style="color:${C.ff}">초록 공</b>(같은 높이에서 떨어뜨린 공)과 항상 같은 높이에 있고, <b>같은 시간에 바닥에 닿는다</b>. 낙하 시간은 v₀와 관계없다.</div>`;
+  } else if(S.mode === "angle"){
+    const s = shot(S.th), th = S.th;
+    $("resTitle").textContent = "비스듬히 던지기 — 계산 결과";
+    h = `<div class="it">처음 속도 성분 <b>v<sub>x</sub> = ${f2(s.vx)}, v<sub>y</sub> = ${f2(s.vy0)} m/s</b><div class="f">v<sub>x</sub> = v₀cosθ, v<sub>y</sub> = v₀sinθ (v₀ = ${u}, θ = ${th}°)</div></div>
+      <div class="it">최고점 도달 시간 <b>${f2(s.tH)} s</b><div class="f">t<sub>H</sub> = v₀sinθ/g</div></div>
+      <div class="it">비행 시간 <b>${f2(s.T)} s</b><div class="f">T = 2v₀sinθ/g = 2×${u}×sin${th}°/${gs}</div></div>
+      <div class="it">최고점 높이 <b>${f2(s.Hm)} m</b><div class="f">H = v₀²sin²θ/2g = ${u}²×sin²${th}°/(2×${gs})</div></div>
+      <div class="it">수평 도달 거리 <b>${f2(s.R)} m</b><div class="f">R = v₀²sin2θ/g = ${u}²×sin${2 * th}°/${gs}</div></div>`;
+    ex = `<div class="note" style="font-size:15px"><b style="color:${C.xs}">수평 방향</b>: 등속 운동 — 그림자 간격 일정, v<sub>x</sub>는 끝까지 그대로.<br>
+      <b style="color:${C.ys}">수직 방향</b>: 위로 던진 등가속도 운동 — 올라갈수록 간격이 좁아지고, 최고점에서 v<sub>y</sub> = 0, 내려올 때 다시 넓어진다.<br>
+      최고점에서도 속력은 0이 아니다(v<sub>x</sub>가 남음). 가속도는 어디서나 아래로 g이다.</div>`;
+  } else {
+    $("resTitle").textContent = `여러 각도 비교 (v₀ = ${u} m/s)`;
+    const rows = ANG.map((a, i) => { const s = shot(a); return { a, i, s }; });
+    const Rmax = Math.max(...rows.map(r => r.s.R));
+    h = `<table class="cmp"><tr><th>각도</th><th>비행 시간</th><th>최고점</th><th>도달 거리</th></tr>` +
+      rows.map(r => `<tr class="${Math.abs(r.s.R - Rmax) < 1e-9 ? "best" : ""}"><td><span class="sw" style="background:${ACOL[r.i]}"></span>${r.a}°</td><td>${f2(r.s.T)} s</td><td>${f2(r.s.Hm)} m</td><td>${f2(r.s.R)} m</td></tr>`).join("") + `</table>`;
+    ex = `<div class="note" style="font-size:15px">R = v₀²sin2θ/g — sin2θ가 1이 되는 <b>45°에서 도달 거리가 가장 멀다</b>.<br>
+      sin2θ = sin(180° − 2θ) 이므로 <b>두 각의 합이 90°</b>(30°와 60°, 15°와 75°)이면 도달 거리가 같다. 단, 큰 각이 더 높이, 더 오래 난다.</div>`;
+  }
+  $("res").innerHTML = h;
+  $("explain").innerHTML = ex;
+}
+
+function ui(){
+  document.querySelectorAll("[data-mode]").forEach(b => b.classList.toggle("on", b.dataset.mode === S.mode));
+  document.querySelectorAll("[data-g]").forEach(b => b.classList.toggle("on", +b.dataset.g === S.g));
+  document.querySelectorAll("[data-dt]").forEach(b => b.classList.toggle("on", +b.dataset.dt === S.dt));
+  document.querySelectorAll("[data-tg]").forEach(b => b.classList.toggle("on", !!S[b.dataset.tg]));
+  $("slH").classList.toggle("hide", S.mode !== "horiz");
+  $("slT").classList.toggle("hide", S.mode !== "angle");
+  $("rowDt").classList.toggle("hide", S.mode === "cmp");
+  $("rowShow").classList.toggle("hide", S.mode === "cmp");
+  $("chipFF").classList.toggle("hide", S.mode !== "horiz");
+  $("h").value = S.h; $("hv").textContent = S.h + " m";
+  $("v0").value = v0(); $("v0v").textContent = v0() + " m/s";
+  $("th").value = S.th; $("thv").textContent = S.th + "°";
+  $("bSlow").classList.toggle("on", S.slow);
+  legend(); results();
+}
+function finish(){ playing = false; tcur = maxT(); $("bPlay").textContent = "▶ 던지기"; }
+function changed(){ save(); finish(); ui(); resize(); }
+
+document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { S.mode = b.dataset.mode; changed(); });
+document.querySelectorAll("[data-g]").forEach(b => b.onclick = () => { S.g = +b.dataset.g; changed(); });
+document.querySelectorAll("[data-dt]").forEach(b => b.onclick = () => { S.dt = +b.dataset.dt; save(); ui(); draw(); });
+document.querySelectorAll("[data-tg]").forEach(b => b.onclick = () => { S[b.dataset.tg] = !S[b.dataset.tg]; save(); ui(); resize(); });
+$("h").oninput = e => { S.h = +e.target.value; changed(); };
+$("th").oninput = e => { S.th = +e.target.value; changed(); };
+$("v0").oninput = e => { const v = +e.target.value; if(S.mode === "horiz") S.v0h = v; else if(S.mode === "angle") S.v0a = v; else S.v0c = v; changed(); };
+$("bSlow").onclick = () => { S.slow = !S.slow; save(); ui(); };
+
+function loop(ts){
+  if(!playing) return;
+  if(document.hidden){ last = 0; requestAnimationFrame(loop); return; }
+  const dtr = last ? Math.min((ts - last) / 1000, 0.05) : 0; last = ts;
+  tcur += dtr * (S.slow ? 0.35 : 1);
+  const Tm = maxT();
+  if(tcur >= Tm){ tcur = Tm; playing = false; $("bPlay").textContent = "▶ 다시 던지기"; }
+  draw();
+  if(playing) requestAnimationFrame(loop);
+}
+$("bPlay").onclick = () => {
+  if(playing){ playing = false; $("bPlay").textContent = "▶ 이어서"; return; }
+  if(tcur >= maxT() - 1e-9) tcur = 0;
+  playing = true; last = 0; $("bPlay").textContent = "⏸ 멈춤";
+  requestAnimationFrame(loop);
+};
+$("bStep").onclick = () => {
+  playing = false;
+  const Tm = maxT(), dt = S.mode === "cmp" ? 0.2 : S.dt;
+  if(tcur >= Tm - 1e-9) tcur = 0;
+  else tcur = Math.min(Tm, (Math.floor(tcur / dt + 1e-6) + 1) * dt);
+  $("bPlay").textContent = tcur >= Tm - 1e-9 ? "▶ 다시 던지기" : "▶ 이어서";
+  draw();
+};
+
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(resize, 80); });
+finish(); ui(); resize();
+
+// 확인 문제
+const qz = CS.QuizRound($("quiz"), { make: PQ.make, count: 10 });
+qz.start();
+})();
+</script>
+</body>
+</html>

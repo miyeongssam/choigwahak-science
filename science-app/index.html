@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="최과학 과학">
+<title>최과학 과학</title>
+<link rel="stylesheet" href="common/common.css">
+<style>
+  .hero{padding:calc(env(safe-area-inset-top) + 18px) 16px 6px;max-width:1100px;margin:0 auto}
+  .hero h1{margin:0;font-size:24px}
+  .hero p{margin:4px 0 0;color:var(--muted);font-size:14px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs .chip{white-space:nowrap;font-size:14px}
+  .sub{margin:18px 0 8px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .sub i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  .tile{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--sc);
+    border-radius:14px;padding:14px;text-decoration:none;color:var(--text);min-height:76px}
+  .tile:active{transform:scale(.98)}
+  .tile .ic{font-size:28px;width:36px;text-align:center}
+  .tile b{display:block;font-size:16px}
+  .tile span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  #install{display:none;margin-top:12px}
+  .foot{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>최과학 과학</h1>
+  <p>암기 문제 · 움직이는 그림 · 공부 도구</p>
+  <div class="tabs" id="tabs"></div>
+</div>
+<div class="wrap">
+  <div class="panel" id="install">
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>📱 홈 화면에 추가하면 앱처럼 쓸 수 있어요</b><span id="instX" style="cursor:pointer;color:var(--muted)">✕</span></div>
+    <div class="note" id="instSteps" style="margin-top:6px"></div>
+  </div>
+  <div id="list"><div class="muted center" style="padding:30px">불러오는 중…</div></div>
+  <div class="foot">최과학 과학전문학원 · 여의도</div>
+</div>
+<script src="common/common.js"></script>
+<script>
+(async function(){
+  let data;
+  try{ data = await (await fetch("apps.json", {cache:"no-cache"})).json(); }
+  catch(e){ document.getElementById("list").innerHTML = '<div class="muted center" style="padding:30px">목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; return; }
+  const tabs = document.getElementById("tabs"), list = document.getElementById("list");
+  let cur = CS.store.get("homeTab", "all");
+  function render(){
+    tabs.innerHTML = "";
+    [{id:"all", name:"전체"}].concat(data.subjects).forEach(s => {
+      const c = document.createElement("span");
+      c.className = "chip" + (cur === s.id ? " on" : "");
+      c.textContent = s.name.replace(/ \(.*\)/, "");
+      c.onclick = () => { cur = s.id; CS.store.set("homeTab", cur); render(); };
+      tabs.appendChild(c);
+    });
+    list.innerHTML = data.subjects.filter(s => cur === "all" || s.id === cur).map(s =>
+      `<div class="sub"><i style="background:${s.color}"></i>${s.name}</div><div class="grid">` +
+      s.apps.map(a => `<a class="tile" style="--sc:${s.color}" href="${a.path}"><div class="ic">${a.icon}</div><div><b>${a.title}</b><span>${a.desc}</span></div></a>`).join("") +
+      `</div>`).join("");
+  }
+  render();
+
+  // 설치 안내 (이미 앱으로 실행 중이면 숨김)
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if(!standalone && !CS.store.get("installX", false)){
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    document.getElementById("instSteps").innerHTML = ios
+      ? "Safari 아래쪽 <b>공유 버튼(□↑)</b> → <b>홈 화면에 추가</b>"
+      : "Chrome 오른쪽 위 <b>⋮ 메뉴</b> → <b>홈 화면에 추가</b> 또는 <b>앱 설치</b>";
+    document.getElementById("install").style.display = "block";
+    document.getElementById("instX").onclick = () => { CS.store.set("installX", true); document.getElementById("install").style.display = "none"; };
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>전자 전달계 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.tabs .btn{font-size:15px;padding:12px 8px}
+.tabs .btn small{display:block;font-size:12px;font-weight:500;opacity:.85}
+.main{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1100px){
+  .wrap{max-width:1880px}
+  .main{grid-template-columns:minmax(0,1fr) 400px;align-items:start}
+}
+.figbox{padding:10px}
+.figcap{font-size:15px;font-weight:700;margin:2px 4px 8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.figcap span{font-weight:500;color:var(--muted);font-size:13px}
+#fig{display:block;width:100%;height:auto;background:#0b1222;border:1px solid var(--line);border-radius:12px}
+#fig text{font-family:inherit}
+#fig .basicOnly,#fig .advOnly{transition:opacity .2s}
+.figwrap:not(.advOn) .advOnly{display:none}
+.figwrap.advOn .basicOnly{display:none}
+.figwrap.cyc .ncOnly{opacity:.18}
+.status{min-height:72px;font-size:16px;line-height:1.6;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;word-break:keep-all}
+.status b{color:#fde68a}
+.side .panel h2{font-size:15px}
+.acts{margin-top:10px}
+.acts .row{margin-bottom:8px}
+.acts .btn{flex:1 1 40%}
+.acts .chip{font-size:15px;padding:10px 14px}
+.ctrl .row{margin-bottom:8px}
+@media (max-width:600px){.figbox{padding:8px}}
+.fa{border:2px solid var(--warn);border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.55;background:rgba(245,158,11,.08)}
+.fa .big{font-size:22px;font-weight:800;color:#fcd34d}
+.pc{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:15px;margin-top:6px}
+.pc .dots{letter-spacing:3px;font-size:18px;color:#fb7185}
+.pc .dots i{font-style:normal;color:#475569}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%}
+.keybox{border:2px solid #60a5fa;border-radius:12px;padding:10px 12px;background:rgba(59,130,246,.1);font-size:15px;line-height:1.6;margin-top:10px;word-break:keep-all}
+.adv ul{margin:6px 0 0;padding-left:18px}
+.adv li{margin-bottom:3px}
+.cmp{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere}
+.cmp th,.cmp td{border:1px solid var(--line);padding:6px 5px;vertical-align:middle;text-align:center}
+.cmp thead th{background:var(--card2);font-size:13px}
+.cmp th.mi{color:#c4b5fd}.cmp th.ch{color:#86efac}
+.cmp td.k{font-weight:700;color:#e2e8f0;background:rgba(255,255,255,.03)}
+.cmp td.n{color:var(--muted)}
+.cmp col.cn{width:12%}.cmp col.ck{width:25%}
+@media (min-width:900px){.cmp{font-size:17px}.cmp thead th{font-size:16px}.cmp th,.cmp td{padding:9px 8px}}
+@media (min-width:1100px){.status{font-size:18px}}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>전자 전달계<small>생명 · 세포 호흡 vs 광합성 명반응 비교</small></h1></header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="btn ghost" id="tabMito">미토콘드리아 내막<small>세포 호흡</small></button>
+    <button class="btn ghost" id="tabChl">엽록체 타이라코이드 막<small>광합성 명반응</small></button>
+  </div>
+
+  <div class="main">
+    <div class="panel figbox">
+      <div class="figcap"><div id="figTitle"></div><span>노란 점 = 전자(e⁻) · 빨간 점 = H⁺</span></div>
+      <div class="figwrap" id="figwrap"><svg id="fig" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="acts">
+        <div id="ctrlMito" class="row"><button class="btn" id="bNadh">NADH 전자 보내기</button><button class="btn" id="bFadh" style="background:#7c3aed">FADH₂ 전자 보내기</button></div>
+        <div id="ctrlChl" class="row hide"><button class="btn" id="bLight" style="background:#15803d">☀️ 빛 비추기</button><button class="chip" id="bCyc">순환 전자 흐름</button></div>
+        <div class="row"><button class="btn ghost" id="bAuto">▶ 연속 재생</button><button class="btn ghost" id="bReset">↺ 처음으로</button></div>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="note" style="margin-top:6px">그림 속 H⁺·e⁻ 점의 개수는 실제 개수가 아니라 흐름을 보여 주는 표시예요.</div>
+    </div>
+
+    <div class="side">
+      <div class="panel ctrl">
+        <h2>조작</h2>
+        <div class="note hide" id="cycWrap" style="margin-bottom:6px">순환 전자 흐름: <b id="cycNote">꺼짐</b></div>
+        <div class="slider"><span>속도</span><input type="range" id="spd" min="0.5" max="2.5" step="0.25" value="1"><span class="v" id="spdV">1배</span></div>
+        <div class="row"><button class="chip" id="bAdv">심화 보기</button><span class="note">교과서 범위를 넘을 수 있어요</span></div>
+        <div class="legend"><span><i style="background:#facc15"></i>전자 e⁻</span><span><i style="background:#fb7185"></i>H⁺</span><span><i style="background:#22c55e"></i>ATP</span></div>
+      </div>
+
+      <div class="panel" id="infoMito">
+        <div class="fa">최종 전자 수용체<div class="big">O₂</div>전자와 H⁺를 받아 <b>H₂O</b>가 된다.</div>
+        <div style="margin-top:12px;font-weight:700">H⁺를 퍼 올리는 단백질 수 (전자 1쌍이 지나갈 때)</div>
+        <div class="pc">
+          <b>NADH</b><span><span class="dots">●●●</span> 세 곳<span class="advSide hide"> (Ⅰ·Ⅲ·Ⅳ)</span></span>
+          <b>FADH₂</b><span><span class="dots">●●<i>○</i></span> 두 곳<span class="advSide hide"> (Ⅲ·Ⅳ)</span></span>
+        </div>
+        <div class="note" style="margin-top:6px;font-size:14px">FADH₂의 전자는 H⁺를 퍼 올리지 않는 단백질로 들어오므로, NADH보다 퍼 올리는 H⁺가 <b style="color:#fca5a5">더 적고</b> ATP도 <b style="color:#fca5a5">더 적게</b> 만들어진다.</div>
+      </div>
+
+      <div class="panel hide" id="infoChl">
+        <div class="fa" id="faChl">최종 전자 수용체 (비순환)<div class="big">NADP⁺</div>전자와 H⁺를 받아 <b>NADPH</b>가 된다.</div>
+        <div class="fa hide" id="faCyc" style="border-color:#60a5fa;background:rgba(59,130,246,.08)"><b>순환 전자 흐름</b><br>광계 Ⅰ → 전자 전달계 → 광계 Ⅰ로 되돌아온다.<br>광계 Ⅰ만 관여 · <b>ATP만</b> 생성<br>NADPH ✕ · O₂ ✕ (물 분해 없음)</div>
+      </div>
+
+      <div class="panel adv hide" id="advBox">
+        <b>심화 — 이름 정리</b>
+        <ul id="advMito">
+          <li><b>복합체 Ⅰ</b>: NADH 탈수소 효소</li>
+          <li><b>복합체 Ⅱ</b>: FADH₂의 전자가 들어오는 곳 (H⁺를 퍼 올리지 않음)</li>
+          <li><b>유비퀴논(Q)</b>: 막 안을 움직이는 전자 운반체</li>
+          <li><b>복합체 Ⅲ</b>: 사이토크롬 bc₁ 복합체</li>
+          <li><b>사이토크롬 c</b>: 막 사이 공간 쪽의 전자 운반체</li>
+          <li><b>복합체 Ⅳ</b>: 사이토크롬 c 산화 효소</li>
+          <li><b>ATP 합성 효소</b>를 <b>복합체 Ⅴ</b>라고도 부른다.</li>
+        </ul>
+        <ul id="advChl" class="hide">
+          <li><b>P680</b>: 광계 Ⅱ의 반응 중심 색소</li>
+          <li><b>PQ</b>: 플라스토퀴논</li>
+          <li><b>b₆f</b>: 사이토크롬 b₆f 복합체 (H⁺를 퍼 올림)</li>
+          <li><b>PC</b>: 플라스토시아닌</li>
+          <li><b>P700</b>: 광계 Ⅰ의 반응 중심 색소</li>
+          <li><b>Fd</b>: 페레독신</li>
+          <li><b>효소</b>: NADP⁺ 환원 효소</li>
+        </ul>
+        <div class="keybox"><b>핵심 정리</b><br>복합체 Ⅰ~Ⅴ라는 이름은 <b>미토콘드리아(세포 호흡)</b> 쪽 이름이다. 엽록체는 <b>광계 Ⅱ → 사이토크롬 b₆f → 광계 Ⅰ</b> 이라고 부른다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>한눈에 비교</h2>
+    <table class="cmp">
+      <colgroup><col class="cn"><col class="ck"><col><col></colgroup>
+      <thead><tr><th>번호</th><th>비교</th><th class="mi">미토콘드리아</th><th class="ch">엽록체</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="k">막 이름</td><td>내막</td><td>타이라코이드 막</td></tr>
+        <tr><td class="n">2</td><td class="k">전자 공급원</td><td>NADH, FADH₂</td><td>H₂O</td></tr>
+        <tr><td class="n">3</td><td class="k">최종 전자 수용체</td><td>O₂</td><td>NADP⁺ (비순환)</td></tr>
+        <tr><td class="n">4</td><td class="k">H⁺가 쌓이는 곳</td><td>막 사이 공간</td><td>타이라코이드 내부</td></tr>
+        <tr><td class="n">5</td><td class="k">ATP 생성 장소</td><td>기질</td><td>스트로마</td></tr>
+        <tr><td class="n">6</td><td class="k">에너지원</td><td>유기물 산화</td><td>빛</td></tr>
+        <tr><td class="n">7</td><td class="k">생성물</td><td>H₂O (+ ATP)</td><td>O₂, NADPH (+ ATP)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>확인 문제</h2>
+    <div id="quiz"></div>
+  </div>
+</div>
+<script src="../common/common.js"></script>
+<script>"use strict";
+(function(){
+const $ = id => document.getElementById(id);
+const svg = $("fig"), figwrap = $("figwrap"), statusEl = $("status");
+const NS = "http://www.w3.org/2000/svg";
+const S = { tab: CS.store.get("etc_tab", "mito"), adv: !!CS.store.get("etc_adv", false), speed: 1, cyc: false, auto: false };
+if(S.tab !== "mito" && S.tab !== "chl") S.tab = "mito";
+
+// ---------- 기하 ----------
+const H = 540, M1 = 225, M2 = 315;   // 막 위·아래 경계
+let W = 1000, narrow = false, FS = 18;
+const X = f => f * W;
+
+const GEO = {
+  mito: {
+    top: "막 사이 공간", bot: "미토콘드리아 기질",
+    pool: [0.03, 0.80],
+    prot: [
+      {id:"I",   x:.06,  w:.09,  y:195, h:155, fill:"#6d28d9", adv:"Ⅰ"},
+      {id:"II",  x:.215, w:.07,  y:275, h:78,  fill:"#7c3aed", adv:"Ⅱ"},
+      {id:"III", x:.39,  w:.08,  y:200, h:140, fill:"#6d28d9", adv:"Ⅲ"},
+      {id:"IV",  x:.57,  w:.08,  y:198, h:142, fill:"#6d28d9", adv:"Ⅳ"}
+    ],
+    carr: [
+      {id:"Q", x:.34, y:258, fill:"#ea580c", adv:"Q"},
+      {id:"c", x:.52, y:M1-16, fill:"#dc2626", adv:"c"}
+    ],
+    pumps: [.128, .448, .628],
+    brackets: [[.05, .66]]
+  },
+  chl: {
+    top: "타이라코이드 내부", bot: "스트로마",
+    pool: [0.33, 0.80],
+    prot: [
+      {id:"PSII", x:.06,  w:.11,  y:195, h:155, fill:"#15803d", basic:"광계 Ⅱ", adv2:"P680", nc:true},
+      {id:"b6f",  x:.30,  w:.085, y:200, h:140, fill:"#6d28d9", adv:"b₆f"},
+      {id:"PSI",  x:.50,  w:.11,  y:195, h:155, fill:"#15803d", basic:"광계 Ⅰ", adv2:"P700"},
+      {id:"FNR",  x:.71,  w:.08,  y:300, h:62,  fill:"#1d4ed8", adv:"효소", nc:true}
+    ],
+    carr: [
+      {id:"PQ", x:.245, y:282,   fill:"#ea580c", adv:"PQ"},
+      {id:"PC", x:.44,  y:M1-16, fill:"#0891b2", adv:"PC"},
+      {id:"Fd", x:.665, y:M2+30, fill:"#a16207", adv:"Fd"}
+    ],
+    pumps: [.362],
+    brackets: [[.21, .47], [.63, .80]]
+  }
+};
+const ATPX = .865;
+
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+function txt(x, y, s, o){
+  o = o || {};
+  return `<text x="${x}" y="${y}" font-size="${o.fs || FS}" fill="${o.fill || "#e2e8f0"}" text-anchor="${o.anchor || "middle"}" font-weight="${o.fw || 600}"${o.cls ? ` class="${o.cls}"` : ""}>${s}</text>`;
+}
+
+let poolL, dynL;
+function build(){
+  const box = figwrap.getBoundingClientRect().width || 360;
+  narrow = box < 720;
+  W = narrow ? 640 : 1000;
+  FS = narrow ? 23 : 19;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const g = GEO[S.tab], mito = S.tab === "mito";
+  let h = "";
+  h += `<defs>
+    <pattern id="lip" width="14" height="${M2-M1}" patternUnits="userSpaceOnUse">
+      <rect width="14" height="${M2-M1}" fill="#3f3420"/>
+      <line x1="5" y1="8" x2="5" y2="${(M2-M1)/2-3}" stroke="#a8875a" stroke-width="1.6"/><line x1="9" y1="8" x2="9" y2="${(M2-M1)/2-3}" stroke="#a8875a" stroke-width="1.6"/>
+      <line x1="5" y1="${(M2-M1)/2+3}" x2="5" y2="${M2-M1-8}" stroke="#a8875a" stroke-width="1.6"/><line x1="9" y1="${(M2-M1)/2+3}" x2="9" y2="${M2-M1-8}" stroke="#a8875a" stroke-width="1.6"/>
+      <circle cx="7" cy="6" r="5.5" fill="#d6b27a"/><circle cx="7" cy="${M2-M1-6}" r="5.5" fill="#d6b27a"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#fb7185"/></marker>
+    <marker id="ahy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#fde047"/></marker>
+  </defs>`;
+  // 공간
+  h += `<rect x="0" y="0" width="${W}" height="${M1}" fill="${mito ? "#1a1f3d" : "#11301f"}"/>`;
+  h += `<rect x="0" y="${M2}" width="${W}" height="${H-M2}" fill="${mito ? "#0f172a" : "#0c2216"}"/>`;
+  h += `<rect x="0" y="${M1}" width="${W}" height="${M2-M1}" fill="url(#lip)"/>`;
+  h += txt(W-10, 28, g.top + " <tspan fill='#fca5a5' font-size='" + Math.round(FS*.72) + "'>(H⁺ 많음)</tspan>", {anchor:"end", fs:Math.round(FS*.9), fill:"#cbd5e1", fw:700});
+  h += txt(W-10, H-12, g.bot, {anchor:"end", fs:Math.round(FS*.9), fill:"#cbd5e1", fw:700});
+  // 전자 전달계 괄호
+  g.brackets.forEach(([a, b]) => {
+    const xa = X(a), xb = X(b);
+    h += `<path d="M${xa},76 L${xa},64 L${xb},64 L${xb},76" fill="none" stroke="#a5b4fc" stroke-width="2"/>`;
+    h += txt((xa+xb)/2, 54, "전자 전달계", {fill:"#c7d2fe", fs:Math.round(FS*.9)});
+  });
+  // ATP 합성 효소 (같은 모양)
+  const ax = X(ATPX), fw = X(.05);
+  h += `<g>
+    <rect x="${ax-fw/2}" y="${M1-12}" width="${fw}" height="${M2-M1+24}" rx="8" fill="#0f766e" stroke="#5eead4" stroke-width="1.5"/>
+    <rect x="${ax-6}" y="${M2+8}" width="12" height="30" fill="#14b8a6"/>
+    <ellipse cx="${ax}" cy="${M2+62}" rx="${narrow?40:44}" ry="30" fill="#0d9488" stroke="#5eead4" stroke-width="1.5"/>
+    <line x1="${ax}" y1="${M1-40}" x2="${ax}" y2="${M2+40}" stroke="#fb7185" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#ah)" opacity=".85"/>
+    ${txt(ax, M2+62+FS*.35, "ATP", {fs:Math.round(FS*.8), fill:"#ecfeff"})}
+    ${txt(narrow ? W-8 : ax, 432, "ADP + P<tspan font-style='italic'>i</tspan>", {fs:Math.round(FS*.85), fill:"#cbd5e1", anchor: narrow ? "end" : "middle"})}
+    ${txt(narrow ? W-8 : ax, 458, "→ <tspan fill='#4ade80'>ATP</tspan>", {fs:Math.round(FS*.95), anchor: narrow ? "end" : "middle"})}
+    ${txt(ax, M1+ (M2-M1)/2 + 6, "Ⅴ", {fs:Math.round(FS*.9), fill:"#fde68a", cls:"advOnly"})}
+  </g>`;
+  const lx = X(.755);
+  h += `<rect x="${lx-FS*2.4}" y="${263-FS*1.0}" width="${FS*4.8}" height="${FS*2.25}" rx="8" fill="rgba(11,18,34,.85)" stroke="#2dd4bf" stroke-width="1"/>`;
+  h += txt(lx, 263, "ATP", {fs:Math.round(FS*.82), fill:"#99f6e4", fw:700}) + txt(lx, 263 + FS*.95, "합성 효소", {fs:Math.round(FS*.82), fill:"#99f6e4", fw:700});
+  // 단백질
+  g.prot.forEach(p => {
+    const x = X(p.x), w = X(p.w), cx = x + w/2;
+    let s = `<rect x="${x}" y="${p.y}" width="${w}" height="${p.h}" rx="14" fill="${p.fill}" stroke="#c4b5fd" stroke-width="1.5" opacity=".95"/>`;
+    if(p.basic){
+      s += txt(cx, p.y + p.h/2 + (S.adv ? -4 : 7), p.basic, {fs:Math.round(FS*(narrow?.78:.9)), fill:"#fff"});
+      s += txt(cx, p.y + p.h/2 + FS, p.adv2, {fs:Math.round(FS*.72), fill:"#fde68a", cls:"advOnly"});
+    }
+    if(p.adv) s += txt(cx, p.y + p.h/2 + FS*.35, p.adv, {fs:Math.round(FS*(p.adv.length > 2 ? .8 : 1.1)), fill:"#fde68a", cls:"advOnly"});
+    h += `<g id="p_${p.id}" class="${p.nc ? "ncOnly" : ""}">${s}</g>`;
+  });
+  g.carr.forEach(c => {
+    h += `<g id="p_${c.id}"><circle cx="${X(c.x)}" cy="${c.y}" r="${narrow?19:17}" fill="${c.fill}" stroke="#fde68a" stroke-width="1.2"/>
+      ${txt(X(c.x), c.y + FS*.3, c.adv, {fs:Math.round(FS*.72), fill:"#fff", fw:700, cls:"advOnly"})}</g>`;
+  });
+  // H⁺ 퍼 올리기 화살표
+  g.pumps.forEach(px => {
+    const x = X(px);
+    h += `<line x1="${x}" y1="${M2+52}" x2="${x}" y2="${M1-34}" stroke="#fb7185" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#ah)" opacity=".75"/>`;
+    h += txt(x, M2+76, "H⁺", {fs:Math.round(FS*.85), fill:"#fda4af"});
+  });
+  if(mito){
+    h += txt(X(.09), 432, "NADH", {fill:"#fde68a", fw:700});
+    h += txt(X(.25), 432, "FADH₂", {fill:"#d8b4fe", fw:700});
+    h += txt(X(.60), 418, "½O₂ + 2H⁺", {fs:Math.round(FS*.9)});
+    h += txt(X(.60), 444, "→ H₂O", {fs:Math.round(FS*.95), fill:"#7dd3fc"});
+    h += `<g><rect x="${X(.60)-FS*3.6}" y="458" width="${FS*7.2}" height="${FS*1.35}" rx="8" fill="rgba(245,158,11,.18)" stroke="#f59e0b"/>
+      ${txt(X(.60), 458 + FS*.98, "최종 전자 수용체 O₂", {fs:Math.round(FS*.7), fill:"#fcd34d", fw:700})}</g>`;
+  } else {
+    h += `<g class="ncOnly">${txt(10, 112, "H₂O →", {anchor:"start", fs:Math.round(FS*.9), fill:"#7dd3fc", fw:700})}
+      ${txt(10, 112 + FS*1.15, "2H⁺ + ½O₂ + 2e⁻", {anchor:"start", fs:Math.round(FS*.8)})}</g>`;
+    const nx = X(narrow ? .66 : .75);
+    h += `<g class="ncOnly">${txt(nx, 418, "NADP⁺ + H⁺", {fs:Math.round(FS*.9)})}
+      ${txt(nx, 444, "→ NADPH", {fs:Math.round(FS*.95), fill:"#fde68a"})}
+      <rect x="${nx-FS*3.9}" y="458" width="${FS*7.8}" height="${FS*1.35}" rx="8" fill="rgba(245,158,11,.18)" stroke="#f59e0b"/>
+      ${txt(nx, 458 + FS*.98, "최종 전자 수용체 NADP⁺", {fs:Math.round(FS*.66), fill:"#fcd34d", fw:700})}</g>`;
+    // 빛
+    const ray = (x1, y1, x2, y2, cls) => {
+      const n = 7, dx = (x2-x1)/n, dy = (y2-y1)/n, len = Math.hypot(x2-x1, y2-y1), nx = -(y2-y1)/len*7, ny = (x2-x1)/len*7;
+      let d = `M${x1},${y1}`;
+      for(let k = 1; k <= n; k++) d += ` Q${x1+dx*(k-.5)+nx*(k%2?1:-1)},${y1+dy*(k-.5)+ny*(k%2?1:-1)} ${x1+dx*k},${y1+dy*k}`;
+      return `<g class="${cls}"><path d="${d}" fill="none" stroke="#fde047" stroke-width="2.5" marker-end="url(#ahy)"/>${txt(x1, y1 + FS*1.05, "빛", {fs:Math.round(FS*.85), fill:"#fde047"})}</g>`;
+    };
+    h += ray(X(.035), 470, X(.075), 360, "ncOnly");
+    h += ray(X(.455), 470, X(.505), 360, "");
+  }
+  h += `<g id="poolL"></g><g id="dynL"></g>`;
+  svg.innerHTML = h;
+  poolL = $("poolL"); dynL = $("dynL");
+  tokens = []; eActive = 0; pool.forEach(d => d.el = null);
+  renderPool(true);
+}
+
+// ---------- 애니메이션 ----------
+let tokens = [], pool = [], passed = 0, drainT = 0, raf = 0, last = 0, autoT = 0, nextKind = "NADH", eActive = 0;
+const BASE = 3;
+
+function poolBounds(){ const g = GEO[S.tab]; return { x0:X(g.pool[0]), x1:X(g.pool[1]), y0:88, y1:M1-14 }; }
+function addPool(x, y){
+  if(pool.length >= 36) return;
+  const b = poolBounds();
+  pool.push({ x:Math.min(b.x1, Math.max(b.x0, x)), y:Math.min(b.y1, Math.max(b.y0, y)), vx:(Math.random()-.5)*30, vy:(Math.random()-.5)*30, el:null });
+}
+function resetPool(){
+  pool = []; const b = poolBounds();
+  for(let k = 0; k < BASE; k++) addPool(b.x0 + Math.random()*(b.x1-b.x0), b.y0 + Math.random()*(b.y1-b.y0));
+}
+function renderPool(full){
+  if(full){ poolL.innerHTML = ""; pool.forEach(d => d.el = null); }
+  pool.forEach(d => {
+    if(!d.el) d.el = el("circle", {r: narrow ? 7 : 6, fill:"#fb7185", opacity:".9"}, poolL);
+    d.el.setAttribute("cx", d.x.toFixed(1)); d.el.setAttribute("cy", d.y.toFixed(1));
+  });
+}
+
+function P(fx, y, ev, pause){ return { x:X(fx), y, ev, pause: pause == null ? 0.35 : pause }; }
+
+function spawnFollower(kind, pts, onDone, speed){
+  const t = { kind, pts, i:0, d:0, wait:0, onDone, v: speed || 150 };
+  if(kind === "e"){
+    t.el = el("g", {}, dynL);
+    el("circle", {r: narrow ? 15 : 13, fill:"#facc15", opacity:".25"}, t.el);
+    el("circle", {r: narrow ? 9 : 8, fill:"#facc15", stroke:"#fff", "stroke-width":"1.5"}, t.el);
+    const tx = el("text", {x: narrow ? 13 : 11, y: -10, "font-size": Math.round(FS*.75), fill:"#fde047", "font-weight":"700"}, t.el);
+    tx.textContent = "e⁻";
+    eActive++;
+  } else {
+    t.el = el("g", {}, dynL);
+    el("circle", {r: narrow ? 8 : 7, fill:"#fb7185", stroke:"#fff", "stroke-width":"1"}, t.el);
+    if(kind === "hp"){ const tx = el("text", {x: 10, y: 5, "font-size": Math.round(FS*.7), fill:"#fda4af", "font-weight":"700"}, t.el); tx.textContent = "H⁺"; }
+  }
+  if(pts[0].ev) pts[0].ev();
+  tokens.push(t); place(t); kick();
+  return t;
+}
+function place(t){
+  const a = t.pts[t.i], b = t.pts[Math.min(t.i+1, t.pts.length-1)];
+  const L = Math.hypot(b.x-a.x, b.y-a.y) || 1, r = Math.min(1, t.d / L);
+  t.x = a.x + (b.x-a.x)*r; t.y = a.y + (b.y-a.y)*r;
+  t.el.setAttribute("transform", `translate(${t.x.toFixed(1)},${t.y.toFixed(1)})`);
+}
+function pop(x, y, text, color, size){
+  const t = { kind:"pop", t:0, life:1.6, x, y };
+  t.el = el("text", {x, y, "font-size": Math.round(FS*(size || .95)), fill: color, "text-anchor":"middle", "font-weight":"800"}, dynL);
+  t.el.textContent = text;
+  tokens.push(t); kick();
+}
+function flash(x, y){
+  const t = { kind:"flash", t:0, life:.8, x, y };
+  t.el = el("circle", {cx:x, cy:y, r:10, fill:"none", stroke:"#fde047", "stroke-width":"4"}, dynL);
+  tokens.push(t); kick();
+}
+function pumpH(fx){
+  const x = X(fx);
+  spawnFollower("hp", [P(fx, M2+70, null, 0), P(fx, M1-40, null, 0)], t => addPool(t.x + (Math.random()-.5)*30, t.y - 10 - Math.random()*40), 170);
+}
+
+function kick(){ if(!raf){ last = performance.now(); raf = requestAnimationFrame(loop); } }
+function loop(now){
+  raf = 0;
+  if(document.hidden){ return; }
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const sp = S.speed;
+  // 따라가기
+  for(const t of tokens.slice()){
+    if(t.kind === "pop"){
+      t.t += dt * sp;
+      t.el.setAttribute("y", (t.y - t.t*22).toFixed(1));
+      t.el.setAttribute("opacity", Math.max(0, 1 - t.t / t.life).toFixed(2));
+      if(t.t >= t.life) kill(t);
+      continue;
+    }
+    if(t.kind === "flash"){
+      t.t += dt * sp;
+      t.el.setAttribute("r", (10 + t.t*70).toFixed(1));
+      t.el.setAttribute("opacity", Math.max(0, 1 - t.t / t.life).toFixed(2));
+      if(t.t >= t.life) kill(t);
+      continue;
+    }
+    if(t.wait > 0){ t.wait -= dt * sp; continue; }
+    let move = t.v * sp * dt;
+    while(move > 0 && t.i < t.pts.length - 1){
+      const a = t.pts[t.i], b = t.pts[t.i+1], L = Math.hypot(b.x-a.x, b.y-a.y), rem = L - t.d;
+      if(move < rem){ t.d += move; move = 0; }
+      else {
+        move -= rem; t.i++; t.d = 0;
+        const w = t.pts[t.i];
+        if(w.ev) w.ev();
+        if(w.pause && t.i < t.pts.length - 1){ t.wait = w.pause; break; }
+      }
+    }
+    if(t.i >= t.pts.length - 1){ t.i = t.pts.length - 2; t.d = 1e9; place(t); if(t.onDone) t.onDone(t); kill(t); if(t.kind === "e") eActive--; continue; }
+    place(t);
+  }
+  // H⁺ 웅덩이 떠다니기
+  const b = poolBounds();
+  pool.forEach(d => {
+    d.vx += (Math.random()-.5)*40*dt; d.vy += (Math.random()-.5)*40*dt;
+    d.vx = Math.max(-25, Math.min(25, d.vx)); d.vy = Math.max(-25, Math.min(25, d.vy));
+    d.x += d.vx*dt; d.y += d.vy*dt;
+    if(d.x < b.x0){ d.x = b.x0; d.vx = Math.abs(d.vx); } if(d.x > b.x1){ d.x = b.x1; d.vx = -Math.abs(d.vx); }
+    if(d.y < b.y0){ d.y = b.y0; d.vy = Math.abs(d.vy); } if(d.y > b.y1){ d.y = b.y1; d.vy = -Math.abs(d.vy); }
+  });
+  renderPool(false);
+  // H⁺가 ATP 합성 효소로 흘러 나감 (많을수록 빨리)
+  if(pool.length > BASE){
+    drainT -= dt * sp * (1 + (pool.length - BASE) * 0.08);
+    if(drainT <= 0){
+      drainT = 0.75;
+      let k = 0; pool.forEach((d, j) => { if(d.x > pool[k].x) k = j; });
+      const d = pool.splice(k, 1)[0]; if(d.el) d.el.remove();
+      const ax = X(ATPX);
+      spawnFollower("h", [{x:d.x, y:d.y, pause:0}, {x:ax, y:M1-30, pause:0}, {x:ax, y:M2+40, pause:0}], () => {
+        passed++;
+        if(passed % 2 === 0) pop(ax + (narrow ? 58 : 66), M2+70, "ATP", "#4ade80", 1);
+      }, 190);
+    }
+  }
+  // 연속 재생
+  if(S.auto && eActive === 0){
+    autoT -= dt * sp;
+    if(autoT <= 0){ autoT = 0.6; sendAuto(); }
+  }
+  const busy = tokens.length || S.auto || pool.length > BASE;
+  if(busy || pool.length) raf = requestAnimationFrame(loop);
+  if(!busy){ idleFrames = (idleFrames || 0) + 1; if(idleFrames > 240){ cancelAnimationFrame(raf); raf = 0; idleFrames = 0; } } else idleFrames = 0;
+}
+let idleFrames = 0;
+function kill(t){ if(t.el) t.el.remove(); const k = tokens.indexOf(t); if(k >= 0) tokens.splice(k, 1); }
+document.addEventListener("visibilitychange", () => { if(!document.hidden) kick(); });
+
+// ---------- 설명 ----------
+function say(basic, adv){ statusEl.innerHTML = (S.adv && adv) ? adv : basic; }
+
+// ---------- 미토콘드리아 ----------
+function sendMito(kind){
+  if(S.tab !== "mito" || eActive >= 3) return;
+  const pI = .095, pIII = .415, pIV = .595, yP = 262;
+  const tail = [
+    P(.34, 258, () => say("전자 운반체가 막 안에서 전자를 다음 단백질로 옮긴다.", "<b>유비퀴논(Q)</b>: 막 안을 움직이며 전자를 복합체 Ⅲ으로 옮긴다.")),
+    P(pIII, yP, () => { pumpH(.448); say("다음 단백질: 전자를 넘기며 H⁺를 <b>기질 → 막 사이 공간</b>으로 퍼 올린다.", "<b>복합체 Ⅲ</b>(사이토크롬 bc₁ 복합체): 전자를 넘기며 H⁺를 퍼 올린다."); }),
+    P(.52, M1-16, () => say("작은 전자 운반체가 막 사이 공간 쪽에서 전자를 마지막 단백질로 옮긴다.", "<b>사이토크롬 c</b>: 막 사이 공간 쪽에서 전자를 복합체 Ⅳ로 옮긴다.")),
+    P(pIV, yP, () => { pumpH(.628); say("마지막 단백질: H⁺를 퍼 올리고, 전자를 <b>O₂</b>에 넘긴다.", "<b>복합체 Ⅳ</b>(사이토크롬 c 산화 효소): H⁺를 퍼 올리고 전자를 O₂에 넘긴다."); }),
+    P(.60, 392, () => {
+      pop(X(.60), 380, "H₂O", "#7dd3fc", 1.1);
+      const sum = kind === "NADH"
+        ? "<b>최종 전자 수용체 O₂</b>가 전자와 H⁺를 받아 H₂O가 되었다. NADH의 전자는 <b>세 곳</b>에서 H⁺를 퍼 올렸다."
+        : "<b>최종 전자 수용체 O₂</b>가 전자와 H⁺를 받아 H₂O가 되었다. FADH₂의 전자는 <b>두 곳</b>에서만 H⁺를 퍼 올렸다 → H⁺가 덜 쌓여 ATP도 <b>더 적게</b> 만들어진다.";
+      say(sum);
+    }, 0)
+  ];
+  let pts;
+  if(kind === "NADH"){
+    pts = [P(.09, 400, () => { pop(X(.09), 470, "NAD⁺", "#94a3b8", .8); say("<b>NADH</b>가 전자를 내놓는다. (NADH → NAD⁺)"); }, 0.2),
+      P(pI, yP, () => { pumpH(.128); say("전자 전달계 첫 단백질: 전자를 넘기며 H⁺를 <b>기질 → 막 사이 공간</b>으로 퍼 올린다.", "<b>복합체 Ⅰ</b>(NADH 탈수소 효소): 전자를 받아 넘기며 H⁺를 퍼 올린다."); })].concat(tail);
+  } else {
+    pts = [P(.25, 400, () => { pop(X(.25), 470, "FAD", "#94a3b8", .8); say("<b>FADH₂</b>가 전자를 내놓는다. (FADH₂ → FAD)"); }, 0.2),
+      P(.25, 312, () => { say("FADH₂의 전자가 들어가는 단백질은 <b style='color:#fca5a5'>H⁺를 퍼 올리지 않는다!</b>", "<b>복합체 Ⅱ</b>: 전자만 넘기고 <b style='color:#fca5a5'>H⁺는 퍼 올리지 않는다!</b>"); flash(X(.25), 312); }, 0.6)].concat(tail);
+  }
+  spawnFollower("e", pts, null, 150);
+}
+
+// ---------- 엽록체 ----------
+function sendChl(){
+  if(S.tab !== "chl" || eActive >= 3) return;
+  const yP = 262;
+  const toPSI = [
+    P(.245, 282, () => say("전자 전달계로 전자가 넘어간다.", "<b>플라스토퀴논(PQ)</b>: 전자를 받아 막 안에서 옮긴다.")),
+    P(.3425, yP, () => { pumpH(.362); say("전자 전달계: 전자가 지나가며 H⁺가 <b>스트로마 → 타이라코이드 내부</b>로 퍼 올려진다.", "<b>사이토크롬 b₆f 복합체</b>: 전자를 넘기며 H⁺를 스트로마 → 타이라코이드 내부로 퍼 올린다."); }),
+    P(.44, M1-16, () => say("작은 전자 운반체가 타이라코이드 내부 쪽에서 전자를 광계 Ⅰ로 옮긴다.", "<b>플라스토시아닌(PC)</b>: 타이라코이드 내부 쪽에서 전자를 광계 Ⅰ로 옮긴다."))
+  ];
+  let pts;
+  if(!S.cyc){
+    pts = [
+      P(.115, 150, () => {
+        pop(X(.10), 150, "½O₂ ↑", "#7dd3fc", .85);
+        addPool(X(.22), 150); addPool(X(.24), 175);
+        say("<b>물의 광분해</b>: H₂O → 2H⁺ + ½O₂ + 2e⁻. 전자는 광계 Ⅱ로, H⁺는 타이라코이드 내부에 쌓이고, O₂는 밖으로 나간다.");
+      }, 0.4),
+      P(.115, yP, () => { flash(X(.115), yP); say("<b>광계 Ⅱ</b>가 빛을 받아 전자가 들뜬다(에너지가 높아진다).", "<b>광계 Ⅱ</b>(반응 중심 P680)가 빛을 받아 전자가 들뜬다."); }, 0.5)
+    ].concat(toPSI, [
+      P(.555, yP, () => { flash(X(.555), yP); say("<b>광계 Ⅰ</b>이 빛을 받아 전자가 다시 들뜬다.", "<b>광계 Ⅰ</b>(반응 중심 P700)이 빛을 받아 전자가 다시 들뜬다."); }, 0.5),
+      P(.665, M2+30, () => say("전자 전달계를 지나 NADP⁺ 쪽으로 간다.", "<b>페레독신(Fd)</b>이 전자를 받는다.")),
+      P(.75, 331, () => say("NADP⁺가 전자와 H⁺를 받는다.", "<b>NADP⁺ 환원 효소</b>: NADP⁺ + H⁺ + 2e⁻ → NADPH (스트로마 쪽)")),
+      P(narrow ? .68 : .75, 392, () => { pop(X(narrow ? .68 : .75), 392, "NADPH", "#fde68a", 1); say("<b>최종 전자 수용체 NADP⁺</b>가 전자와 H⁺를 받아 <b>NADPH</b>가 되었다(스트로마). 쌓인 H⁺는 ATP 합성 효소로 흘러 ATP를 만든다."); }, 0)
+    ]);
+  } else {
+    pts = [
+      P(.555, yP, () => { flash(X(.555), yP); say("<b>순환 전자 흐름</b>: 광계 Ⅰ이 빛을 받아 전자가 들뜬다. 광계 Ⅱ와 물 분해는 쓰이지 않는다.", "<b>순환 전자 흐름</b>: 광계 Ⅰ(P700)이 빛을 받아 전자가 들뜬다. 광계 Ⅱ는 쓰이지 않는다."); }, 0.5),
+      P(.665, M2+30, () => say("전자가 NADP⁺로 가지 않고 전자 전달계로 되돌아간다.", "<b>페레독신(Fd)</b>의 전자가 NADP⁺로 가지 않고 PQ → b₆f 쪽으로 되돌아간다.")),
+      P(.55, 400, null, 0), P(.30, 395, null, 0)
+    ].concat(toPSI, [
+      P(.555, yP, () => say("전자가 <b>광계 Ⅰ로 되돌아왔다</b>. NADPH와 O₂는 생기지 않고, H⁺ 농도 기울기로 <b>ATP만</b> 만들어진다."), 0)
+    ]);
+  }
+  spawnFollower("e", pts, null, 150);
+}
+
+function sendAuto(){
+  if(S.tab === "mito"){ sendMito(nextKind); nextKind = nextKind === "NADH" ? "FADH2" : "NADH"; }
+  else sendChl();
+}
+
+// ---------- 화면 상태 ----------
+function setAuto(on){
+  S.auto = on; autoT = 0;
+  $("bAuto").textContent = on ? "⏸ 멈춤" : "▶ 연속 재생";
+  $("bAuto").classList.toggle("on", on);
+  if(on) kick();
+}
+function applyAdv(){
+  figwrap.classList.toggle("advOn", S.adv);
+  $("bAdv").classList.toggle("on", S.adv);
+  $("advBox").classList.toggle("hide", !S.adv);
+  document.querySelectorAll(".advSide").forEach(e => e.classList.toggle("hide", !S.adv));
+}
+function applyTab(){
+  const mito = S.tab === "mito";
+  $("tabMito").className = "btn " + (mito ? "" : "ghost");
+  $("tabChl").className = "btn " + (mito ? "ghost" : "");
+  $("tabMito").style.background = mito ? "#6d28d9" : "";
+  $("tabChl").style.background = mito ? "" : "#15803d";
+  $("ctrlMito").classList.toggle("hide", !mito);
+  $("ctrlChl").classList.toggle("hide", mito);
+  $("infoMito").classList.toggle("hide", !mito);
+  $("infoChl").classList.toggle("hide", mito);
+  $("advMito").classList.toggle("hide", !mito);
+  $("advChl").classList.toggle("hide", mito);
+  $("figTitle").textContent = mito ? "미토콘드리아 내막 (세포 호흡)" : "엽록체 타이라코이드 막 (광합성 명반응)";
+  figwrap.classList.toggle("cyc", !mito && S.cyc);
+  $("faChl").classList.toggle("hide", S.cyc);
+  $("faCyc").classList.toggle("hide", !S.cyc);
+  $("bCyc").classList.toggle("on", S.cyc);
+  $("cycNote").textContent = S.cyc ? "켜짐 (광계 Ⅰ만, ATP만)" : "꺼짐 (비순환 전자 흐름)";
+  $("cycWrap").classList.toggle("hide", mito);
+}
+function reset(){
+  setAuto(false);
+  tokens = []; eActive = 0; passed = 0; nextKind = "NADH";
+  build(); resetPool(); renderPool(true); applyTab(); applyAdv(); kick();
+  if(S.tab === "mito") say("「NADH 전자 보내기」나 「FADH₂ 전자 보내기」를 눌러 보세요. 전자가 지나가는 동안 H⁺가 <b>막 사이 공간</b>으로 퍼 올려지고, ATP 합성 효소를 지나 <b>기질</b>로 돌아오며 ATP가 만들어집니다.");
+  else say(S.cyc ? "「빛 비추기」를 누르면 전자가 광계 Ⅰ에서 나와 전자 전달계를 돌아 <b>광계 Ⅰ로 되돌아옵니다</b>." : "「빛 비추기」를 눌러 보세요. 물이 분해되어 나온 전자가 광계 Ⅱ → 전자 전달계 → 광계 Ⅰ → NADP⁺로 갑니다. H⁺는 <b>타이라코이드 내부</b>에 쌓입니다.");
+}
+
+$("tabMito").onclick = () => { if(S.tab !== "mito"){ S.tab = "mito"; CS.store.set("etc_tab", S.tab); reset(); } };
+$("tabChl").onclick = () => { if(S.tab !== "chl"){ S.tab = "chl"; CS.store.set("etc_tab", S.tab); reset(); } };
+$("bNadh").onclick = () => sendMito("NADH");
+$("bFadh").onclick = () => sendMito("FADH2");
+$("bLight").onclick = () => sendChl();
+$("bCyc").onclick = () => { S.cyc = !S.cyc; reset(); };
+$("bAuto").onclick = () => setAuto(!S.auto);
+$("bReset").onclick = reset;
+$("bAdv").onclick = () => { S.adv = !S.adv; CS.store.set("etc_adv", S.adv); build(); renderPool(true); applyAdv(); applyTab(); };
+$("spd").oninput = e => { S.speed = +e.target.value; $("spdV").textContent = S.speed + "배"; };
+
+let lastNarrow = null;
+window.addEventListener("resize", () => {
+  const n = (figwrap.getBoundingClientRect().width || 360) < 720;
+  if(n !== lastNarrow){ lastNarrow = n; const oldW = W; build(); const k = W / oldW; pool.forEach(d => { d.x *= k; }); renderPool(true); applyAdv(); }
+});
+reset();
+lastNarrow = narrow;
+
+// ---------- 확인 문제 ----------
+const QS = [
+  { id:"etc1", type:"ox", q:"광합성 명반응(비순환 전자 흐름)에서 최종 전자 수용체는 O₂이다.", answer:"X",
+    exp:"광합성 비순환 전자 흐름의 최종 전자 수용체는 <b>NADP⁺</b>이다. O₂가 최종 전자 수용체인 것은 <b>세포 호흡</b>(미토콘드리아)이다. 광합성에서 O₂는 물이 분해되어 <b>생성</b>된다." },
+  { id:"etc2", type:"ox", q:"미토콘드리아 전자 전달계에서 FADH₂의 전자가 들어가는 단백질(복합체 Ⅱ)은 H⁺를 막 사이 공간으로 퍼 올린다.", answer:"X",
+    exp:"복합체 Ⅱ는 전자만 넘기고 <b>H⁺를 퍼 올리지 않는다</b>. 그래서 FADH₂는 NADH보다 퍼 올리는 H⁺가 적고, 만들어지는 ATP도 적다." },
+  { id:"etc3", type:"ox", q:"세포 호흡의 전자 전달계에서 최종 전자 수용체는 O₂이다.", answer:"O",
+    exp:"O₂가 전자와 H⁺를 받아 <b>H₂O</b>가 된다." },
+  { id:"etc4", q:"미토콘드리아에서 전자 전달이 일어날 때 H⁺가 퍼 올려져 쌓이는 곳은?",
+    choices:["미토콘드리아 기질", "막 사이 공간", "타이라코이드 내부", "스트로마", "세포질"], answer:1,
+    exp:"H⁺는 <b>기질 → 막 사이 공간</b>으로 퍼 올려져 막 사이 공간에 쌓인다. 타이라코이드 내부는 <b>엽록체</b>에서 H⁺가 쌓이는 곳이다." },
+  { id:"etc5", q:"엽록체에서 ATP 합성 효소에 의해 ATP가 만들어지는 곳은?",
+    choices:["타이라코이드 내부", "미토콘드리아 기질", "스트로마", "막 사이 공간", "타이라코이드 막 속"], answer:2,
+    exp:"H⁺가 <b>타이라코이드 내부 → 스트로마</b>로 ATP 합성 효소를 지나 흐르며, ATP는 <b>스트로마</b> 쪽에서 만들어진다. (미토콘드리아는 기질 쪽)" },
+  { id:"etc6", type:"ox", q:"'복합체 Ⅰ~Ⅳ'는 엽록체 타이라코이드 막의 전자 전달계를 부르는 이름이다.", answer:"X",
+    exp:"복합체 Ⅰ~Ⅴ는 <b>미토콘드리아(세포 호흡)</b> 쪽 이름이다. 엽록체는 <b>광계 Ⅱ → 사이토크롬 b₆f → 광계 Ⅰ</b> 이라고 부른다." },
+  { id:"etc7", type:"ox", q:"순환 전자 흐름에서는 ATP는 만들어지지만 NADPH와 O₂는 만들어지지 않는다.", answer:"O",
+    exp:"순환 전자 흐름은 <b>광계 Ⅰ만</b> 관여하고 전자가 광계 Ⅰ로 되돌아온다. 물이 분해되지 않으므로 O₂가 없고, NADP⁺로 전자가 가지 않으므로 NADPH도 없다. H⁺ 농도 기울기로 ATP만 생긴다." },
+  { id:"etc8", q:"광합성 명반응(비순환 전자 흐름)에서 광계 Ⅱ에 전자를 공급하는 물질은?",
+    choices:["H₂O", "NADPH", "O₂", "NADH", "CO₂"], answer:0,
+    exp:"물의 광분해(H₂O → 2H⁺ + ½O₂ + 2e⁻)로 나온 전자가 광계 Ⅱ로 공급된다. NADH는 <b>세포 호흡</b>의 전자 공급원이다." },
+  { id:"etc9", type:"ox", q:"FADH₂의 전자가 전자 전달계를 지날 때는 NADH의 전자가 지날 때보다 퍼 올려지는 H⁺가 적어, 만들어지는 ATP도 적다.", answer:"O",
+    exp:"FADH₂의 전자는 H⁺를 퍼 올리지 않는 복합체 Ⅱ로 들어오므로 H⁺를 퍼 올리는 단계가 하나 적다(Ⅲ·Ⅳ만). 그래서 ATP가 더 적게 만들어진다." },
+  { id:"etc10", q:"미토콘드리아와 엽록체의 전자 전달에 대한 설명으로 옳은 것은?",
+    choices:["미토콘드리아에서 H⁺는 기질에서 막 사이 공간으로 퍼 올려진다.", "엽록체에서 H⁺는 타이라코이드 내부에서 스트로마로 퍼 올려진다.", "엽록체 전자 전달의 에너지원은 유기물의 산화이다.", "미토콘드리아의 전자 전달 결과 O₂가 생성된다.", "두 경우 모두 ATP는 H⁺가 쌓인 쪽 공간에서 만들어진다."], answer:0,
+    exp:"② 엽록체에서는 <b>스트로마 → 타이라코이드 내부</b>로 퍼 올린다. ③ 엽록체의 에너지원은 <b>빛</b>이다. ④ 미토콘드리아에서는 O₂가 <b>소비</b>되어 H₂O가 생성된다. ⑤ ATP는 H⁺가 흘러 들어가는 쪽(기질, 스트로마)에서 만들어진다." },
+  { id:"etc11", type:"ox", q:"광합성에서 물이 분해되어 생긴 H⁺는 스트로마에 쌓인다.", answer:"X",
+    exp:"물의 광분해는 <b>타이라코이드 내부</b>에서 일어나며, 생긴 H⁺는 타이라코이드 내부에 쌓인다." },
+  { id:"etc12", type:"ox", q:"미토콘드리아의 ATP 합성 효소는 H⁺가 막 사이 공간에서 기질로 이동할 때 ATP를 만든다.", answer:"O",
+    exp:"H⁺ 농도가 높은 막 사이 공간에서 낮은 기질로 H⁺가 확산하며, 기질 쪽에서 ADP + P<i>i</i> → ATP가 일어난다." }
+];
+const quiz = CS.QuizRound($("quiz"), { count:10, make: n => CS.shuffle(QS).slice(0, n) });
+quiz.start();
+})();
+</script>
+</body>
+</html>

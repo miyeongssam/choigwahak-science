@@ -1,7 +1,7 @@
 /* 최과학 암기 플래시카드 - Service Worker
    앱 껍데기는 캐시 우선, 문제 데이터(data/*.json)는 네트워크 우선으로
    매달 GitHub 업데이트 시 자동 반영되도록 함. */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.0.1';
 const SHELL_CACHE = 'shell-' + VERSION;
 const DATA_CACHE = 'data-' + VERSION;
 

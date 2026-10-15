@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>중화 반응의 양적 관계 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+  .wrap{max-width:1500px}
+  .tabbar{display:flex;gap:8px;margin:4px 0 12px}
+  .tabbar .chip{flex:1;font-size:16px;padding:10px 14px;text-align:center;font-weight:600}
+  .lay{display:grid;grid-template-columns:1fr;gap:12px}
+  @media (min-width:1100px){ .lay{grid-template-columns:1.35fr 1fr;align-items:start} }
+  #cv{aspect-ratio:1/1.08}
+  @media (min-width:600px){ #cv{aspect-ratio:1/0.82} }
+  @media (min-width:1100px){ #cv{aspect-ratio:1/0.74} }
+  .totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .totals>div{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.55}
+  .totals b{font-size:15px;white-space:nowrap}
+  .ion{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:10px;font-weight:700;font-size:.92em;line-height:1.5;text-align:center;white-space:nowrap}
+  .sol h3{margin:0 0 8px;font-size:16px}
+  .sol + .sol{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+  .pm{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:15px;flex-wrap:wrap}
+  .pm .lbl{min-width:118px}
+  .pm .btn{width:42px;height:40px;padding:0;font-size:22px}
+  .pm .val{min-width:64px;text-align:center;font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+  .pm .side{color:var(--muted);font-size:14px}
+  .mixbar{display:flex;gap:8px;margin-top:12px}
+  .mixbar .btn{flex:1;font-size:17px;padding:13px}
+  table.res{width:100%;border-collapse:collapse;font-size:15px}
+  table.res th{text-align:left;color:var(--muted);font-weight:600;padding:8px 8px 8px 0;width:32%;vertical-align:top;white-space:nowrap}
+  table.res td{padding:8px 0;border-bottom:1px solid var(--line);line-height:1.6}
+  table.res tr:last-child td{border-bottom:none}
+  .big{font-size:22px;font-weight:800}
+  .nat-산성{color:#fca5a5}.nat-중성{color:#86efac}.nat-염기성{color:#93c5fd}
+  .stepl{margin:8px 0 0;padding-left:20px;font-size:14.5px;line-height:1.7;color:#cbd5e1}
+  .hot{border:1px solid #f97316;background:rgba(249,115,22,.08);border-radius:12px;padding:10px 12px;font-size:14.5px;line-height:1.6;margin-top:10px}
+  .hot b{color:#fdba74}
+  .cond{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+  table.hist{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  table.hist th,table.hist td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+  table.hist th{color:var(--muted);font-weight:600}
+  table.hist tr.same td{background:rgba(249,115,22,.1)}
+  .legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:13px}
+  .given{margin:8px 0 2px;padding:8px 10px;background:var(--card2);border-radius:10px;font-size:15px;line-height:1.6}
+  .qz-q table.vt{border-collapse:collapse;margin:8px 0;font-size:15px}
+  .qz-q table.vt th,.qz-q table.vt td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+  .qz-exp ol{margin:6px 0 4px;padding-left:20px}
+  .qz-exp li{margin-bottom:2px}
+  .qz-fig svg{max-width:560px;margin:0 auto}
+  @media (min-width:900px){ .given{font-size:18px} }
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>중화 반응의 양적 관계<small>통합과학 · H⁺와 OH⁻ 개수 세기로 이해하기</small></h1></header>
+<div class="wrap">
+  <div class="tabbar">
+    <button class="chip" data-tab="exp">🧪 실험해 보기</button>
+    <button class="chip" data-tab="quiz">✏️ 문제 풀기</button>
+  </div>
+
+  <!-- 화면 1: 실험해 보기 -->
+  <section id="tabExp">
+    <div class="lay">
+      <div>
+        <div class="panel" style="padding:10px">
+          <canvas id="cv"></canvas>
+          <div class="totals" id="totals"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="panel hide" id="resPanel">
+          <h2>섞은 결과</h2>
+          <div id="res"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="sol">
+            <h3>산 수용액</h3>
+            <div class="row" id="acidChips"></div>
+            <div class="pm"><span class="lbl">10 mL당 H⁺</span><button class="btn ghost" id="aUm">−</button><span class="val" id="aUv"></span><button class="btn ghost" id="aUp">+</button><span class="side" id="aUs"></span></div>
+            <div class="pm"><span class="lbl">부피</span><button class="btn ghost" id="aVm">−</button><span class="val" id="aVv"></span><button class="btn ghost" id="aVp">+</button></div>
+          </div>
+          <div class="sol">
+            <h3>염기 수용액</h3>
+            <div class="row" id="baseChips"></div>
+            <div class="pm"><span class="lbl">10 mL당 OH⁻</span><button class="btn ghost" id="bUm">−</button><span class="val" id="bUv"></span><button class="btn ghost" id="bUp">+</button><span class="side" id="bUs"></span></div>
+            <div class="pm"><span class="lbl">부피</span><button class="btn ghost" id="bVm">−</button><span class="val" id="bVv"></span><button class="btn ghost" id="bVp">+</button></div>
+          </div>
+          <div class="note hide" id="caso4">※ 황산(H₂SO₄)과 수산화 칼슘(Ca(OH)₂)을 섞으면 실제로는 물에 잘 녹지 않는 황산 칼슘이 생겨 뿌옇게 될 수 있어요. 여기서는 이온 개수 세기만 연습합니다.</div>
+          <div class="mixbar">
+            <button class="btn" id="mixBtn">⚗️ 섞기</button>
+            <button class="btn ghost" id="resetBtn" style="flex:0 0 auto">↺ 다시</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>섞은 기록 (전체 부피가 같은 것끼리 물 분자 수 비교)</h2>
+          <div id="hist" class="note">아직 섞은 기록이 없어요.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 화면 2: 문제 풀기 -->
+  <section id="tabQuiz" class="hide">
+    <div class="panel">
+      <div class="row" id="lvChips"></div>
+      <div class="note" style="margin-top:6px">조건이 매번 새로 만들어져요. 그림의 입자 수를 직접 세어 보세요.</div>
+    </div>
+    <div id="quizBox"></div>
+  </section>
+</div>
+<script src="../common/common.js"></script>
+<script>"use strict";
+// ==CORE== (정답 계산 · 문제 만들기: 검사 스크립트가 이 부분만 떼어 node에서 실행함)
+const ACIDS = {
+  HCl:   {name:"HCl",   an:"Cl",  nH:1},
+  HNO3:  {name:"HNO₃",  an:"NO3", nH:1},
+  H2SO4: {name:"H₂SO₄", an:"SO4", nH:2}
+};
+const BASES = {
+  NaOH:  {name:"NaOH",    cat:"Na", nOH:1},
+  KOH:   {name:"KOH",     cat:"K",  nOH:1},
+  CaOH2: {name:"Ca(OH)₂", cat:"Ca", nOH:2}
+};
+const ION = {
+  H:  {sym:"H⁺",    q:1,  col:"#ef4444", tc:"#fff"},
+  OH: {sym:"OH⁻",   q:-1, col:"#3b82f6", tc:"#fff"},
+  Cl: {sym:"Cl⁻",   q:-1, col:"#22c55e", tc:"#052e16"},
+  NO3:{sym:"NO₃⁻",  q:-1, col:"#2dd4bf", tc:"#042f2e"},
+  SO4:{sym:"SO₄²⁻", q:-2, col:"#facc15", tc:"#422006"},
+  Na: {sym:"Na⁺",   q:1,  col:"#a855f7", tc:"#fff"},
+  K:  {sym:"K⁺",    q:1,  col:"#f472b6", tc:"#500724"},
+  Ca: {sym:"Ca²⁺",  q:2,  col:"#fb923c", tc:"#431407"},
+  W:  {sym:"H₂O",   q:0,  col:"#e2e8f0", tc:"#0f172a"}
+};
+const ACID_KEYS = ["HCl","HNO3","H2SO4"], BASE_KEYS = ["NaOH","KOH","CaOH2"];
+
+function gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ [a, b] = [b, a % b]; } return a; }
+function simplest(nums){ const nz = nums.filter(x => x > 0); if(!nz.length) return nums.slice(); const g = nz.reduce(gcd); return nums.map(x => x / g); }
+function ratioStr(nums){ return simplest(nums).join(" : "); }
+
+/* 정답 계산 함수 (하나뿐): sc = {acid, base, aU:10 mL당 H⁺ 수, aV:산 부피(mL), bU:10 mL당 OH⁻ 수, bV:염기 부피(mL)} */
+function neutralize(sc){
+  const A = ACIDS[sc.acid], B = BASES[sc.base];
+  const H = sc.aU * sc.aV / 10, OH = sc.bU * sc.bV / 10;
+  const An = H / A.nH, Cat = OH / B.nOH;
+  const water = Math.min(H, OH), remH = H - water, remOH = OH - water;
+  const order = ["H", A.an, B.cat, "OH"];
+  const before = {H, [A.an]:An, [B.cat]:Cat, OH};
+  const afterAll = {H:remH, [A.an]:An, [B.cat]:Cat, OH:remOH};
+  const after = order.filter(k => afterAll[k] > 0).map(k => ({sp:k, n:afterAll[k]}));
+  const charge = m => Object.keys(m).reduce((s, k) => s + ION[k].q * m[k], 0);
+  return { A, B, H, OH, An, Cat, water, remH, remOH, order, before, afterAll, after,
+    nature: remH > 0 ? "산성" : remOH > 0 ? "염기성" : "중성",
+    ratio: ratioStr(after.map(x => x.n)),
+    ratioLabel: after.map(x => ION[x.sp].sym).join(" : "),
+    totalV: sc.aV + sc.bV,
+    ionsAfter: after.reduce((s, x) => s + x.n, 0),
+    chargeBefore: charge(before), chargeAfter: charge(afterAll) };
+}
+
+const sym = k => ION[k].sym;
+const ionTxt = (m, keys) => keys.map(k => `${sym(k)} ${m[k]}개`).join(", ");
+const unitCounts = sc => { const A = ACIDS[sc.acid], B = BASES[sc.base];
+  return { H:sc.aU, [A.an]:sc.aU / A.nH, [B.cat]:sc.bU / B.nOH, OH:sc.bU }; };
+
+/* 문제 그림: 작은 비커 2개 (SVG) */
+function beakerSVG(x, title, ions){
+  const parts = [];
+  ions.forEach(o => { for(let i = 0; i < o.n; i++) parts.push(o.sp); });
+  const P = CS.shuffle(parts);
+  const bx = x, by = 40, bw = 184, bh = 170;
+  let s = `<text x="${bx + bw/2}" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#e2e8f0">${title}</text>`;
+  s += `<rect x="${bx + 2}" y="${by + 22}" width="${bw - 4}" height="${bh - 24}" rx="10" fill="rgba(56,189,248,.13)"/>`;
+  s += `<path d="M${bx - 6} ${by} L${bx} ${by + 6} L${bx} ${by + bh - 12} Q${bx} ${by + bh} ${bx + 12} ${by + bh} L${bx + bw - 12} ${by + bh} Q${bx + bw} ${by + bh} ${bx + bw} ${by + bh - 12} L${bx + bw} ${by + 6} L${bx + bw + 6} ${by}" fill="none" stroke="#94a3b8" stroke-width="2.5"/>`;
+  const rx = bx + 8, ry = by + 28, rw = bw - 16, rh = bh - 36, n = P.length;
+  let best = {cell:0, cols:1};
+  for(let c = 1; c <= n; c++){ const r = Math.ceil(n / c), cell = Math.min(rw / c, rh / r); if(cell > best.cell) best = {cell, cols:c}; }
+  const cols = best.cols, rows = Math.ceil(n / cols), cell = best.cell, rad = Math.min(cell * 0.45, 19);
+  const ox = rx + (rw - cols * cell) / 2, oy = ry + (rh - rows * cell) / 2;
+  P.forEach((k, i) => {
+    const cx = ox + (i % cols + 0.5) * cell, cy = oy + (Math.floor(i / cols) + 0.5) * cell, I = ION[k];
+    const len = I.sym.length, fs = Math.min(rad * 0.95, rad * 2.9 / Math.max(len, 2));
+    s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}" fill="${I.col}"/>`;
+    s += `<text x="${cx.toFixed(1)}" y="${(cy + fs * 0.36).toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" font-weight="700" fill="${I.tc}">${I.sym}</text>`;
+  });
+  return s;
+}
+function figSVG(sc, mode){
+  const A = ACIDS[sc.acid], B = BASES[sc.base];
+  const m = mode === "unit" ? unitCounts(sc) : neutralize(sc).before;
+  const ta = mode === "unit" ? `${A.name} 10 mL` : `${A.name} ${sc.aV} mL`;
+  const tb = mode === "unit" ? `${B.name} 10 mL` : `${B.name} ${sc.bV} mL`;
+  return `<svg class="fig" viewBox="0 0 420 222" role="img" aria-label="이온 입자 모형">`
+    + beakerSVG(16, ta, [{sp:"H", n:m.H}, {sp:A.an, n:m[A.an]}])
+    + beakerSVG(220, tb, [{sp:B.cat, n:m[B.cat]}, {sp:"OH", n:m.OH}]) + `</svg>`;
+}
+
+/* 문제 글 머리 */
+function intro(sc, mode){
+  const A = ACIDS[sc.acid], B = BASES[sc.base];
+  if(mode === "unit"){
+    const u = unitCounts(sc);
+    return `그림은 ${A.name} 수용액과 ${B.name} 수용액 <b>각각 10 mL</b>에 들어 있는 이온을 입자 모형으로 나타낸 것이다.`
+      + `<div class="given">10 mL당 · ${A.name}: ${ionTxt(u, ["H", A.an])}<br>10 mL당 · ${B.name}: ${ionTxt(u, [B.cat, "OH"])}</div>`;
+  }
+  const r = neutralize(sc);
+  return `그림은 ${A.name} 수용액 ${sc.aV} mL와 ${B.name} 수용액 ${sc.bV} mL에 들어 있는 이온을 입자 모형으로 나타낸 것이다.`
+    + `<div class="given">${A.name} ${sc.aV} mL: ${ionTxt(r.before, ["H", A.an])}<br>${B.name} ${sc.bV} mL: ${ionTxt(r.before, [B.cat, "OH"])}</div>`;
+}
+const mixTxt = (sc, mode) => mode === "unit"
+  ? `${ACIDS[sc.acid].name} 수용액 <b>${sc.aV} mL</b>와 ${BASES[sc.base].name} 수용액 <b>${sc.bV} mL</b>를 섞었다. `
+  : `두 수용액을 모두 섞었다. `;
+
+/* 해설: 한 줄씩 개수 세기 */
+function steps(sc, mode){
+  const r = neutralize(sc), A = r.A, B = r.B, L = [];
+  if(mode === "unit"){
+    const fa = sc.aV / 10, fb = sc.bV / 10;
+    L.push(`${A.name} ${sc.aV} mL는 10 mL의 ${fa}배 → H⁺ ${sc.aU}×${fa} = ${r.H}개, ${sym(A.an)} ${sc.aU / A.nH}×${fa} = ${r.An}개`);
+    L.push(`${B.name} ${sc.bV} mL는 10 mL의 ${fb}배 → ${sym(B.cat)} ${sc.bU / B.nOH}×${fb} = ${r.Cat}개, OH⁻ ${sc.bU}×${fb} = ${r.OH}개`);
+  } else {
+    L.push(`섞기 전: H⁺ ${r.H}개, ${sym(A.an)} ${r.An}개 / ${sym(B.cat)} ${r.Cat}개, OH⁻ ${r.OH}개`);
+  }
+  if(A.nH === 2) L.push(`H₂SO₄ → 2H⁺ + SO₄²⁻ 이므로 H⁺ 수는 SO₄²⁻ 수의 2배`);
+  if(B.nOH === 2) L.push(`Ca(OH)₂ → Ca²⁺ + 2OH⁻ 이므로 OH⁻ 수는 Ca²⁺ 수의 2배`);
+  L.push(`H⁺와 OH⁻는 1 : 1로 짝 → 적은 쪽 ${r.water}개만큼 물 분자 ${r.water}개 생성`);
+  if(r.remH > 0) L.push(`H⁺ ${r.H}개 − ${r.water}개 → H⁺ ${r.remH}개 남음, OH⁻ 0개`);
+  else if(r.remOH > 0) L.push(`OH⁻ ${r.OH}개 − ${r.water}개 → OH⁻ ${r.remOH}개 남음, H⁺ 0개`);
+  else L.push(`H⁺ ${r.H}개 − ${r.water}개 = 0, OH⁻ ${r.OH}개 − ${r.water}개 = 0 → 둘 다 남지 않음`);
+  L.push(`구경꾼 이온 ${sym(A.an)} ${r.An}개, ${sym(B.cat)} ${r.Cat}개는 반응하지 않고 그대로`);
+  return L;
+}
+const ol = L => `<ol>${L.map(x => `<li>${x}</li>`).join("")}</ol>`;
+
+/* 숫자 보기 만들기: 실수 후보 → 부족하면 정답 근처 수 */
+function numPick(ans, cands, unit){
+  const ds = [];
+  for(const c of cands){ if(Number.isInteger(c) && c >= 0 && c !== ans && !ds.includes(c) && ds.length < 4) ds.push(c); }
+  const step = unit === " mL" ? 10 : 1;
+  for(let k = 1; ds.length < 4; k++){
+    for(const c of [ans + k * step, ans - k * step]) if(c >= 0 && c !== ans && !ds.includes(c) && ds.length < 4) ds.push(c);
+  }
+  const mc = CS.makeChoices(ans + unit, ds.map(d => d + unit), 5);
+  return mc;
+}
+
+/* 무작위 조건 */
+function pairFor(level){
+  if(level === "basic") return [CS.pick(["HCl","HNO3"]), CS.pick(["NaOH","KOH"])];
+  if(level === "di") return Math.random() < 0.5 ? ["H2SO4", CS.pick(["NaOH","KOH"])] : [CS.pick(["HCl","HNO3"]), "CaOH2"];
+  for(;;){ const a = CS.pick(ACID_KEYS), b = CS.pick(BASE_KEYS); if(!(a === "H2SO4" && b === "CaOH2")) return [a, b]; } // 황산칼슘 앙금 조합 제외
+}
+const unitFor = n => n * CS.randInt(1, n === 2 ? 3 : 6);
+function randSc(level, ok){
+  for(let t = 0; t < 2000; t++){
+    const [acid, base] = pairFor(level), A = ACIDS[acid], B = BASES[base];
+    const sc = {acid, base, aU:unitFor(A.nH), aV:10 * CS.randInt(1, 4), bU:unitFor(B.nOH), bV:10 * CS.randInt(1, 4)};
+    const r = neutralize(sc);
+    if(r.H > 24 || r.OH > 24 || r.H < 2 || r.OH < 2 || r.H + r.An > 36 || r.OH + r.Cat > 36) continue;
+    if(ok && !ok(sc, r)) continue;
+    return sc;
+  }
+  return null;
+}
+
+/* ---- 문제 유형 8가지 ---- */
+const QT = {};
+// 1) 생성된 물 분자 수
+QT.water = function(level){
+  const mode = Math.random() < 0.5 ? "unit" : "total";
+  const sc = randSc(level, (s, r) => r.H !== r.OH || Math.random() < 0.3); if(!sc) return null;
+  const r = neutralize(sc), c = [];
+  if(r.A.nH === 2) c.push(Math.min(r.An, r.OH));     // SO₄²⁻ 수를 H⁺ 수로 착각
+  if(r.B.nOH === 2) c.push(Math.min(r.H, r.Cat));    // Ca²⁺ 수를 OH⁻ 수로 착각
+  if(mode === "unit") c.push(Math.min(sc.aU, sc.bU)); // 부피 배수를 안 곱함
+  c.push(r.H + r.OH, Math.max(r.H, r.OH), Math.abs(r.H - r.OH), r.ionsAfter);
+  const mc = numPick(r.water, c, "개");
+  return { q: intro(sc, mode) + mixTxt(sc, mode) + `이때 <b>생성된 물 분자 수</b>는?`, fig: figSVG(sc, mode), ...mc,
+    exp: ol(steps(sc, mode).slice(0, -1)) + `→ 물 분자 <b>${r.water}개</b>`, meta:{t:"water", sc, ans:r.water + "개"} };
+};
+// 2) 액성
+QT.nature = function(level){
+  const want = CS.pick(["산성","중성","염기성"]), mode = Math.random() < 0.5 ? "unit" : "total";
+  const sc = randSc(level, (s, r) => r.nature === want); if(!sc) return null;
+  const r = neutralize(sc), choices = ["산성","중성","염기성"];
+  return { q: intro(sc, mode) + mixTxt(sc, mode) + `혼합 용액의 <b>액성</b>은?`, fig: figSVG(sc, mode), choices, answer: choices.indexOf(r.nature),
+    exp: ol(steps(sc, mode).slice(0, -1)) + `H⁺가 남으면 산성, OH⁻이 남으면 염기성, 둘 다 없으면 중성 → <b>${r.nature}</b>`,
+    meta:{t:"nature", sc, ans:r.nature} };
+};
+// 3) 가장 많은 이온
+QT.most = function(level){
+  const mode = Math.random() < 0.5 ? "unit" : "total";
+  const sc = randSc(level, (s, r) => { const ns = r.after.map(x => x.n).sort((a, b) => b - a); return ns.length >= 2 && ns[0] > ns[1]; });
+  if(!sc) return null;
+  const r = neutralize(sc), top = r.after.slice().sort((a, b) => b.n - a.n)[0].sp;
+  const opts = r.order.filter(k => k !== top).map(sym).concat(["H₂O (물 분자)"]);
+  const mc = CS.makeChoices(sym(top), opts, 5);
+  return { q: intro(sc, mode) + mixTxt(sc, mode) + `혼합 용액에 <b>가장 많이 들어 있는 이온</b>은?`, fig: figSVG(sc, mode), ...mc,
+    exp: ol(steps(sc, mode).concat([`남은 이온: ${r.after.map(x => `${sym(x.sp)} ${x.n}개`).join(", ")} (물 분자 ${r.water}개는 이온이 아님)`])) + `→ 가장 많은 이온은 <b>${sym(top)}</b>`,
+    meta:{t:"most", sc, ans:sym(top)} };
+};
+// 4) 이온 수 비
+QT.ratio = function(level){
+  const mode = Math.random() < 0.5 ? "unit" : "total";
+  const sc = randSc(level, (s, r) => r.after.length === 3 && Math.max(...simplest(r.after.map(x => x.n))) <= 8); if(!sc) return null;
+  const r = neutralize(sc), keys = r.after.map(x => x.sp), A = r.A, B = r.B;
+  const fromCounts = (H, OH) => { const w = Math.min(H, OH);
+    return { H:H - w, [A.an]:H / A.nH, [B.cat]:OH / B.nOH, OH:OH - w }; };
+  const alt = [];
+  alt.push(r.before);                                                // 반응한 이온도 그대로 셈
+  if(A.nH === 2){ const H2 = r.An, w = Math.min(H2, r.OH); alt.push({H:H2 - w, SO4:r.An, [B.cat]:r.Cat, OH:r.OH - w}); } // H⁺ = SO₄²⁻ 수로 착각
+  if(B.nOH === 2){ const O2 = r.Cat, w = Math.min(r.H, O2); alt.push({H:r.H - w, [A.an]:r.An, Ca:r.Cat, OH:O2 - w}); }
+  if(mode === "unit") alt.push(fromCounts(sc.aU, sc.bU));            // 부피 배수 안 곱함
+  const ans = r.ratio, ds = [];
+  const add = s => { if(s !== ans && !ds.includes(s) && !/NaN|Infinity/.test(s)) ds.push(s); };
+  alt.forEach(m => add(ratioStr(keys.map(k => m[k]))));
+  const a = simplest(r.after.map(x => x.n));
+  [[0,2,1],[1,0,2],[2,1,0],[1,2,0],[2,0,1]].forEach(p => add(p.map(i => a[i]).join(" : ")));
+  for(let k = 0; ds.length < 4 && k < 30; k++){ const b = a.slice(); b[k % 3] += 1 + Math.floor(k / 3); add(ratioStr(b)); }
+  const mc = CS.makeChoices(ans, ds, 5);
+  const lbl = keys.map(sym).join(" : ");
+  return { q: intro(sc, mode) + mixTxt(sc, mode) + `혼합 용액 속 이온 수의 비 <b>${lbl}</b>는?`, fig: figSVG(sc, mode), ...mc,
+    exp: ol(steps(sc, mode).concat([`${lbl} = ${r.after.map(x => x.n).join(" : ")} → 가장 간단한 정수비로`])) + `→ <b>${ans}</b>`,
+    meta:{t:"ratio", sc, ans} };
+};
+// 5) 남아 있는 H⁺ 또는 OH⁻ 수
+QT.remain = function(level){
+  const mode = Math.random() < 0.5 ? "unit" : "total";
+  const sc = randSc(level, (s, r) => r.nature !== "중성" || Math.random() < 0.2); if(!sc) return null;
+  const r = neutralize(sc);
+  let ask = r.remH > 0 ? "H" : r.remOH > 0 ? "OH" : CS.pick(["H","OH"]);
+  if(r.nature !== "중성" && Math.random() < 0.25) ask = ask === "H" ? "OH" : "H"; // 다 반응한 쪽을 묻기(답 0)
+  const ans = ask === "H" ? r.remH : r.remOH, c = [];
+  const tot = ask === "H" ? r.H : r.OH, other = ask === "H" ? r.remOH : r.remH;
+  if(ans > 0){
+    if(r.A.nH === 2 && ask === "H") c.push(Math.abs(r.An - r.OH));
+    if(r.B.nOH === 2 && ask === "OH") c.push(Math.abs(r.Cat - r.H));
+    if(mode === "unit") c.push(Math.abs(sc.aU - sc.bU));
+    c.push(tot, r.water, ans + r.water, 0);
+  } else {
+    c.push(other, tot, r.water, tot - r.water + other);
+  }
+  const mc = numPick(ans, c, "개");
+  return { q: intro(sc, mode) + mixTxt(sc, mode) + `혼합 용액에 <b>남아 있는 ${sym(ask)}의 수</b>는?`, fig: figSVG(sc, mode), ...mc,
+    exp: ol(steps(sc, mode).slice(0, -1)) + `→ 남은 ${sym(ask)}: <b>${ans}개</b>`, meta:{t:"remain", sc, ans:ans + "개"} };
+};
+// 6) 단위 부피당 이온 수 × 부피 → 전체 이온 수
+QT.total = function(level){
+  const sc = randSc(level); if(!sc) return null;
+  const r = neutralize(sc), A = r.A, B = r.B;
+  const askAcid = A.nH === 2 || (B.nOH !== 2 && Math.random() < 0.6) || (A.nH === 2 && B.nOH === 2);
+  let q, ans, c, L;
+  if(askAcid){
+    ans = r.H; const fa = sc.aV / 10;
+    c = [sc.aU, r.An, r.H + r.An, sc.aU * sc.aV, sc.aU * (fa + 1)];
+    if(A.nH === 2) c.unshift(r.An);
+    q = `${A.name} 수용액 <b>${sc.aV} mL</b>에 들어 있는 <b>H⁺의 전체 수</b>는?`;
+    L = [`${sc.aV} mL는 10 mL의 ${sc.aV} ÷ 10 = ${fa}배`, `10 mL당 H⁺ ${sc.aU}개 × ${fa} = ${r.H}개`];
+    if(A.nH === 2) L.push(`(SO₄²⁻은 ${sc.aU / 2}×${fa} = ${r.An}개 — H⁺는 그 2배)`);
+  } else {
+    ans = r.OH; const fb = sc.bV / 10;
+    c = [sc.bU, r.Cat, r.OH + r.Cat, sc.bU * sc.bV, sc.bU * (fb + 1)];
+    if(B.nOH === 2) c.unshift(r.Cat);
+    q = `${B.name} 수용액 <b>${sc.bV} mL</b>에 들어 있는 <b>OH⁻의 전체 수</b>는?`;
+    L = [`${sc.bV} mL는 10 mL의 ${sc.bV} ÷ 10 = ${fb}배`, `10 mL당 OH⁻ ${sc.bU}개 × ${fb} = ${r.OH}개`];
+    if(B.nOH === 2) L.push(`(Ca²⁺은 ${sc.bU / 2}×${fb} = ${r.Cat}개 — OH⁻은 그 2배)`);
+  }
+  const mc = numPick(ans, c, "개");
+  return { q: intro(sc, "unit") + q, fig: figSVG(sc, "unit"), ...mc, exp: ol(L) + `→ <b>${ans}개</b>`, meta:{t:"total", sc, ans:ans + "개", askAcid} };
+};
+// 7) 온도 비교 (가), (나): 전체 부피 같음
+QT.temp = function(level){
+  for(let t = 0; t < 200; t++){
+    const sc = randSc(level); if(!sc) return null;
+    const V = CS.pick([40, 50, 60]);
+    const a1 = 10 * CS.randInt(1, V / 10 - 1), a2 = 10 * CS.randInt(1, V / 10 - 1);
+    if(a1 === a2) continue;
+    const s1 = {...sc, aV:a1, bV:V - a1}, s2 = {...sc, aV:a2, bV:V - a2};
+    const r1 = neutralize(s1), r2 = neutralize(s2);
+    if(r1.water === r2.water || Math.max(r1.H, r1.OH, r2.H, r2.OH) > 30) continue;
+    const X = r1.water > r2.water ? "(가)" : "(나)", Y = X === "(가)" ? "(나)" : "(가)";
+    const Mi = r1.ionsAfter > r2.ionsAfter ? "(가)" : r1.ionsAfter < r2.ionsAfter ? "(나)" : Y;
+    const Ma = a1 > a2 ? "(가)" : "(나)";
+    const ans = `${X}, 생성된 물 분자 수가 더 많기 때문`;
+    const mc = CS.makeChoices(ans, [`${Y}, 생성된 물 분자 수가 더 많기 때문`, `(가)와 (나)가 같다, 전체 부피가 같기 때문`,
+      `${Mi}, 혼합 용액 속 이온 수가 더 많기 때문`, `${Ma}, 산 수용액을 더 많이 넣었기 때문`], 5);
+    const A = ACIDS[sc.acid], B = BASES[sc.base];
+    const tbl = `<table class="vt"><tr><th>혼합 용액</th><th>${A.name} 수용액</th><th>${B.name} 수용액</th></tr><tr><td>(가)</td><td>${a1} mL</td><td>${V - a1} mL</td></tr><tr><td>(나)</td><td>${a2} mL</td><td>${V - a2} mL</td></tr></table>`;
+    const line = (nm, s, r) => `${nm}: H⁺ ${sc.aU}×${s.aV / 10} = ${r.H}개, OH⁻ ${sc.bU}×${s.bV / 10} = ${r.OH}개 → 물 ${r.water}개`;
+    return { q: intro(sc, "unit") + `두 수용액을 표와 같이 섞어 혼합 용액 (가), (나)를 만들었다.` + tbl
+        + `<b>온도가 더 많이 올라간 용액</b>과 그 까닭을 옳게 짝지은 것은? <span class="muted">(단, 혼합 용액의 부피는 혼합 전 두 용액의 부피의 합과 같고, 처음 온도는 같다.)</span>`,
+      fig: figSVG(sc, "unit"), ...mc,
+      exp: ol([line("(가)", s1, r1), line("(나)", s2, r2), `전체 부피가 ${V} mL로 같으므로 물 분자가 많이 생길수록 온도가 더 많이 올라감`]) + `→ <b>${ans}</b>`,
+      meta:{t:"temp", sc, s1, s2, ans} };
+  }
+  return null;
+};
+// 8) 완전히 중화시키는 데 필요한 염기 부피
+QT.need = function(level){
+  for(let t = 0; t < 300; t++){
+    const sc0 = randSc(level); if(!sc0) return null;
+    const r0 = neutralize(sc0);
+    if(r0.H % sc0.bU) continue;
+    const need = r0.H / sc0.bU * 10;
+    if(need < 10 || need > 60) continue;
+    const more = need >= 20 && Math.random() < 0.5;
+    const bV = more ? 10 * CS.randInt(1, need / 10 - 1) : 10;
+    const sc = {...sc0, bV}, r = neutralize(sc), A = r.A, B = r.B;
+    const ans = more ? need - bV : need, c = [];
+    if(A.nH === 2) c.push(r.An / sc.bU * 10 - (more ? bV : 0));          // H⁺ 대신 SO₄²⁻ 수로 셈
+    if(B.nOH === 2) c.push(r.H / (sc.bU / 2) * 10 - (more ? bV : 0));    // OH⁻ 대신 Ca²⁺ 수로 셈
+    c.push(sc.aU / sc.bU * 10 - (more ? bV : 0));                       // 산 부피 배수를 안 곱함
+    if(more) c.push(need, need + bV); else c.push(need * 2, need / 2);
+    const mc = numPick(ans, c.map(x => Math.round(x * 1e6) / 1e6), " mL");
+    const fa = sc.aV / 10, L = [`H⁺: 10 mL당 ${sc.aU}개 × ${fa} = ${r.H}개`, `중성이 되려면 OH⁻도 ${r.H}개 필요`,
+      `${B.name} 수용액 10 mL당 OH⁻ ${sc.bU}개 → ${r.H} ÷ ${sc.bU} = ${r.H / sc.bU}배 → ${need} mL 필요`];
+    if(A.nH === 2) L.splice(1, 0, `(H₂SO₄는 H⁺가 SO₄²⁻의 2배)`);
+    if(B.nOH === 2) L.splice(L.length - 1, 0, `(Ca(OH)₂ 10 mL에는 Ca²⁺ ${sc.bU / 2}개, OH⁻ ${sc.bU}개)`);
+    if(more) L.push(`이미 ${bV} mL를 넣었으므로 ${need} − ${bV} = ${need - bV} mL 더`);
+    const q = more
+      ? `${A.name} 수용액 <b>${sc.aV} mL</b>에 ${B.name} 수용액 <b>${bV} mL</b>를 넣었다. 혼합 용액을 <b>중성</b>으로 만들려면 ${B.name} 수용액을 <b>몇 mL 더</b> 넣어야 하는가?`
+      : `${A.name} 수용액 <b>${sc.aV} mL</b>를 완전히 중화(중성)시키려면 ${B.name} 수용액을 <b>몇 mL</b> 넣어야 하는가?`;
+    return { q: intro(sc, "unit") + q, fig: figSVG(sc, "unit"), ...mc, exp: ol(L) + `→ <b>${ans} mL</b>`,
+      meta:{t:"need", sc, ans:ans + " mL", need, more} };
+  }
+  return null;
+};
+const QTYPES = Object.keys(QT);
+let qid = 0;
+function makeQuestions(n, level){
+  const types = []; while(types.length < n) types.push(...CS.shuffle(QTYPES));
+  const out = [];
+  for(let i = 0; out.length < n && i < n * 5; i++){
+    const q = QT[types[i % types.length]](level);
+    if(q){ q.id = "neu" + (++qid); out.push(q); }
+  }
+  return out;
+}
+// ==/CORE==
+
+/* ================= 화면 1: 실험해 보기 ================= */
+const $ = id => document.getElementById(id);
+const ionChip = (k, txt) => `<span class="ion" style="background:${ION[k].col};color:${ION[k].tc}">${txt || ION[k].sym}</span>`;
+const st = Object.assign({acid:"H2SO4", base:"NaOH", aU:4, aV:50, bU:3, bV:50}, CS.store.get("neu_st", {}));
+if(!ACIDS[st.acid] || !BASES[st.base]) Object.assign(st, {acid:"H2SO4", base:"NaOH", aU:4, aV:50, bU:3, bV:50});
+let hist = CS.store.get("neu_hist", []);
+const cv = $("cv"), ctx = cv.getContext("2d");
+let W = 0, Hh = 0, anim = null, mixed = null; // mixed: 섞은 뒤 상태
+
+function fixUnits(){
+  const A = ACIDS[st.acid], B = BASES[st.base];
+  st.aU = Math.min(10, Math.max(A.nH, Math.round(st.aU / A.nH) * A.nH));
+  st.bU = Math.min(10, Math.max(B.nOH, Math.round(st.bU / B.nOH) * B.nOH));
+  st.aV = Math.min(50, Math.max(10, st.aV)); st.bV = Math.min(50, Math.max(10, st.bV));
+}
+function renderControls(){
+  fixUnits();
+  const A = ACIDS[st.acid], B = BASES[st.base];
+  $("acidChips").innerHTML = ACID_KEYS.map(k => `<button class="chip ${k === st.acid ? "on" : ""}" data-a="${k}">${ACIDS[k].name}</button>`).join("");
+  $("baseChips").innerHTML = BASE_KEYS.map(k => `<button class="chip ${k === st.base ? "on" : ""}" data-b="${k}">${BASES[k].name}</button>`).join("");
+  $("aUv").textContent = st.aU + "개"; $("bUv").textContent = st.bU + "개";
+  $("aVv").textContent = st.aV + " mL"; $("bVv").textContent = st.bV + " mL";
+  $("aUs").innerHTML = `→ ${ionChip(A.an)} ${st.aU / A.nH}개` + (A.nH === 2 ? " (H⁺의 절반)" : "");
+  $("bUs").innerHTML = `→ ${ionChip(B.cat)} ${st.bU / B.nOH}개` + (B.nOH === 2 ? " (OH⁻의 절반)" : "");
+  $("aUm").disabled = st.aU <= A.nH; $("aUp").disabled = st.aU + A.nH > 10;
+  $("bUm").disabled = st.bU <= B.nOH; $("bUp").disabled = st.bU + B.nOH > 10;
+  $("aVm").disabled = st.aV <= 10; $("aVp").disabled = st.aV >= 50;
+  $("bVm").disabled = st.bV <= 10; $("bVp").disabled = st.bV >= 50;
+  $("caso4").classList.toggle("hide", !(st.acid === "H2SO4" && st.base === "CaOH2"));
+  const r = neutralize(st), fa = st.aV / 10, fb = st.bV / 10;
+  $("totals").innerHTML =
+    `<div><b>${A.name} ${st.aV} mL</b><br>${ionChip("H")} ${st.aU}개 × (${st.aV} mL ÷ 10 mL) = <b>${r.H}개</b><br>${ionChip(A.an)} ${st.aU / A.nH}개 × ${fa} = <b>${r.An}개</b></div>` +
+    `<div><b>${B.name} ${st.bV} mL</b><br>${ionChip(B.cat)} ${st.bU / B.nOH}개 × (${st.bV} mL ÷ 10 mL) = <b>${r.Cat}개</b><br>${ionChip("OH")} ${st.bU}개 × ${fb} = <b>${r.OH}개</b></div>`;
+  $("legend").innerHTML = ["H", "OH", A.an, B.cat, "W"].map(k => ionChip(k) + (k === "W" ? " 물 분자" : k === "H" || k === "OH" ? "" : " 구경꾼")).join(" ");
+  CS.store.set("neu_st", st);
+}
+function changed(){ mixed = null; anim = null; $("resPanel").classList.add("hide"); $("mixBtn").disabled = false; renderControls(); draw(); }
+
+$("acidChips").onclick = e => { const k = e.target.dataset.a; if(k){ st.acid = k; changed(); } };
+$("baseChips").onclick = e => { const k = e.target.dataset.b; if(k){ st.base = k; changed(); } };
+$("aUm").onclick = () => { st.aU -= ACIDS[st.acid].nH; changed(); };
+$("aUp").onclick = () => { st.aU += ACIDS[st.acid].nH; changed(); };
+$("bUm").onclick = () => { st.bU -= BASES[st.base].nOH; changed(); };
+$("bUp").onclick = () => { st.bU += BASES[st.base].nOH; changed(); };
+$("aVm").onclick = () => { st.aV -= 10; changed(); };
+$("aVp").onclick = () => { st.aV += 10; changed(); };
+$("bVm").onclick = () => { st.bV -= 10; changed(); };
+$("bVp").onclick = () => { st.bV += 10; changed(); };
+$("resetBtn").onclick = changed;
+
+/* 그림 배치 */
+function seeded(seed){ let s = seed >>> 0 || 1; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+function geo(){
+  const fs = Math.max(13, Math.min(22, W / 32));
+  const topY = fs * 2.2, bh = Hh * 0.36;
+  const mixY = topY + bh + fs * 3.2, mixH = Hh - mixY - 6;
+  return { fs,
+    acid:{x:W * 0.05, y:topY, w:W * 0.40, h:bh, cap:50},
+    base:{x:W * 0.55, y:topY, w:W * 0.40, h:bh, cap:50},
+    mix: {x:W * 0.10, y:mixY, w:W * 0.80, h:mixH, cap:100} };
+}
+function liquid(b, vol){ const f = 0.18 + 0.8 * vol / b.cap, lh = (b.h - 8) * f; return {x:b.x + 4, y:b.y + b.h - 4 - lh, w:b.w - 8, h:lh}; }
+const slotCache = {};
+function slots(n, rect, seed){
+  const pad = 3, rx = rect.x + pad, ry = rect.y + pad, rw = rect.w - pad * 2, rh = rect.h - pad * 2;
+  let best = {cell:0, cols:1};
+  for(let c = 1; c <= Math.max(1, n); c++){ const rr = Math.ceil(n / c), cell = Math.min(rw / c, rh / rr); if(cell > best.cell) best = {cell, cols:c}; }
+  const cols = best.cols, rows = Math.ceil(n / cols), cell = best.cell, rnd = seeded(seed);
+  const ox = rx + (rw - cols * cell) / 2, oy = ry + rh - rows * cell; // 아래부터 채움
+  const pts = [];
+  for(let i = 0; i < rows * cols; i++) pts.push({x:ox + (i % cols + 0.5) * cell + (rnd() - 0.5) * cell * 0.14, y:oy + (Math.floor(i / cols) + 0.5) * cell + (rnd() - 0.5) * cell * 0.14});
+  // 섞이도록 순서 섞기(고정 시드)
+  for(let i = pts.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [pts[i], pts[j]] = [pts[j], pts[i]]; }
+  return {pts:pts.slice(0, n), r:Math.min(cell * 0.45, W / 22)};
+}
+function speciesList(sc, which){
+  const r = neutralize(sc), A = r.A, B = r.B, out = [];
+  const push = (k, n) => { for(let i = 0; i < n; i++) out.push(k); };
+  if(which === "acid"){ push("H", r.H); push(A.an, r.An); } else { push(B.cat, r.Cat); push("OH", r.OH); }
+  return out;
+}
+
+function drawBeaker(b, vol, label, fs){
+  if(vol > 0.5){
+    const L = liquid(b, vol);
+    ctx.fillStyle = "rgba(56,189,248,.13)"; ctx.fillRect(L.x, L.y, L.w, L.h);
+    ctx.strokeStyle = "rgba(125,211,252,.45)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(L.x, L.y); ctx.lineTo(L.x + L.w, L.y); ctx.stroke();
+  }
+  ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = Math.max(2, W / 300);
+  const rr = Math.min(16, b.w * 0.06);
+  ctx.beginPath(); ctx.moveTo(b.x - 8, b.y - 4); ctx.lineTo(b.x, b.y + 6); ctx.lineTo(b.x, b.y + b.h - rr);
+  ctx.quadraticCurveTo(b.x, b.y + b.h, b.x + rr, b.y + b.h); ctx.lineTo(b.x + b.w - rr, b.y + b.h);
+  ctx.quadraticCurveTo(b.x + b.w, b.y + b.h, b.x + b.w, b.y + b.h - rr); ctx.lineTo(b.x + b.w, b.y + 6); ctx.lineTo(b.x + b.w + 8, b.y - 4); ctx.stroke();
+  ctx.fillStyle = "#e2e8f0"; ctx.font = `700 ${fs}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  ctx.fillText(label, b.x + b.w / 2, b.y - fs * 0.7);
+}
+function drawP(k, x, y, r, alpha, scale){
+  const I = ION[k]; r *= (scale || 1);
+  ctx.globalAlpha = alpha == null ? 1 : alpha;
+  ctx.fillStyle = I.col; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.lineWidth = 1; ctx.stroke();
+  if(r >= 6){
+    let f = r * 0.95; ctx.font = `700 ${f}px sans-serif`;
+    const tw = ctx.measureText(I.sym).width; if(tw > r * 1.8){ f *= r * 1.8 / tw; ctx.font = `700 ${f}px sans-serif`; }
+    ctx.fillStyle = I.tc; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(I.sym, x, y + f * 0.05);
+  }
+  ctx.globalAlpha = 1;
+}
+const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+
+function resize(){
+  const dpr = window.devicePixelRatio || 1, rect = cv.getBoundingClientRect();
+  W = rect.width; Hh = rect.height;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+function draw(){
+  if(!W) return;
+  ctx.clearRect(0, 0, W, Hh);
+  const g = geo(), A = ACIDS[st.acid], B = BASES[st.base], sc = anim ? anim.sc : st;
+  const fs = g.fs, t = anim ? anim.t : 0;
+  // 위쪽 비커 2개
+  const pour = anim ? ease(t / anim.T1) : (mixed ? 1 : 0);
+  drawBeaker(g.acid, pour >= 1 ? 0 : st.aV, `${A.name} ${st.aV} mL`, fs);
+  drawBeaker(g.base, pour >= 1 ? 0 : st.bV, `${B.name} ${st.bV} mL`, fs);
+  // 화살표
+  ctx.strokeStyle = "#64748b"; ctx.fillStyle = "#64748b"; ctx.lineWidth = 2;
+  const ay1 = g.acid.y + g.acid.h + fs * 0.6, ay2 = g.mix.y - fs * 1.6;
+  [[g.acid.x + g.acid.w / 2, W * 0.42], [g.base.x + g.base.w / 2, W * 0.58]].forEach(([x1, x2]) => {
+    ctx.beginPath(); ctx.moveTo(x1, ay1); ctx.lineTo(x2, ay2); ctx.stroke();
+    const an = Math.atan2(ay2 - ay1, x2 - x1); ctx.beginPath(); ctx.moveTo(x2, ay2);
+    ctx.lineTo(x2 - 9 * Math.cos(an - 0.45), ay2 - 9 * Math.sin(an - 0.45)); ctx.lineTo(x2 - 9 * Math.cos(an + 0.45), ay2 - 9 * Math.sin(an + 0.45)); ctx.fill();
+  });
+  const tv = st.aV + st.bV;
+  drawBeaker(g.mix, (anim || mixed) ? tv * pour : 0, (anim || mixed) ? `혼합 용액 ${tv} mL` : `혼합 비커 (「섞기」를 누르세요)`, fs);
+  // 입자
+  const la = slots(st.aU * st.aV / 10 * (1 + 1 / A.nH), liquid(g.acid, st.aV), 11 + st.aU * 7 + st.aV);
+  const lb = slots(st.bU * st.bV / 10 * (1 + 1 / B.nOH), liquid(g.base, st.bV), 23 + st.bU * 5 + st.bV);
+  if(!anim && !mixed){
+    speciesList(st, "acid").forEach((k, i) => drawP(k, la.pts[i].x, la.pts[i].y, la.r));
+    speciesList(st, "base").forEach((k, i) => drawP(k, lb.pts[i].x, lb.pts[i].y, lb.r));
+    return;
+  }
+  const P = (anim || mixed).parts, lm = slots(P.length, liquid(g.mix, tv), 97 + tv);
+  P.forEach(p => {
+    const src = p.from === "acid" ? la : lb, s0 = src.pts[p.si], s1 = lm.pts[p.mi];
+    let x, y, r, k = p.sp, alpha = 1, scale = 1;
+    const e = anim ? ease((t - p.delay) / (anim.T1 - 300)) : 1;
+    x = s0.x + (s1.x - s0.x) * e; y = s0.y + (s1.y - s0.y) * e - Math.sin(e * Math.PI) * fs * 2; r = src.r + (lm.r - src.r) * e;
+    if(p.pair != null){
+      const pr = P[p.pair], ts = anim ? anim.T1 + p.k * anim.step : -1, dur = anim ? anim.dur : 1;
+      const u = anim ? (t - ts) / dur : 2;
+      if(u > 0){
+        if(p.sp === "OH"){ // OH⁻이 H⁺ 쪽으로 이동
+          const tgt = lm.pts[pr.mi], m = ease(u / 0.6);
+          x = s1.x + (tgt.x - s1.x) * m; y = s1.y + (tgt.y - s1.y) * m;
+          if(u >= 0.6) return;
+        } else if(u >= 0.6){ k = "W"; scale = 0.6 + 0.4 * ease((u - 0.6) / 0.4); }
+      }
+    }
+    drawP(k, x, y, r, alpha, scale);
+  });
+}
+
+function startMix(){
+  if(anim) return;
+  const r = neutralize(st), la = speciesList(st, "acid"), lb = speciesList(st, "base");
+  const parts = [];
+  la.forEach((sp, i) => parts.push({sp, from:"acid", si:i}));
+  lb.forEach((sp, i) => parts.push({sp, from:"base", si:i}));
+  parts.forEach((p, i) => { p.mi = i; p.delay = Math.random() * 300; }); // 혼합 비커 자리(시드 섞임)
+  // H⁺–OH⁻ 가까운 것끼리 짝
+  const g = geo(), lm = slots(parts.length, liquid(g.mix, st.aV + st.bV), 97 + st.aV + st.bV);
+  const Hs = CS.shuffle(parts.filter(p => p.sp === "H")), OHs = parts.filter(p => p.sp === "OH");
+  let k = 0;
+  for(const h of Hs){
+    if(k >= r.water) break;
+    let best = null, bd = 1e9;
+    OHs.forEach(o => { if(o.pair == null){ const a = lm.pts[h.mi], b = lm.pts[o.mi], d = (a.x - b.x) ** 2 + (a.y - b.y) ** 2; if(d < bd){ bd = d; best = o; } } });
+    const hi = parts.indexOf(h), oi = parts.indexOf(best);
+    h.pair = oi; best.pair = hi; h.k = best.k = k++;
+  }
+  const step = Math.min(320, 2600 / Math.max(1, r.water)), dur = 520, T1 = 1100;
+  anim = {sc:{...st}, parts, t:0, T1, step, dur, T:T1 + (r.water - 1) * step + dur + 150};
+  $("mixBtn").disabled = true; $("resPanel").classList.add("hide");
+  let last = performance.now();
+  const tick = now => {
+    if(!anim) return;
+    const dt = Math.min(50, now - last); last = now;
+    if(!document.hidden) anim.t += dt;
+    draw();
+    if(anim.t >= anim.T){ mixed = {parts}; anim = null; draw(); showResult(); return; }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+$("mixBtn").onclick = startMix;
+
+function showResult(){
+  const r = neutralize(st), A = r.A, B = r.B;
+  const rem = r.after.map(x => `${ionChip(x.sp)} ${x.n}개`).join("　");
+  const zero = ["H", "OH"].filter(k => r.afterAll[k] === 0).map(k => `${sym(k)} 0개`).join(", ");
+  const why = r.nature === "산성" ? "H⁺가 남음" : r.nature === "염기성" ? "OH⁻이 남음" : "H⁺와 OH⁻가 모두 0개";
+  const plus = r.after.filter(x => ION[x.sp].q > 0), minus = r.after.filter(x => ION[x.sp].q < 0);
+  const ch = l => l.map(x => `${x.n}×${Math.abs(ION[x.sp].q)}`).join(" + ");
+  $("res").innerHTML = `<table class="res">
+    <tr><th>생성된 물 분자</th><td><span class="big" style="color:#fdba74">${r.water}개</span> ${ionChip("W")}<br><span class="muted">H⁺ ${r.H}개와 OH⁻ ${r.OH}개 중 적은 쪽만큼 1 : 1로 짝</span></td></tr>
+    <tr><th>남은 이온</th><td>${rem}${zero ? `<br><span class="muted">${zero} (반응해서 없어짐)</span>` : ""}</td></tr>
+    <tr><th>액성</th><td><span class="big nat-${r.nature}">${r.nature}</span> <span class="muted">(${why})</span></td></tr>
+    <tr><th>이온 수 비</th><td>${r.ratioLabel}<br><b style="font-size:19px">= ${r.after.map(x => x.n).join(" : ")} = ${r.ratio}</b></td></tr>
+    <tr><th>전체 부피</th><td><b>${r.totalV} mL</b> (${st.aV} mL + ${st.bV} mL)</td></tr>
+    <tr><th>전하 확인</th><td class="muted">(+) ${ch(plus)} = ${plus.reduce((s, x) => s + x.n * ION[x.sp].q, 0)}, (−) ${ch(minus)} = ${minus.reduce((s, x) => s - x.n * ION[x.sp].q, 0)} → 합 0</td></tr>
+  </table>
+  <ol class="stepl">${steps(st, "total").map(x => `<li>${x}</li>`).join("")}</ol>
+  <div class="hot">🌡️ 중화 반응으로 <b>생성된 물 분자 수가 많을수록 온도가 더 많이 올라간다</b>(전체 부피가 같을 때). 이번 혼합: 전체 ${r.totalV} mL에서 물 분자 <b>${r.water}개</b></div>
+  <div class="cond">※ 혼합 용액의 부피는 혼합 전 두 용액의 부피의 합과 같다고 가정합니다.</div>`;
+  $("resPanel").classList.remove("hide");
+  hist.unshift({d:`${A.name} ${st.aV} + ${B.name} ${st.bV}`, v:r.totalV, w:r.water, n:r.nature});
+  hist = hist.slice(0, 8); CS.store.set("neu_hist", hist); renderHist();
+  if(window.innerWidth < 1100) $("resPanel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function renderHist(){
+  if(!hist.length){ $("hist").innerHTML = "아직 섞은 기록이 없어요."; return; }
+  const cur = hist[0].v, same = hist.filter(h => h.v === cur);
+  const maxW = Math.max(...same.map(h => h.w));
+  $("hist").innerHTML = `<table class="hist"><tr><th>섞은 용액 (mL)</th><th>전체</th><th>물 분자</th><th>액성</th></tr>`
+    + hist.map(h => `<tr class="${h.v === cur ? "same" : ""}"><td>${h.d}</td><td>${h.v} mL</td><td><b>${h.w}개</b>${h.v === cur && same.length > 1 && h.w === maxW ? " 🔥" : ""}</td><td>${h.n}</td></tr>`).join("")
+    + `</table><div class="note" style="margin-top:6px">색칠된 줄 = 방금 섞은 것과 전체 부피가 같은 기록. 그중 물 분자가 가장 많은 것(🔥)이 온도가 가장 많이 올라갑니다.</div>
+    <button class="btn ghost sm" id="histClr" style="margin-top:6px">기록 지우기</button>`;
+  $("histClr").onclick = () => { hist = []; CS.store.set("neu_hist", hist); renderHist(); };
+}
+
+/* ================= 화면 2: 문제 풀기 ================= */
+const LV = [["basic", "기본 (1가 산·1가 염기)"], ["di", "2가 포함"], ["mix", "섞어서"]];
+let level = CS.store.get("neu_lv", "mix"); if(!LV.some(l => l[0] === level)) level = "mix";
+let quiz = null;
+function renderLv(){ $("lvChips").innerHTML = LV.map(([k, t]) => `<button class="chip ${k === level ? "on" : ""}" data-lv="${k}">${t}</button>`).join(""); }
+$("lvChips").onclick = e => { const k = e.target.dataset.lv; if(!k) return; level = k; CS.store.set("neu_lv", k); renderLv(); quiz.start(); };
+function startQuiz(){ if(!quiz){ quiz = CS.QuizRound($("quizBox"), {make:n => makeQuestions(n, level), count:10}); quiz.start(); } }
+
+/* 탭 */
+function setTab(t){
+  document.querySelectorAll(".tabbar .chip").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  $("tabExp").classList.toggle("hide", t !== "exp"); $("tabQuiz").classList.toggle("hide", t !== "quiz");
+  CS.store.set("neu_tab", t);
+  if(t === "quiz") startQuiz(); else resize();
+}
+document.querySelectorAll(".tabbar .chip").forEach(b => b.onclick = () => setTab(b.dataset.tab));
+
+renderControls(); renderHist(); renderLv();
+window.addEventListener("resize", () => { if(!$("tabExp").classList.contains("hide")) resize(); });
+setTab(CS.store.get("neu_tab", "exp") === "quiz" ? "quiz" : "exp");
+</script>
+</body>
+</html>

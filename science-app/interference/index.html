@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>파동의 간섭 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.lay{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+.figbox{width:100%;display:flex;justify-content:center}
+#cv{cursor:crosshair}
+.legend{font-size:13px;color:var(--muted);margin:8px 2px 10px;gap:12px}
+.legend i{display:inline-block;vertical-align:middle;margin-right:4px}
+.sw{width:34px;height:12px;border-radius:3px;background:linear-gradient(90deg,#03102a,#1e4f8f,#7cc6f2,#f2fbff);border:1px solid var(--line)}
+.ln{width:26px;height:0;border-top:3px solid #fbbf24}
+.ln.dash{border-top:3px dashed #f87171}
+.pinfo{font-size:15px;line-height:1.7}
+.pinfo .big{font-size:18px;font-weight:700}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:15px}
+.tag.c{background:rgba(251,191,36,.18);color:#fcd34d;border:1px solid #f59e0b}
+.tag.d{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid #ef4444}
+.tag.m{background:rgba(148,163,184,.15);color:#cbd5e1;border:1px solid var(--line)}
+.ctl h3{font-size:14px;color:var(--muted);margin:12px 0 6px;font-weight:600}
+.ctl h3:first-child{margin-top:0}
+.slider label{white-space:nowrap}
+.cnt{font-size:15px;line-height:1.7}
+.cnt b.n{font-size:22px;color:#fca5a5}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--no);font-weight:700}
+.exp{font-size:15px;line-height:1.75}
+.exp p{margin:0 0 8px}
+.exp b.c{color:#fcd34d}.exp b.d{color:#fca5a5}
+.mono{font-variant-numeric:tabular-nums}
+#quizWrap{max-width:860px;margin:0 auto}
+@media (min-width:1000px){
+  .wrap{max-width:1880px}
+  .lay{grid-template-columns:minmax(0,1fr) 420px;align-items:start}
+  .figcol{position:sticky;top:70px}
+  .pinfo{font-size:17px}
+  .exp,.cnt{font-size:16px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>파동의 간섭<small>물리 · 물결파 수조에서 두 파원 S₁, S₂의 보강 · 상쇄 간섭</small></h1></header>
+<div class="wrap">
+  <div class="lay">
+    <div class="figcol">
+      <div class="figbox" id="figbox"><canvas id="cv" aria-label="물결파 간섭 무늬"></canvas></div>
+      <div class="legend row">
+        <span><i class="sw"></i>밝은색 = 마루, 어두운색 = 골</span>
+        <span id="lgC"><i class="ln"></i>보강 간섭선</span>
+        <span id="lgD"><i class="ln dash"></i>상쇄 간섭선(마디선)</span>
+      </div>
+      <div class="panel pinfo" id="pInfo">수조를 눌러(클릭해) 점 <b>P</b>를 찍어 보세요. P에서 두 파원까지의 거리와 경로차를 알려 줘요.</div>
+    </div>
+
+    <div class="side">
+      <div class="panel ctl">
+        <h3>파원과 파동</h3>
+        <div class="slider"><label for="sd">간격 d</label><input type="range" id="sd" min="2" max="10" step="0.5" value="6"><span class="v" id="vd"></span></div>
+        <div class="slider"><label for="sl">파장 λ</label><input type="range" id="sl" min="0.8" max="4" step="0.1" value="2"><span class="v" id="vl"></span></div>
+        <div class="slider"><label for="sf">진동수 f</label><input type="range" id="sf" min="5" max="20" step="1" value="10"><span class="v" id="vf"></span></div>
+        <div class="note" id="speedNote"></div>
+        <h3>두 파원의 위상</h3>
+        <div class="row"><button class="chip on" id="phSame">위상 같음</button><button class="chip" id="phOpp">위상 반대</button></div>
+        <h3>보조선</h3>
+        <div class="row">
+          <button class="chip on" id="tgD">상쇄 간섭선(마디선)</button>
+          <button class="chip" id="tgC">보강 간섭선</button>
+          <button class="chip" id="tgCir">정지 · 마루와 골 원 그리기</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn sm ghost" id="btnPlay">⏸ 멈춤</button>
+          <button class="btn sm ghost" id="btnClearP">점 P 지우기</button>
+        </div>
+      </div>
+
+      <div class="panel cnt" id="countBox"></div>
+
+      <div class="panel exp">
+        <h2>정리</h2>
+        <p>두 파원에서 점 P까지 거리를 r₁, r₂라 하면 <b>경로차 = |r₁ − r₂|</b> 예요.</p>
+        <p><b class="c">보강 간섭</b> (위상 같은 두 파원): 경로차 = 반파장의 <b>짝수 배</b> = mλ<br>
+           → 마루와 마루, 골과 골이 만나 크게 진동해요.</p>
+        <p><b class="d">상쇄 간섭</b> (위상 같은 두 파원): 경로차 = 반파장의 <b>홀수 배</b> = (m + ½)λ<br>
+           → 마루와 골이 만나 거의 진동하지 않아요. 이 점들을 이은 선이 <b>마디선</b>이에요.</p>
+        <p class="muted" style="font-size:14px">(m = 0, 1, 2, …)</p>
+        <div class="adv"><b>위상이 반대인 두 파원</b>이면 조건이 서로 바뀌어요.<br>
+          경로차 = 반파장의 짝수 배 → <b>상쇄</b>, 홀수 배 → <b>보강</b>.<br>
+          그래서 수직이등분선(경로차 0) 위가 마디선이 돼요.</div>
+        <p style="margin-top:10px">간격 <b>d를 넓히거나</b> 파장 <b>λ를 줄이면</b> (같은 물에서 진동수를 높이면) 마디선이 <b>많아지고</b> 촘촘해져요.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizWrap">
+    <div class="panel"><h2>확인 문제 (①~⑤, 무한 생성)</h2><div id="quiz"></div></div>
+  </div>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+/*LOGIC-START*/
+const IFX = (function(){
+  // 길이는 0.1 cm 단위 정수로도 다룬다(경계 판정을 정확하게 하려고)
+  const r10 = x => Math.round(x * 10);
+  const fmt = (x, k) => { const s = (+x).toFixed(k == null ? 2 : k); return s.replace(/\.?0+$/, "") || "0"; };
+
+  // 공식: S₁S₂ 선분 위 상쇄점 개수 (경계가 아닐 때)
+  //  위상 같음: 2⌊d/λ + ½⌋,  위상 반대: 2⌊d/λ⌋ + 1
+  function formulaCount(d, lam, anti){
+    const D = r10(d), L = r10(lam);
+    return anti ? 2 * Math.floor(D / L) + 1 : 2 * Math.floor((2 * D + L) / (2 * L));
+  }
+  // 경계: 파원 위치 자체가 상쇄 조건을 만족 (위상 같음: d = (m+½)λ, 반대: d = mλ)
+  function isBoundary(d, lam, anti){
+    const D = r10(d), L = r10(lam);
+    if(anti) return D % L === 0;
+    return (2 * D) % L === 0 && ((2 * D) / L) % 2 === 1;
+  }
+  // 화면 계산: 선분 위를 촘촘히 훑어 합성 진폭 ∝ cos(πΔ/λ + Δφ/2) 의 부호가 바뀌는 곳(= 0이 되는 곳) 개수
+  function numericCount(d, lam, anti, N){
+    N = N || 20000;
+    let cnt = 0, prev = null;
+    const half = anti ? Math.PI / 2 : 0;
+    for(let i = 0; i <= N; i++){
+      const x = d * (i + 0.5) / (N + 1);
+      const dl = 2 * x - d;                 // r₁ − r₂
+      const v = Math.cos(Math.PI * dl / lam + half);
+      if(prev !== null && (prev > 0) !== (v > 0)) cnt++;
+      prev = v;
+    }
+    return cnt;
+  }
+  // 경로차 목록(선분 위 상쇄점)
+  function nodeDiffs(d, lam, anti){
+    const out = [];
+    for(let m = 0; m < 100; m++){
+      const c = anti ? m * lam : (m + 0.5) * lam;
+      if(c >= d - 1e-9) break;
+      if(c < 1e-9) out.push(0); else { out.push(c); out.push(-c); }
+    }
+    return out.sort((a, b) => a - b);
+  }
+  // 점 P 판정: q = 경로차/λ
+  function judge(diff, lam, anti, tol){
+    tol = tol == null ? 0.05 : tol;
+    const q = diff / lam;
+    const dInt = Math.abs(q - Math.round(q));               // 정수배(반파장의 짝수 배)까지 거리
+    const dHalf = Math.abs(q - (Math.floor(q) + 0.5));      // 반정수배(홀수 배)까지 거리
+    let kind = "mid";
+    if(dInt <= tol) kind = anti ? "des" : "con";
+    else if(dHalf <= tol) kind = anti ? "con" : "des";
+    const amp = 2 * Math.abs(Math.cos(Math.PI * q + (anti ? Math.PI / 2 : 0)));   // 합성 진폭 (A 단위)
+    return { q, kind, amp };
+  }
+
+  /* ===== 확인 문제 ===== */
+  const JUDGE = [
+    "보강 간섭 — 경로차가 반파장의 짝수 배",
+    "보강 간섭 — 경로차가 반파장의 홀수 배",
+    "상쇄 간섭 — 경로차가 반파장의 홀수 배",
+    "상쇄 간섭 — 경로차가 반파장의 짝수 배",
+    "보강도 상쇄도 아닌 중간 세기"
+  ];
+  // k = 경로차 ÷ 반파장 (정수 또는 x.5)
+  function judgeIndex(k, anti){
+    if(k % 1 !== 0) return 4;
+    const even = k % 2 === 0;
+    if(!anti) return even ? 0 : 2;
+    return even ? 3 : 1;
+  }
+  const R = { int:(a,b)=>a+Math.floor(Math.random()*(b-a+1)), pick:a=>a[Math.floor(Math.random()*a.length)] };
+  function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  function choices(ans, ds){
+    const seen = new Set([String(ans)]), pool = [];
+    for(const d of ds){ const s = String(d); if(!seen.has(s)){ seen.add(s); pool.push(d); } if(pool.length >= 4) break; }
+    const all = shuffle([ans].concat(pool));
+    return { choices: all, answer: all.findIndex(x => String(x) === String(ans)) };
+  }
+  function countDistractors(ans){
+    const c = [ans + 1, ans - 1, ans + 2, ans - 2, ans * 2, ans + 3, Math.max(0, ans - 3), ans + 4, ans + 5];
+    return c.filter(x => x >= 0 && x !== ans);
+  }
+  const phaseTxt = anti => anti ? "<b>서로 반대 위상</b>으로" : "<b>같은 위상</b>으로";
+
+  const MAKERS = {
+    // ① 경로차로 판정 (위상 같음 / 반대)
+    judgeP(anti){
+      const lam = R.pick([2, 4, 6, 8]);
+      const halfL = lam / 2;
+      const mid = Math.random() < 0.2;
+      let k = R.int(0, 7); if(anti && Math.random() < 0.25) k = 0;
+      if(mid) k = R.int(0, 6) + 0.5;
+      const diff = k * halfL;
+      const r2 = R.int(3, 12);
+      const r1 = r2 + diff;
+      const swap = Math.random() < 0.5;
+      const a = swap ? r2 : r1, b = swap ? r1 : r2;
+      const ans = judgeIndex(k, anti);
+      const kTxt = k % 1 === 0 ? `${k}배` : `${fmt(k)}배 (정수 배가 아님)`;
+      return {
+        q: `두 점파원 S₁, S₂가 ${phaseTxt(anti)} 진동하여 파장이 <b>${lam} cm</b>인 물결파를 만든다. 점 P는 S₁에서 <b>${fmt(a)} cm</b>, S₂에서 <b>${fmt(b)} cm</b> 떨어져 있다. P에서 일어나는 간섭은?`,
+        choices: JUDGE.slice(), answer: ans,
+        exp: `경로차 = |${fmt(a)} − ${fmt(b)}| = ${fmt(diff)} cm, 반파장 = ${fmt(halfL)} cm<br>→ 경로차는 반파장의 ${kTxt}.<br>` +
+             (ans === 4 ? "짝수 배도 홀수 배도 아니므로 보강과 상쇄의 중간 세기예요." :
+              anti ? "위상이 반대이면 <b>짝수 배 → 상쇄, 홀수 배 → 보강</b>으로 조건이 바뀌어요." :
+                     "위상이 같으면 <b>짝수 배 → 보강, 홀수 배 → 상쇄</b>예요."),
+        meta: { kind:"judge", anti, lam, diff, k }
+      };
+    },
+    // ② 파원 사이 상쇄 간섭 지점 개수
+    nodeCount(anti){
+      let d, lam, tries = 0;
+      do { lam = R.pick([1, 2, 3, 4]); d = R.int(2, 12); tries++; } while(isBoundary(d, lam, anti) && tries < 100);
+      const ans = formulaCount(d, lam, anti);
+      const list = nodeDiffs(d, lam, anti).filter(x => x >= 0).map(x => fmt(x) + " cm");
+      return {
+        q: `두 점파원 S₁, S₂가 ${phaseTxt(anti)} 진동하여 파장이 <b>${lam} cm</b>인 물결파를 만든다. S₁과 S₂ 사이 거리가 <b>${d} cm</b>일 때, 선분 S₁S₂ 위(두 파원 사이)에서 <b>상쇄 간섭</b>이 일어나는 지점은 몇 개인가?`,
+        ...choices(ans + "개", countDistractors(ans).map(x => x + "개")),
+        exp: `선분 위에서 경로차는 0부터 d(= ${d} cm)보다 작은 값까지 변해요. ` +
+             (anti ? `위상이 반대이므로 경로차 = mλ = 0, ${lam}, ${2*lam}, … cm 인 곳이 상쇄예요.` :
+                     `위상이 같으므로 경로차 = (m + ½)λ = ${fmt(lam/2)}, ${fmt(1.5*lam)}, ${fmt(2.5*lam)}, … cm 인 곳이 상쇄예요.`) +
+             `<br>${d} cm보다 작은 경로차: ${list.join(", ")}<br>` +
+             (anti ? "경로차 0인 곳(가운데)은 1개, 나머지는 양쪽에 1개씩 → " : "각 경로차마다 양쪽(S₁ 쪽, S₂ 쪽)에 1개씩 → ") + `<b>${ans}개</b>`,
+        meta: { kind:"count", anti, d, lam, ans, what:"des" }
+      };
+    },
+    // ③ 파원 사이 보강 간섭 지점 개수 (위상 같음)
+    antiCount(){
+      let d, lam, tries = 0;
+      do { lam = R.pick([1, 2, 3, 4]); d = R.int(2, 12); tries++; } while(d % lam === 0 && tries < 100);
+      // 위상 같을 때 보강 = 위상 반대일 때 상쇄와 같은 조건(경로차 mλ)
+      const ans = formulaCount(d, lam, true);
+      const ms = []; for(let m = 0; m * lam < d; m++) ms.push(fmt(m * lam) + " cm");
+      return {
+        q: `두 점파원 S₁, S₂가 <b>같은 위상</b>으로 진동하여 파장이 <b>${lam} cm</b>인 물결파를 만든다. S₁S₂ = <b>${d} cm</b>일 때, 두 파원 사이(선분 S₁S₂ 위, 양 끝 제외)에서 <b>보강 간섭</b>이 일어나는 지점은 몇 개인가?`,
+        ...choices(ans + "개", countDistractors(ans).map(x => x + "개")),
+        exp: `보강 조건: 경로차 = mλ = 0, ${lam}, ${2*lam}, … cm (d = ${d} cm보다 작아야 함)<br>해당 경로차: ${ms.join(", ")}<br>경로차 0(가운데) 1개 + 나머지는 양쪽에 1개씩 → <b>${ans}개</b>`,
+        meta: { kind:"count", anti:false, d, lam, ans, what:"con" }
+      };
+    },
+    // ④ n번째 마디선 위 점의 경로차
+    nthLine(){
+      const lam = R.pick([1, 2, 3, 4, 6]);
+      const n = R.int(1, 4);
+      const anti = Math.random() < 0.3;
+      const ans = anti ? n * lam : (n - 0.5) * lam;
+      const ds = anti ? [(n - 0.5) * lam, (n + 0.5) * lam, (n + 1) * lam, n * lam / 2, 2 * n * lam, (n - 1) * lam, (n + 2) * lam, (n + 1.5) * lam]
+                      : [n * lam, (n - 1) * lam, (n + 0.5) * lam, (n - 0.5) * lam / 2, 2 * n * lam, (n + 1) * lam, n * lam / 2, (n + 1.5) * lam, (n + 2) * lam]
+      const ord = ["첫 번째", "두 번째", "세 번째", "네 번째"][n - 1];
+      return {
+        q: `두 점파원 S₁, S₂가 ${phaseTxt(anti)} 진동하여 파장이 <b>${lam} cm</b>인 물결파를 만든다. 점 P는 S₁S₂의 수직이등분선에서 S₂ 쪽으로 <b>${ord} 마디선(상쇄 간섭선)</b> 위에 있다. P에서 두 파원까지의 경로차는?` +
+           (anti ? " <span class='muted'>(수직이등분선 자체는 세지 않는다)</span>" : ""),
+        ...choices(fmt(ans) + " cm", ds.filter(x => x > 0).map(x => fmt(x) + " cm")),
+        exp: anti
+          ? `위상이 반대이면 수직이등분선(경로차 0)이 마디선이고, 그다음 마디선은 경로차 λ, 2λ, …예요.<br>${ord} 마디선: 경로차 = ${n}λ = <b>${fmt(ans)} cm</b>`
+          : `위상이 같으면 마디선의 경로차는 ½λ, 1½λ, 2½λ, …예요.<br>${ord} 마디선: 경로차 = (${n} − ½)λ = <b>${fmt(ans)} cm</b>`,
+        meta: { kind:"nth", anti, lam, n, ans }
+      };
+    },
+    // ⑤ 마디선을 늘리는 방법 (개념)
+    concept(){
+      const more = Math.random() < 0.6;
+      const right = more ? R.pick(["두 파원 사이 간격 d를 넓힌다.", "진동수를 높여 파장을 짧게 한다."])
+                         : R.pick(["두 파원 사이 간격 d를 좁힌다.", "진동수를 낮춰 파장을 길게 한다."]);
+      const wrongs = more
+        ? ["두 파원 사이 간격 d를 좁힌다.", "진동수를 낮춰 파장을 길게 한다.", "두 파원의 진폭을 크게 한다.", "두 파원의 진폭을 작게 한다.", "파원을 더 세게 두드려 물결을 높게 만든다."]
+        : ["두 파원 사이 간격 d를 넓힌다.", "진동수를 높여 파장을 짧게 한다.", "두 파원의 진폭을 크게 한다.", "두 파원의 진폭을 작게 한다.", "파원을 더 세게 두드려 물결을 높게 만든다."];
+      // 정답과 같은 방향의 다른 '맞는' 방법은 오답 보기에서 뺀다
+      const sameDir = more ? ["두 파원 사이 간격 d를 넓힌다.", "진동수를 높여 파장을 짧게 한다."] : ["두 파원 사이 간격 d를 좁힌다.", "진동수를 낮춰 파장을 길게 한다."];
+      const filtered = shuffle(wrongs.filter(x => !sameDir.includes(x)));
+      return {
+        q: `물결파 수조에서 같은 위상으로 진동하는 두 점파원이 간섭 무늬를 만든다. 물의 깊이는 그대로일 때, <b>마디선의 개수를 ${more ? "늘리는" : "줄이는"}</b> 방법으로 옳은 것은?`,
+        ...choices(right, filtered),
+        exp: `마디선 개수는 d/λ가 클수록 많아요(선분 위 상쇄점 2⌊d/λ + ½⌋개).<br>` +
+             `d를 넓히거나, 진동수를 높여 λ를 줄이면(같은 물에서는 속력이 같아 λ = v/f) 마디선이 많아져요. 진폭은 마디선 개수와 관계없어요.`,
+        meta: { kind:"concept", more, right }
+      };
+    }
+  };
+
+  function make(n){
+    const out = [];
+    const bag = ["judgeP0", "judgeP1", "nodeCount0", "nodeCount1", "antiCount", "nthLine", "concept"];
+    const wts = [3, 2, 3, 2, 1, 2, 1];
+    const flat = []; bag.forEach((b, i) => { for(let k = 0; k < wts[i]; k++) flat.push(b); });
+    for(let i = 0; i < n; i++){
+      const t = R.pick(flat);
+      let q;
+      if(t === "judgeP0") q = MAKERS.judgeP(false);
+      else if(t === "judgeP1") q = MAKERS.judgeP(true);
+      else if(t === "nodeCount0") q = MAKERS.nodeCount(false);
+      else if(t === "nodeCount1") q = MAKERS.nodeCount(true);
+      else q = MAKERS[t]();
+      q.id = "itf_" + Date.now().toString(36) + "_" + i + "_" + Math.random().toString(36).slice(2, 6);
+      out.push(q);
+    }
+    return out;
+  }
+  return { formulaCount, isBoundary, numericCount, nodeDiffs, judge, judgeIndex, JUDGE, make, fmt };
+})();
+/*LOGIC-END*/
+
+/* ===== 화면 ===== */
+const $ = s => document.querySelector(s);
+const cv = $("#cv"), ctx = cv.getContext("2d");
+const W = 20, H = 15, ASP = H / W;   // 수조 크기 (cm)
+const st = {
+  d: CS.store.get("itf_d", 6), lam: CS.store.get("itf_l", 2), f: CS.store.get("itf_f", 10),
+  anti: false, showD: true, showC: false, circles: false, playing: true, P: null
+};
+let dpr = 1, scale = 1, gw = 200, gh = 150, off, offCtx, img, buf32, Cr, Ci, phase = 0, lastT = 0, needDraw = true;
+
+// 색 지도(골 → 마루): 어두운 남색 → 파랑 → 하늘 → 흰색
+const LUT = new Uint32Array(256);
+(function(){
+  const stops = [[0, 3,16,42], [0.38, 30,79,143], [0.7, 124,198,242], [1, 242,251,255]];
+  for(let i = 0; i < 256; i++){
+    const t = i / 255; let k = 0; while(k < stops.length - 2 && t > stops[k+1][0]) k++;
+    const a = stops[k], b = stops[k+1], u = (t - a[0]) / (b[0] - a[0]);
+    const r = a[1] + (b[1]-a[1])*u, g = a[2] + (b[2]-a[2])*u, bl = a[3] + (b[3]-a[3])*u;
+    LUT[i] = (255 << 24) | (Math.round(bl) << 16) | (Math.round(g) << 8) | Math.round(r);
+  }
+})();
+
+const S1 = () => ({ x: W/2 - st.d/2, y: H/2 });
+const S2 = () => ({ x: W/2 + st.d/2, y: H/2 });
+const X = x => x * scale, Y = y => y * scale;
+
+function resize(){
+  const box = $("#figbox");
+  const wide = innerWidth >= 1000;
+  let w = box.clientWidth;
+  if(wide){ const maxH = innerHeight - 170; if(w * ASP > maxH) w = Math.max(320, maxH / ASP); }
+  const h = w * ASP;
+  cv.style.width = w + "px"; cv.style.height = h + "px";
+  dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  scale = cv.width / W;
+  // 넓은 화면: 점 P 정보는 오른쪽 조작판 맨 위로
+  const pi = $("#pInfo"), side = document.querySelector(".side"), fc = document.querySelector(".figcol");
+  if(wide && pi.parentNode !== side) side.insertBefore(pi, side.firstChild);
+  if(!wide && pi.parentNode !== fc) fc.appendChild(pi);
+  const ngw = w >= 700 ? 300 : 200;
+  if(ngw !== gw || !off){
+    gw = ngw; gh = Math.round(gw * ASP);
+    off = document.createElement("canvas"); off.width = gw; off.height = gh;
+    offCtx = off.getContext("2d");
+    img = offCtx.createImageData(gw, gh); buf32 = new Uint32Array(img.data.buffer);
+  }
+  rebuild();
+}
+// 각 칸의 복소 진폭: e^{i(k r₁ + φ₁)} + e^{i(k r₂ + φ₂)}
+function rebuild(){
+  Cr = new Float32Array(gw * gh); Ci = new Float32Array(gw * gh);
+  const k = 2 * Math.PI / st.lam, p2 = st.anti ? Math.PI : 0;
+  const a = S1(), b = S2(), cx = W / gw, cy = H / gh;
+  for(let j = 0; j < gh; j++){
+    const y = (j + 0.5) * cy;
+    for(let i = 0; i < gw; i++){
+      const x = (i + 0.5) * cx;
+      const r1 = Math.hypot(x - a.x, y - a.y), r2 = Math.hypot(x - b.x, y - b.y);
+      const t1 = k * r1, t2 = k * r2 + p2, n = j * gw + i;
+      Cr[n] = Math.cos(t1) + Math.cos(t2); Ci[n] = Math.sin(t1) + Math.sin(t2);
+    }
+  }
+  needDraw = true;
+}
+
+function drawField(){
+  const c = Math.cos(phase), s = Math.sin(phase), N = gw * gh;
+  for(let n = 0; n < N; n++){
+    let v = ((Cr[n] * c + Ci[n] * s) + 2) * 63.75;
+    v = v < 0 ? 0 : v > 255 ? 255 : v;
+    buf32[n] = LUT[v | 0];
+  }
+  offCtx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(off, 0, 0, cv.width, cv.height);
+}
+
+// 쌍곡선 r₁ − r₂ = c (c는 부호 있는 경로차)
+function hyperPath(c){
+  const a = st.d / 2, xm = W / 2, ym = H / 2;
+  const pts = [];
+  if(Math.abs(c) < 1e-9){ pts.push([xm, 0], [xm, H]); return pts; }
+  const A = Math.abs(c) / 2, B = Math.sqrt(Math.max(a*a - A*A, 1e-9)), sg = c > 0 ? 1 : -1;
+  const T = Math.asinh((H / 2 + 0.5) / B);
+  for(let i = 0; i <= 400; i++){
+    const t = -T + 2 * T * i / 400;
+    pts.push([xm + sg * A * Math.cosh(t), ym + B * Math.sinh(t)]);
+  }
+  return pts;
+}
+function lineDiffs(kind){ // kind: "des" | "con" → 부호 있는 경로차 목록
+  const out = [], lam = st.lam, d = st.d;
+  const halfOdd = (kind === "des") !== st.anti;   // 위상 같음+상쇄 또는 반대+보강 → (m+½)λ
+  for(let m = 0; m < 200; m++){
+    const c = halfOdd ? (m + 0.5) * lam : m * lam;
+    if(c >= d - 1e-9) break;
+    if(c < 1e-9) out.push(0); else out.push(c, -c);
+  }
+  return out;
+}
+function drawLines(kind){
+  const col = kind === "des" ? "#f87171" : "#fbbf24";
+  ctx.save();
+  ctx.lineWidth = Math.max(2, 2.2 * dpr);
+  ctx.strokeStyle = col;
+  ctx.setLineDash(kind === "des" ? [8 * dpr, 6 * dpr] : []);
+  ctx.font = `600 ${Math.round(13 * dpr)}px sans-serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for(const c of lineDiffs(kind)){
+    const pts = hyperPath(c);
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
+    ctx.stroke();
+    // 위쪽 끝에 경로차 라벨
+    {
+      const top = pts.find(p => p[1] >= 0.15) || pts[0];
+      if(top[0] > 0.4 && top[0] < W - 0.4){
+        const q = Math.abs(c) / st.lam;
+        const txt = (Math.abs(q - Math.round(q)) < 1e-6 ? Math.round(q) : IFX.fmt(q, 1)) + "λ";
+        const tw = ctx.measureText(txt).width + 8 * dpr;
+        const ly = kind === "des" ? 4 * dpr : 26 * dpr;
+        const lx = X(top[0]) - tw / 2;
+        if(labelRects.some(r => lx < r[0] + r[2] + 2 * dpr && r[0] < lx + tw + 2 * dpr && Math.abs(r[1] - ly) < 18 * dpr)) continue;
+        labelRects.push([lx, ly, tw]);
+        ctx.save(); ctx.setLineDash([]);
+        ctx.fillStyle = "rgba(11,18,34,.8)"; ctx.fillRect(X(top[0]) - tw/2, ly - 2*dpr, tw, 18 * dpr);
+        ctx.fillStyle = col; ctx.fillText(txt, X(top[0]), ly);
+        ctx.restore();
+      }
+    }
+  }
+  ctx.restore();
+}
+// 정지 화면: 마루(실선) · 골(점선) 원과 교차점
+function drawCircles(){
+  const lam = st.lam, srcs = [S1(), S2()], phis = [0, st.anti ? Math.PI : 0];
+  const Rmax = Math.min(Math.hypot(W, H), Math.max(8 * lam, 6));
+  const rings = srcs.map((s, si) => {
+    const sh = phis[si] / (2 * Math.PI), list = [];
+    for(let n = 0; n < 200; n++){
+      const rc = (n - sh) * lam, rt = (n + 0.5 - sh) * lam;
+      if(rc > 1e-6 && rc <= Rmax) list.push({ r: rc, crest: true });
+      if(rt > 1e-6 && rt <= Rmax) list.push({ r: rt, crest: false });
+      if(rc > Rmax && rt > Rmax) break;
+    }
+    return list;
+  });
+  ctx.save();
+  ctx.fillStyle = "rgba(11,18,34,.45)"; ctx.fillRect(0, 0, cv.width, cv.height);
+  const cols = ["#e2e8f0", "#c4b5fd"];
+  rings.forEach((list, si) => {
+    const s = srcs[si];
+    for(const R of list){
+      ctx.beginPath(); ctx.arc(X(s.x), Y(s.y), R.r * scale, 0, Math.PI * 2);
+      ctx.strokeStyle = cols[si]; ctx.globalAlpha = 0.85;
+      ctx.lineWidth = (R.crest ? 1.8 : 1.4) * dpr;
+      ctx.setLineDash(R.crest ? [] : [5 * dpr, 5 * dpr]);
+      ctx.stroke();
+    }
+  });
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+  // 교차점
+  const a = srcs[0], b = srcs[1], dd = st.d;
+  const rad = Math.max(3.5, 4.5 * dpr);
+  for(const A of rings[0]) for(const B of rings[1]){
+    const x = (A.r * A.r - B.r * B.r + dd * dd) / (2 * dd);  // S₁에서 축 방향 거리
+    const h2 = A.r * A.r - x * x;
+    if(h2 < 0) continue;
+    const hgt = Math.sqrt(h2);
+    const same = A.crest === B.crest;
+    for(const sg of hgt < 1e-6 ? [1] : [1, -1]){
+      const px = a.x + x, py = a.y + sg * hgt;
+      if(px < 0 || px > W || py < 0 || py > H) continue;
+      ctx.beginPath(); ctx.arc(X(px), Y(py), rad, 0, Math.PI * 2);
+      if(same){ ctx.fillStyle = "#fbbf24"; ctx.fill(); ctx.strokeStyle = "#0b1222"; ctx.lineWidth = 1 * dpr; ctx.stroke(); }
+      else { ctx.fillStyle = "#0b1222"; ctx.fill(); ctx.strokeStyle = "#fca5a5"; ctx.lineWidth = 2 * dpr; ctx.stroke(); }
+    }
+  }
+  // 범례
+  const fs = Math.round(13 * dpr);
+  ctx.font = `600 ${fs}px sans-serif`; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+  const lines = ["── 마루   - - 골", "● 보강(마루+마루, 골+골)", "○ 상쇄(마루+골)"];
+  const bw = Math.max(...lines.map(t => ctx.measureText(t).width)) + 16 * dpr;
+  ctx.fillStyle = "rgba(11,18,34,.85)"; ctx.fillRect(6 * dpr, cv.height - (lines.length * 19 + 10) * dpr, bw, (lines.length * 19 + 4) * dpr);
+  lines.forEach((t, i) => { ctx.fillStyle = i === 1 ? "#fcd34d" : i === 2 ? "#fca5a5" : "#e2e8f0"; ctx.fillText(t, 14 * dpr, cv.height - (lines.length * 19 - i * 19) * dpr); });
+  ctx.restore();
+}
+function drawSources(){
+  const fs = Math.round(15 * dpr);
+  ctx.save();
+  ctx.font = `700 ${fs}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "top";
+  [[S1(), "S₁"], [S2(), "S₂"]].forEach(([s, lb], i) => {
+    ctx.beginPath(); ctx.arc(X(s.x), Y(s.y), 6 * dpr, 0, Math.PI * 2);
+    ctx.fillStyle = i === 1 && st.anti ? "#c084fc" : "#f97316"; ctx.fill();
+    ctx.lineWidth = 2 * dpr; ctx.strokeStyle = "#fff"; ctx.stroke();
+    const tw = ctx.measureText(lb).width + 8 * dpr;
+    ctx.fillStyle = "rgba(11,18,34,.8)"; ctx.fillRect(X(s.x) - tw/2, Y(s.y) + 9 * dpr, tw, fs + 4 * dpr);
+    ctx.fillStyle = "#fff"; ctx.fillText(lb, X(s.x), Y(s.y) + 11 * dpr);
+  });
+  ctx.restore();
+}
+function drawSegmentNodes(){
+  const diffs = IFX.nodeDiffs(st.d, st.lam, st.anti), m = W / 2;
+  ctx.save();
+  for(const c of diffs){
+    const x = m + c / 2;
+    ctx.beginPath(); ctx.arc(X(x), Y(H / 2), 5 * dpr, 0, Math.PI * 2);
+    ctx.fillStyle = "#0b1222"; ctx.fill(); ctx.lineWidth = 2.2 * dpr; ctx.strokeStyle = "#fca5a5"; ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawP(){
+  const P = st.P; if(!P) return;
+  const a = S1(), b = S2();
+  ctx.save();
+  ctx.lineWidth = 1.6 * dpr; ctx.setLineDash([4 * dpr, 4 * dpr]);
+  ctx.strokeStyle = "#fdba74"; ctx.beginPath(); ctx.moveTo(X(a.x), Y(a.y)); ctx.lineTo(X(P.x), Y(P.y)); ctx.stroke();
+  ctx.strokeStyle = "#d8b4fe"; ctx.beginPath(); ctx.moveTo(X(b.x), Y(b.y)); ctx.lineTo(X(P.x), Y(P.y)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(X(P.x), Y(P.y), 7 * dpr, 0, Math.PI * 2);
+  ctx.fillStyle = "#22c55e"; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2 * dpr; ctx.stroke();
+  const fs = Math.round(15 * dpr);
+  ctx.font = `700 ${fs}px sans-serif`; ctx.textBaseline = "middle";
+  const right = X(P.x) < cv.width - 60 * dpr;
+  ctx.textAlign = right ? "left" : "right";
+  const tx = X(P.x) + (right ? 11 : -11) * dpr;
+  ctx.fillStyle = "rgba(11,18,34,.8)"; const tw = ctx.measureText("P").width + 8 * dpr;
+  ctx.fillRect(right ? tx - 4 * dpr : tx - tw + 4 * dpr, Y(P.y) - fs * 0.7, tw, fs * 1.4);
+  ctx.fillStyle = "#fff"; ctx.fillText("P", tx, Y(P.y));
+  ctx.restore();
+}
+let labelRects = [];
+function render(){
+  labelRects = [];
+  drawField();
+  if(st.circles) drawCircles();
+  if(st.showC) drawLines("con");
+  if(st.showD){ drawLines("des"); drawSegmentNodes(); }
+  drawSources();
+  drawP();
+}
+
+function loop(t){
+  requestAnimationFrame(loop);
+  if(document.hidden){ lastT = 0; return; }
+  const dt = lastT ? Math.min(0.1, (t - lastT) / 1000) : 0;
+  lastT = t;
+  if(st.playing && !st.circles){ phase += 2 * Math.PI * (st.f / 10) * dt; if(phase > 1e4) phase -= 2 * Math.PI * Math.floor(phase / (2 * Math.PI)); needDraw = true; }
+  if(needDraw){ render(); needDraw = false; }
+}
+
+/* ===== 정보 패널 ===== */
+const fmt = IFX.fmt;
+function updateTexts(){
+  $("#vd").textContent = fmt(st.d, 1) + " cm";
+  $("#vl").textContent = fmt(st.lam, 1) + " cm";
+  $("#vf").textContent = st.f + " Hz";
+  $("#speedNote").innerHTML = `물결파 속력 v = fλ = ${st.f} × ${fmt(st.lam,1)} = <b>${fmt(st.f * st.lam, 1)} cm/s</b> · 화면은 10배 느리게 보여 줘요.`;
+  $("#lgC").style.opacity = st.showC ? 1 : 0.4;
+  $("#lgD").style.opacity = st.showD ? 1 : 0.4;
+  updateCount(); updateP();
+}
+function updateCount(){
+  const { d, lam, anti } = st;
+  const formula = IFX.formulaCount(d, lam, anti);
+  const numeric = IFX.numericCount(d, lam, anti);
+  const bnd = IFX.isBoundary(d, lam, anti);
+  const r = d / lam;
+  const fTxt = anti ? `2⌊d/λ⌋ + 1 = 2⌊${fmt(r,3)}⌋ + 1 = ${formula}` : `2⌊d/λ + ½⌋ = 2⌊${fmt(r + 0.5, 3)}⌋ = ${formula}`;
+  let h = `<h2>선분 S₁S₂ 위 상쇄 간섭 지점</h2>`;
+  h += `<div>d/λ = ${fmt(d,1)} ÷ ${fmt(lam,1)} = <b>${fmt(r, 3)}</b></div>`;
+  if(!bnd){
+    h += `<div style="margin-top:4px"><b class="n">${formula}개</b> <span class="muted">(그림에서 ○)</span></div>`;
+    h += `<div class="muted" style="font-size:14px">공식 ${fTxt} · 화면 계산 ${numeric}개 ` + (numeric === formula ? `<span class="ok">✓ 일치</span>` : `<span class="bad">✗ 불일치</span>`) + `</div>`;
+  } else {
+    const edge = anti ? `d = ${fmt(r,0)}λ` : `d = ${fmt(r,1)}λ (반파장의 홀수 배)`;
+    h += `<div style="margin-top:4px"><span class="tag m">경계</span> ${edge}</div>`;
+    h += `<div>두 파원 <b>바로 그 자리</b>가 상쇄 조건(경로차 = d)을 만족해요. 두 파원 사이 안쪽에는 <b class="n">${numeric}개</b>, 파원 위치 2곳은 경계로 따로 봐요.</div>`;
+    h += `<div class="muted" style="font-size:14px">공식 ${fTxt}개는 파원 위치 2곳까지 센 값 → ${formula} − 2 = ${formula - 2} · 화면 계산 ${numeric}개 ` + (numeric === formula - 2 ? `<span class="ok">✓</span>` : `<span class="bad">✗</span>`) + `</div>`;
+  }
+  h += `<div class="note" style="margin-top:6px">${anti ? "위상 반대: 상쇄 조건 경로차 = 0, λ, 2λ, …" : "위상 같음: 상쇄 조건 경로차 = ½λ, 1½λ, 2½λ, …"} (d보다 작은 것만)</div>`;
+  $("#countBox").innerHTML = h;
+}
+function updateP(){
+  const P = st.P, box = $("#pInfo");
+  if(!P){ box.innerHTML = `수조를 눌러(클릭해) 점 <b>P</b>를 찍어 보세요. P에서 두 파원까지의 거리와 경로차를 알려 줘요.`; return; }
+  const a = S1(), b = S2();
+  const r1 = Math.hypot(P.x - a.x, P.y - a.y), r2 = Math.hypot(P.x - b.x, P.y - b.y);
+  const diff = Math.abs(r1 - r2);
+  const J = IFX.judge(diff, st.lam, st.anti);
+  const half = diff / (st.lam / 2);
+  const tag = J.kind === "con" ? `<span class="tag c">보강 간섭</span>` : J.kind === "des" ? `<span class="tag d">상쇄 간섭</span>` : `<span class="tag m">중간</span>`;
+  let why;
+  const nearInt = Math.round(half);
+  if(J.kind === "mid") why = `반파장의 ${fmt(half, 2)}배 → 짝수 배도 홀수 배도 아니라서 중간 세기예요.`;
+  else why = `반파장(${fmt(st.lam/2, 2)} cm)의 약 ${nearInt}배 = <b>${nearInt % 2 === 0 ? "짝수" : "홀수"} 배</b>` + (st.anti ? " (위상 반대라 조건이 바뀜)" : "");
+  box.innerHTML = `<div class="mono">r₁ = <b>${fmt(r1, 2)} cm</b>, &nbsp;r₂ = <b>${fmt(r2, 2)} cm</b></div>
+    <div class="mono big">경로차 |r₁ − r₂| = ${fmt(diff, 2)} cm = ${fmt(J.q, 2)}λ</div>
+    <div style="margin:4px 0">${tag}</div>
+    <div>${why}</div>
+    <div class="muted" style="font-size:14px">합성 진폭 ≈ ${fmt(J.amp, 2)}A (최대 2A) · 판정은 ±0.05λ 이내면 그 선 위로 봐요.</div>`;
+}
+
+/* ===== 조작 ===== */
+function bindSlider(id, key, store){
+  const el = $(id); el.value = st[key];
+  el.addEventListener("input", () => { st[key] = +el.value; CS.store.set(store, st[key]); if(key !== "f") rebuild(); updateTexts(); needDraw = true; });
+}
+bindSlider("#sd", "d", "itf_d"); bindSlider("#sl", "lam", "itf_l"); bindSlider("#sf", "f", "itf_f");
+$("#phSame").onclick = () => { st.anti = false; $("#phSame").classList.add("on"); $("#phOpp").classList.remove("on"); rebuild(); updateTexts(); };
+$("#phOpp").onclick = () => { st.anti = true; $("#phOpp").classList.add("on"); $("#phSame").classList.remove("on"); rebuild(); updateTexts(); };
+$("#tgD").onclick = () => { st.showD = !st.showD; $("#tgD").classList.toggle("on", st.showD); updateTexts(); needDraw = true; };
+$("#tgC").onclick = () => { st.showC = !st.showC; $("#tgC").classList.toggle("on", st.showC); updateTexts(); needDraw = true; };
+$("#tgCir").onclick = () => {
+  st.circles = !st.circles; $("#tgCir").classList.toggle("on", st.circles);
+  if(st.circles) phase = 0;   // t = 0 순간: 파원에서 마루가 나가는 순간
+  $("#btnPlay").disabled = st.circles; needDraw = true;
+};
+$("#btnPlay").onclick = () => { st.playing = !st.playing; $("#btnPlay").textContent = st.playing ? "⏸ 멈춤" : "▶ 재생"; };
+$("#btnClearP").onclick = () => { st.P = null; updateP(); needDraw = true; };
+let dragging = false;
+function setP(e){
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+  st.P = { x: Math.max(0, Math.min(W, x)), y: Math.max(0, Math.min(H, y)) };
+  updateP(); needDraw = true;
+}
+cv.addEventListener("pointerdown", e => { dragging = true; cv.setPointerCapture(e.pointerId); setP(e); });
+cv.addEventListener("pointermove", e => { if(dragging) setP(e); });
+cv.addEventListener("pointerup", () => dragging = false);
+cv.addEventListener("pointercancel", () => dragging = false);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
+document.addEventListener("visibilitychange", () => { lastT = 0; });
+
+resize(); updateTexts(); requestAnimationFrame(loop);
+
+const quiz = CS.QuizRound($("#quiz"), { make: IFX.make, count: 10 });
+quiz.start();
+</script>
+</body>
+</html>

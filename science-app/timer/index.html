@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>타이머 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+  .stage{display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:8px}
+  .ring{position:relative;width:min(86vw,62vh,640px);aspect-ratio:1}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .num{font-size:min(19vw,14vh,150px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1}
+  .ring .lab{color:var(--muted);font-size:min(4.5vw,3vh,24px);margin-top:8px}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .presets .chip{font-size:17px;padding:10px 18px}
+  .ctl{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .ctl .btn{font-size:20px;padding:14px 26px;min-width:120px}
+  .adj{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  body.done .num{color:var(--no);animation:blink 1s infinite}
+  body.done{background:#3b0a0a}
+  @keyframes blink{50%{opacity:.35}}
+  body.fs .top,body.fs .presets,body.fs .adj,body.fs .note{display:none}
+  body.fs .ring{width:min(96vw,84vh)}
+  body.fs .ring .num{font-size:min(22vw,20vh,260px)}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>타이머<small>공부 도구 · 칠판에 띄우거나 휴대폰에 켜 두기</small></h1></header>
+<div class="wrap stage">
+  <div class="presets" id="presets"></div>
+  <div class="ring">
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#243044" stroke-width="6"/>
+      <circle id="arc" cx="50" cy="50" r="45" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="0"/></svg>
+    <div class="t"><div class="num" id="num">10:00</div><div class="lab" id="lab">준비</div></div>
+  </div>
+  <div class="adj">
+    <button class="btn ghost sm" data-d="-60">−1분</button><button class="btn ghost sm" data-d="-10">−10초</button>
+    <button class="btn ghost sm" data-d="10">+10초</button><button class="btn ghost sm" data-d="60">+1분</button>
+  </div>
+  <div class="ctl">
+    <button class="btn" id="start">시작</button>
+    <button class="btn ghost" id="reset">처음으로</button>
+    <button class="btn ghost" id="fs">⛶ 크게</button>
+  </div>
+  <div class="note center">끝나면 소리와 진동으로 알려 줘요. 켜 둔 동안 화면이 꺼지지 않게 해 둘게요(지원하는 기기만).<br>「크게」를 누르면 칠판용 전체 화면, 화면을 두 번 누르면 원래대로.</div>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+const PRESETS = [1, 3, 5, 10, 15, 20, 30, 40, 50];
+let total = CS.store.get("timerTotal", 600), left = total, endAt = 0, running = false, raf = 0, wake = null, actx = null;
+const $ = s => document.querySelector(s);
+const C = 2 * Math.PI * 45;
+
+function fmt(s){ s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60), r = s % 60; return (m >= 60 ? Math.floor(m/60) + ":" + String(m%60).padStart(2,"0") : m) + ":" + String(r).padStart(2, "0"); }
+function draw(){
+  $("#num").textContent = fmt(left);
+  $("#arc").setAttribute("stroke-dashoffset", (C * (1 - (total ? left / total : 0))).toFixed(2));
+  $("#arc").setAttribute("stroke", left <= 60 && running ? "#f59e0b" : "#3b82f6");
+  $("#lab").textContent = running ? "남은 시간" : (left <= 0 ? "끝!" : (left < total ? "일시정지" : fmt(total) + " 타이머"));
+  $("#start").textContent = running ? "일시정지" : (left < total && left > 0 ? "계속" : "시작");
+  document.title = (running ? fmt(left) + " · " : "") + "타이머 · 최과학 과학";
+}
+function drawPresets(){
+  $("#presets").innerHTML = "";
+  PRESETS.forEach(m => {
+    const c = document.createElement("span");
+    c.className = "chip" + (total === m * 60 ? " on" : "");
+    c.textContent = m + "분";
+    c.onclick = () => setTotal(m * 60);
+    $("#presets").appendChild(c);
+  });
+}
+function setTotal(s){ stop(); document.body.classList.remove("done"); total = Math.max(10, Math.min(s, 180 * 60)); left = total; CS.store.set("timerTotal", total); drawPresets(); draw(); }
+function tick(){
+  left = (endAt - Date.now()) / 1000;
+  if(left <= 0){ left = 0; finish(); return; }
+  draw(); raf = requestAnimationFrame(tick);
+}
+async function start(){
+  if(left <= 0) left = total;
+  document.body.classList.remove("done");
+  running = true; endAt = Date.now() + left * 1000;
+  try{ if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); }catch(e){}
+  try{ wake = await navigator.wakeLock.request("screen"); }catch(e){}
+  tick();
+}
+function stop(){ running = false; cancelAnimationFrame(raf); if(wake){ wake.release().catch(()=>{}); wake = null; } draw(); }
+function finish(){
+  stop(); document.body.classList.add("done"); draw();
+  try{ navigator.vibrate && navigator.vibrate([400, 200, 400, 200, 400]); }catch(e){}
+  try{
+    if(actx) for(let k = 0; k < 3; k++){
+      const o = actx.createOscillator(), g = actx.createGain(), t0 = actx.currentTime + k * 0.6;
+      o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.4, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+      o.start(t0); o.stop(t0 + 0.5);
+    }
+  }catch(e){}
+}
+$("#start").onclick = () => running ? stop() : start();
+$("#reset").onclick = () => setTotal(total);
+document.querySelectorAll("[data-d]").forEach(b => b.onclick = () => {
+  const d = +b.dataset.d;
+  if(running){ endAt += d * 1000; left = (endAt - Date.now()) / 1000; if(left > total) total = Math.ceil(left); }
+  else setTotal((left < total ? Math.ceil(left) : total) + d);
+  draw();
+});
+$("#fs").onclick = () => { document.body.classList.add("fs"); try{ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }catch(e){} };
+document.addEventListener("dblclick", () => { if(document.body.classList.contains("fs")){ document.body.classList.remove("fs"); try{ document.fullscreenElement && document.exitFullscreen(); }catch(e){} } });
+document.addEventListener("visibilitychange", async () => { if(!document.hidden && running){ try{ wake = await navigator.wakeLock.request("screen"); }catch(e){} } });
+drawPresets(); draw();
+</script>
+</body>
+</html>

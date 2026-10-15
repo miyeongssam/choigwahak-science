@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chem-equilibrium-v1';
+const CACHE_NAME = 'chem-equilibrium-v2';
 const ASSETS = [
   './',
   './index.html',

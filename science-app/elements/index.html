@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>원소 기호 게임 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.wrap{max-width:1200px}
+.setup .lbl{font-size:14px;color:var(--muted);margin:10px 0 6px}
+.setup .chip{font-size:15px;padding:9px 16px}
+.starts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.starts .btn{font-size:19px;padding:14px 8px}
+.starts .btn small{display:block;font-size:13px;font-weight:500;opacity:.85;margin-top:3px}
+.best{margin-top:10px;font-size:15px}
+.best b{color:#fde68a;font-size:18px}
+
+/* 큰 문제 */
+.qbig{text-align:center;padding:10px 0 16px;line-height:1.1}
+.qbig .k{font-size:15px;color:var(--muted);margin-bottom:6px}
+.qbig .sym{font-size:104px;font-weight:800;color:#fff;letter-spacing:1px}
+.qbig .nm{font-size:58px;font-weight:800;color:#fff;word-break:keep-all}
+.qbig .z{font-size:14px;color:var(--muted);margin-top:4px}
+.ch4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ch4 button{background:var(--card2);color:var(--text);border:2px solid var(--line);border-radius:14px;padding:18px 6px;
+  font-size:30px;font-weight:700;font-family:inherit;cursor:pointer;min-height:84px;word-break:keep-all;transition:background .12s}
+.ch4 button.sm{font-size:24px}
+.ch4 button.right{border-color:var(--ok);background:rgba(34,197,94,.22)}
+.ch4 button.wrong{border-color:var(--no);background:rgba(239,68,68,.22)}
+.hud{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.hud .t{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;min-width:1.3em;text-align:right}
+.hud .sc{margin-left:auto;font-size:18px} .hud .sc b{font-size:30px;color:#93c5fd}
+.tbar{height:10px;background:var(--card2);border-radius:6px;overflow:hidden;margin-bottom:8px}
+.tbar div{height:100%;background:var(--accent);width:100%}
+.combo{text-align:center;height:30px;font-size:22px;font-weight:800;color:#fbbf24}
+.combo.pulse{animation:cp .3s}
+@keyframes cp{0%{transform:scale(1.4)}100%{transform:none}}
+.endbig{font-size:72px;font-weight:800;text-align:center;color:#93c5fd;line-height:1.1}
+.wl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.wl span{background:rgba(239,68,68,.12);border:1px solid var(--no);border-radius:10px;padding:6px 10px;font-size:17px}
+.wl b{font-size:20px;margin-right:4px}
+.btncol{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.btncol .btn{font-size:17px;padding:14px}
+
+/* 연습(QuizRound) 화면도 크게 */
+#quizBox .qz-q{margin-bottom:10px}
+#quizBox .qz-ch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#quizBox .qz-ch button{justify-content:center;align-items:center;text-align:center;font-size:26px;font-weight:700;padding:16px 6px;min-height:76px}
+#quizBox .qz-ch button .n{display:none}
+@media (min-width:900px){
+  .qbig .sym{font-size:180px}
+  .qbig .nm{font-size:120px}
+  .qbig .k{font-size:20px}
+  .qbig .z{font-size:18px}
+  .ch4{gap:14px}
+  .ch4 button{font-size:52px;min-height:130px}
+  .ch4 button.sm{font-size:44px}
+  .hud .t{font-size:44px} .hud .sc{font-size:22px} .hud .sc b{font-size:44px}
+  .combo{font-size:30px;height:40px}
+  .tbar{height:14px}
+  #quizBox .qz-ch button{font-size:44px;min-height:120px}
+  .endbig{font-size:120px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>원소 기호 게임<small>화학 · 원소 이름 ↔ 원소 기호</small></h1></header>
+<div class="wrap">
+  <section id="setup" class="panel setup">
+    <div class="lbl">범위</div>
+    <div class="row" id="rangeChips"></div>
+    <div class="lbl">문제 방향</div>
+    <div class="row" id="dirChips"></div>
+    <div class="starts">
+      <button class="btn" id="goTA">⏱️ 타임 어택<small>60초 동안 최대한 많이</small></button>
+      <button class="btn ghost" id="goPR">📝 연습<small>10문제, 시간 제한 없음</small></button>
+    </div>
+    <div class="best" id="bestTxt"></div>
+    <p class="note" style="margin-bottom:0">타임 어택: 맞히면 +1점, 연달아 맞히면 콤보! 틀리면 정답을 보여 주고 0.8초 뒤 다음 문제.<br>연습: 시간 제한 없음, 틀린 것만 다 맞을 때까지 다시 풀기.</p>
+  </section>
+
+  <section id="ta" class="panel hide">
+    <div class="hud"><span class="t" id="tLeft">60</span><span class="muted">초</span>
+      <button class="btn ghost sm" id="taStop">그만</button>
+      <span class="sc">점수 <b id="tScore">0</b></span></div>
+    <div class="tbar"><div id="tBar"></div></div>
+    <div class="combo" id="combo"></div>
+    <div class="qbig" id="taQ"></div>
+    <div class="ch4" id="taCh"></div>
+  </section>
+
+  <section id="taEnd" class="panel hide"></section>
+
+  <section id="pr" class="hide">
+    <div id="quizBox"></div>
+  </section>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+/*CORE-START*/
+// [원자 번호, 기호, 이름] — 대한화학회 2015 이후 표기
+const ELEMENTS = [
+  [1,"H","수소"],[2,"He","헬륨"],[3,"Li","리튬"],[4,"Be","베릴륨"],[5,"B","붕소"],[6,"C","탄소"],[7,"N","질소"],
+  [8,"O","산소"],[9,"F","플루오린"],[10,"Ne","네온"],[11,"Na","나트륨"],[12,"Mg","마그네슘"],[13,"Al","알루미늄"],
+  [14,"Si","규소"],[15,"P","인"],[16,"S","황"],[17,"Cl","염소"],[18,"Ar","아르곤"],[19,"K","칼륨"],[20,"Ca","칼슘"],
+  [24,"Cr","크로뮴"],[25,"Mn","망가니즈"],[26,"Fe","철"],[28,"Ni","니켈"],[29,"Cu","구리"],[30,"Zn","아연"],
+  [35,"Br","브로민"],[47,"Ag","은"],[50,"Sn","주석"],[53,"I","아이오딘"],[56,"Ba","바륨"],[78,"Pt","백금"],
+  [79,"Au","금"],[80,"Hg","수은"],[82,"Pb","납"]
+].map(e => ({z:e[0], s:e[1], n:e[2]}));
+// 서로 헷갈리기 쉬운 묶음 (기호 또는 이름이 비슷함)
+const GROUPS = [
+  ["Na","N","Ne","Ni"],["K","Ca","C","Cr"],["Mg","Mn"],["Cl","C","Ca","Cr","Cu"],["S","Si","Sn"],["Fe","F"],
+  ["Ag","Au","Al","Ar"],["Cu","Ca","C"],["Pb","P","Pt"],["Hg","H","He"],["Zn","Sn"],["Be","B","Ba","Br"],
+  ["Ar","Al","Ag"],["O","Ne"],["I","Li"],["K","Ca"],["Na","Li","K"],["B","Si"],["N","O","C","H"],["F","Br","I"],
+  ["Cr","Mn","Mg"],["Au","Ag","Pt"],["Pb","Sn"],["Hg","Ag"],["Ni","Na","N"],["Ba","Be"],["P","S"],["H","He","Li"]
+];
+const BY = {}; ELEMENTS.forEach(e => BY[e.s] = e);
+const RANGES = { r20: ELEMENTS.filter(e => e.z <= 20), all: ELEMENTS };
+function simScore(a, b){
+  let sc = 0;
+  GROUPS.forEach(g => { if(g.includes(a.s) && g.includes(b.s)) sc += 5; });
+  if(a.s[0] === b.s[0]) sc += 3;
+  const la = a.s.toLowerCase(), lb = b.s.toLowerCase();
+  for(const ch of la) if(lb.includes(ch)){ sc += 1; break; }
+  if(a.n.length > 1 && b.n.length > 1){
+    if(a.n[0] === b.n[0]) sc += 2;
+    if(a.n[a.n.length - 1] === b.n[b.n.length - 1]) sc += 2;
+  }
+  if(Math.abs(a.z - b.z) <= 2) sc += 1;
+  return sc;
+}
+// 범위 안에서 헷갈리는 오답 3개 (rand: 0~1 난수 함수)
+function distractors(e, pool, k, rand){
+  rand = rand || Math.random; k = k || 3;
+  return pool.filter(x => x !== e)
+    .map(x => ({x, v: simScore(e, x) + rand() * 2.5}))
+    .sort((p, q) => q.v - p.v).slice(0, k).map(p => p.x);
+}
+/*CORE-END*/
+
+const $ = id => document.getElementById(id);
+let range = CS.store.get("elem_range", "r20"); if(!RANGES[range]) range = "r20";
+let dir = CS.store.get("elem_dir", "mix"); if(!["n2s","s2n","mix"].includes(dir)) dir = "mix";
+const DIRS = [["n2s","이름 → 기호"],["s2n","기호 → 이름"],["mix","섞어서"]];
+const bestKey = () => "elem_best_" + range + "_" + dir;
+
+function chips(){
+  $("rangeChips").innerHTML = [["r20","1 ~ 20번"],["all","자주 나오는 원소 포함 전체 (" + ELEMENTS.length + "개)"]]
+    .map(r => `<button class="chip ${range === r[0] ? "on" : ""}" data-v="${r[0]}">${r[1]}</button>`).join("");
+  $("dirChips").innerHTML = DIRS.map(d => `<button class="chip ${dir === d[0] ? "on" : ""}" data-v="${d[0]}">${d[1]}</button>`).join("");
+  $("rangeChips").querySelectorAll(".chip").forEach(b => b.onclick = () => { range = b.dataset.v; CS.store.set("elem_range", range); chips(); });
+  $("dirChips").querySelectorAll(".chip").forEach(b => b.onclick = () => { dir = b.dataset.v; CS.store.set("elem_dir", dir); chips(); });
+  const best = CS.store.get(bestKey(), 0);
+  $("bestTxt").innerHTML = `이 설정의 타임 어택 최고 기록: <b>${best}점</b>`;
+}
+function show(id){ ["setup","ta","taEnd","pr"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo({top:0}); }
+
+// 문제 하나: {e, d:"n2s"|"s2n", opts:[원소 4개 섞음]}
+function makeOne(e, pool){
+  const d = dir === "mix" ? (Math.random() < 0.5 ? "n2s" : "s2n") : dir;
+  return {e, d, opts: CS.shuffle([e].concat(distractors(e, pool, 3)))};
+}
+function qHTML(q){
+  return q.d === "n2s"
+    ? `<div class="k">이 원소의 기호는?</div><div class="nm">${q.e.n}</div>`
+    : `<div class="k">이 원소의 이름은?</div><div class="sym">${q.e.s}</div>`;
+}
+const optText = (q, x) => q.d === "n2s" ? x.s : x.n;
+
+/* ===== 타임 어택 ===== */
+const TA_SEC = 60;
+let ta = null;
+function startTA(){
+  const pool = RANGES[range];
+  ta = {pool, deck: [], score: 0, combo: 0, maxCombo: 0, wrong: [], left: TA_SEC * 1000, last: performance.now(), busy: false, run: true, raf: 0};
+  show("ta"); $("tScore").textContent = 0; $("combo").textContent = "";
+  nextTA(); ta.raf = requestAnimationFrame(tick);
+}
+function nextTA(){
+  if(!ta.deck.length){ let d = CS.shuffle(ta.pool); if(ta.cur && d[0] === ta.cur.e) d.push(d.shift()); ta.deck = d; }
+  const q = ta.cur = makeOne(ta.deck.shift(), ta.pool);
+  ta.busy = false;
+  $("taQ").innerHTML = qHTML(q);
+  $("taCh").innerHTML = q.opts.map((x, k) => `<button data-k="${k}" class="${q.d === "s2n" && x.n.length > 3 ? "sm" : ""}">${optText(q, x)}</button>`).join("");
+  $("taCh").querySelectorAll("button").forEach(b => b.onclick = () => answerTA(+b.dataset.k));
+}
+function answerTA(k){
+  if(ta.busy || !ta.run) return; ta.busy = true;
+  const q = ta.cur, ok = q.opts[k] === q.e, btns = $("taCh").querySelectorAll("button");
+  btns.forEach((b, i) => { if(q.opts[i] === q.e) b.classList.add("right"); else if(i === k) b.classList.add("wrong"); });
+  const c = $("combo");
+  if(ok){
+    ta.score++; ta.combo++; ta.maxCombo = Math.max(ta.maxCombo, ta.combo);
+    $("tScore").textContent = ta.score;
+    c.textContent = ta.combo >= 2 ? `🔥 ${ta.combo} 콤보!` : "";
+    c.classList.remove("pulse"); void c.offsetWidth; if(ta.combo >= 2) c.classList.add("pulse");
+    setTimeout(() => { if(ta.run) nextTA(); }, 250);
+  } else {
+    ta.combo = 0; c.textContent = `정답: ${q.e.s} = ${q.e.n}`;
+    if(!ta.wrong.includes(q.e)) ta.wrong.push(q.e);
+    setTimeout(() => { if(ta.run){ c.textContent = ""; nextTA(); } }, 800);
+  }
+}
+function tick(now){
+  if(!ta || !ta.run) return;
+  const dt = now - ta.last; ta.last = now;
+  if(!document.hidden) ta.left -= Math.min(dt, 250);  // 화면이 안 보이면 시간 멈춤
+  const left = Math.max(0, ta.left);
+  $("tLeft").textContent = Math.ceil(left / 1000);
+  $("tBar").style.width = (left / (TA_SEC * 1000) * 100) + "%";
+  $("tBar").style.background = left < 10000 ? "var(--no)" : "var(--accent)";
+  if(left <= 0) return endTA();
+  ta.raf = requestAnimationFrame(tick);
+}
+document.addEventListener("visibilitychange", () => { if(ta && ta.run && !document.hidden){ ta.last = performance.now(); } });
+function endTA(stopped){
+  ta.run = false; cancelAnimationFrame(ta.raf);
+  const key = bestKey(), prev = CS.store.get(key, 0), rec = !stopped && ta.score > prev;
+  if(rec) CS.store.set(key, ta.score);
+  let h = `<div class="center muted">${stopped ? "중간에 그만둠 (기록은 저장되지 않아요)" : "시간 끝!"}</div>
+    <div class="endbig">${ta.score}점</div>
+    <div class="center" style="font-size:17px;margin-top:4px">${rec ? "🏆 <b style='color:#fde68a'>새 최고 기록!</b>" : "최고 기록 <b>" + Math.max(prev, stopped ? 0 : ta.score) + "점</b>"} · 최대 콤보 <b>${ta.maxCombo}</b></div>`;
+  if(ta.wrong.length){
+    h += `<div style="margin-top:14px;font-weight:600">틀린 원소 ${ta.wrong.length}개</div><div class="wl">` +
+      ta.wrong.map(e => `<span><b>${e.s}</b>${e.n}</span>`).join("") + `</div>`;
+  } else h += `<div class="center" style="margin-top:12px;color:var(--ok);font-weight:600">틀린 원소가 없어요!</div>`;
+  h += `<div class="btncol">`;
+  if(ta.wrong.length) h += `<button class="btn" id="eWrong">🔁 틀린 것만 연습 (${ta.wrong.length}개)</button>`;
+  h += `<button class="btn ${ta.wrong.length ? "ghost" : ""}" id="eAgain">⏱️ 다시 도전</button><button class="btn ghost" id="eHome">처음으로</button></div>`;
+  $("taEnd").innerHTML = h; show("taEnd");
+  const wrongs = ta.wrong.slice();
+  if($("eWrong")) $("eWrong").onclick = () => startPractice(wrongs);
+  $("eAgain").onclick = startTA;
+  $("eHome").onclick = () => { chips(); show("setup"); };
+}
+$("taStop").onclick = () => endTA(true);
+
+/* ===== 연습 (QuizRound) ===== */
+function toQuiz(q){
+  const e = q.e;
+  return { id: q.d + "|" + e.s,
+    q: `<div class="qbig">${qHTML(q)}</div>`,
+    choices: q.opts.map(x => optText(q, x)), answer: q.opts.indexOf(e),
+    exp: `<b style="font-size:20px">${e.s}</b> = <b style="font-size:20px">${e.n}</b> <span class="muted">(원자 번호 ${e.z})</span>` };
+}
+function startPractice(only){
+  const pool = RANGES[range];
+  const src = only && only.length ? only : null;
+  const make = n => {
+    const base = CS.shuffle(src || pool).slice(0, src ? src.length : n);
+    return base.map(e => toQuiz(makeOne(e, pool)));
+  };
+  show("pr");
+  const qr = CS.QuizRound($("quizBox"), {make, count: src ? src.length : 10,
+    endButtons: [{label: "⏱️ 타임 어택 하러 가기", onClick: startTA}, {label: "처음으로", onClick: () => { chips(); show("setup"); }}]});
+  qr.start();
+}
+
+$("goTA").onclick = startTA;
+$("goPR").onclick = () => startPractice(null);
+chips();
+</script>
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>단진동과 단진자 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+:root{ --cx:#5eead4; --cv:#60a5fa; --ca:#f87171; --cf:#fb923c; --ck:#a3e635; --cg:#cbd5e1; --hl:#fcd34d; }
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.tabs .btn{font-size:15px;padding:10px 6px;word-break:keep-all}
+.lay{display:grid;gap:12px}
+.lay>*{min-width:0}
+@media (min-width:1100px){
+  .wrap{max-width:1640px}
+  .lay{grid-template-columns:minmax(0,1.55fr) minmax(360px,1fr);align-items:start}
+  .tabs .btn{font-size:18px}
+}
+.row.tight{gap:6px}
+.lbl{font-size:14px;color:var(--muted);margin-right:2px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kv>div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.kv .k{font-size:13px;color:var(--muted)}
+.kv .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bigT{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(20,184,166,.12));border:1px solid var(--accent);
+  border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.bigT .f{font-size:24px;color:#e2e8f0}
+.bigT .t{font-size:34px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.bigT .m{font-size:16px;margin-top:4px;font-variant-numeric:tabular-nums}
+.bigT.pulse{animation:pulse 1.2s ease-out}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(252,211,77,.9);border-color:var(--hl)}100%{box-shadow:0 0 0 18px rgba(252,211,77,0)}}
+.ampmsg{margin-top:6px;font-size:15px;color:var(--hl);font-weight:600;min-height:1.4em;word-break:keep-all}
+.ok{color:var(--ok)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.ebar{display:grid;grid-template-columns:118px 1fr;gap:8px;align-items:center;margin:6px 0;font-size:14px}
+.ebar .tr{height:20px;background:var(--card2);border-radius:6px;overflow:hidden}
+.ebar .fl{height:100%;border-radius:6px}
+.info{font-size:15px;line-height:1.65;word-break:keep-all}
+.info b{color:#fff}
+/* 수식 */
+.fx{font-family:"Times New Roman","Noto Serif CJK KR",serif;white-space:nowrap}
+.fx i{font-style:italic}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.78em;margin:0 .12em;line-height:1.15}
+.fr>span:first-child{border-bottom:2px solid currentColor;padding:0 .2em .05em}
+.fr>span:last-child{padding:.05em .2em 0}
+.sq{white-space:nowrap}
+.sq>.r{display:inline-block;border-top:2px solid currentColor;padding:.05em .1em 0;margin-left:-.06em}
+.hl{color:var(--hl);background:rgba(252,211,77,.13);border-radius:8px;padding:0 .12em}
+.steps{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.steps span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--card2);border:1px solid var(--line);font-weight:700;cursor:pointer}
+.steps span.on{background:var(--accent2);border-color:var(--accent);color:#fff}
+.steps span.done{border-color:var(--ok);color:var(--ok)}
+.pf-title{font-size:20px;font-weight:800;margin:4px 0 8px;color:#fff;word-break:keep-all}
+.pf-eq{background:#0b1222;border:1px solid var(--line);border-radius:14px;padding:16px 12px;font-size:26px;line-height:2.1;text-align:center;overflow-x:auto}
+.pf-eq .ln{display:block}
+.pf-eq .arw{color:var(--muted);font-size:.8em}
+.pf-note{margin-top:10px;font-size:16px;line-height:1.7;word-break:keep-all}
+.pf-prev{margin-top:12px;font-size:16px;line-height:2;color:var(--muted)}
+.pf-prev .fx{font-size:18px}
+@media (min-width:1100px){
+  .pf-eq{font-size:44px;padding:22px}
+  .pf-title{font-size:26px}
+  .pf-note{font-size:19px}
+  .pf-prev .fx{font-size:22px}
+  .bigT .t{font-size:42px}
+  .bigT .f{font-size:32px}
+}
+table.cmp{width:100%;border-collapse:collapse;font-size:15px;line-height:1.5}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:7px 8px;vertical-align:top;word-break:keep-all}
+table.cmp th{background:var(--card2);color:#fff}
+table.cmp td.y{color:#86efac} table.cmp td.n{color:#fca5a5}
+#quizBox{max-width:820px;margin:0 auto}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>단진동과 단진자<small>역학과 에너지 · 용수철 진자 · 단진자 · T = 2π√(m/k)</small></h1></header>
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <button class="btn ghost" data-t="spring">용수철 진자</button>
+    <button class="btn ghost" data-t="proof">증명 보기</button>
+    <button class="btn ghost" data-t="pend">단진자</button>
+    <button class="btn ghost" data-t="quiz">확인 문제</button>
+  </div>
+
+  <!-- ===== 탭 1: 용수철 진자 ===== -->
+  <section id="tab-spring" class="tabp">
+    <div class="lay">
+      <div>
+        <div class="panel" style="padding:10px">
+          <div class="row tight" style="margin-bottom:8px">
+            <span class="chip" data-mode="h">수평</span><span class="chip" data-mode="v">수직</span>
+            <span style="flex:1"></span>
+            <button class="btn sm" id="spPlay">일시정지</button>
+            <button class="btn sm ghost" id="spReset">처음부터</button>
+          </div>
+          <canvas id="spCv"></canvas>
+          <div class="row tight" style="margin-top:8px">
+            <span class="lbl">화살표</span>
+            <span class="chip on" data-arr="v"><span class="sw" style="background:var(--cv)"></span>속도</span>
+            <span class="chip on" data-arr="a"><span class="sw" style="background:var(--ca)"></span>가속도</span>
+            <span class="chip on" data-arr="f"><span class="sw" style="background:var(--cf)"></span>복원력</span>
+            <span class="chip hide" data-arr="d" id="chipDecomp">탄성력·중력 나눠 보기</span>
+          </div>
+          <div class="row tight" style="margin-top:6px">
+            <span class="lbl">재생 속도</span>
+            <span class="chip" data-spd="1">×1</span><span class="chip" data-spd="0.5">×0.5</span><span class="chip" data-spd="0.25">×0.25</span>
+          </div>
+        </div>
+        <div class="panel" style="padding:10px">
+          <div class="row tight" style="margin-bottom:6px">
+            <span class="lbl">그래프</span>
+            <span class="chip on" data-g="all">켜기</span>
+            <span class="chip on" data-g="x">x–t</span><span class="chip on" data-g="v">v–t</span>
+            <span class="chip on" data-g="a">a–t</span><span class="chip on" data-g="F">F–t</span>
+          </div>
+          <canvas id="grCv"></canvas>
+          <div class="note" id="grNote" style="margin-top:6px">세로 점선 간격 = T/4. x가 최대일 때 a는 최소(반대), v는 x보다 1/4주기 앞서 있어요.</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="bigT" id="spTbox">
+            <div class="f fx">T = 2π<span class="sq">√<span class="r"><span class="fr"><span><i>m</i></span><span><i>k</i></span></span></span></span></div>
+            <div class="t" id="spT">0.63 s</div>
+            <div class="m">시뮬레이션에서 잰 주기: <b id="spTm">측정 중…</b></div>
+            <div class="note">재는 방법: 물체가 평형 위치를 같은 방향으로 지나는 시간 간격</div>
+            <div class="ampmsg" id="ampMsg"></div>
+          </div>
+          <div class="kv">
+            <div><div class="k">각진동수 ω</div><div class="v" id="spW">10.0</div><div class="k">rad/s</div></div>
+            <div><div class="k">진동수 f</div><div class="v" id="spF">1.59</div><div class="k">Hz</div></div>
+            <div><div class="k">지금 변위 x</div><div class="v" id="spX">0</div><div class="k">m</div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>조절하기</h2>
+          <div class="slider"><span>질량 m</span><input type="range" id="sm" min="0.1" max="4" step="0.1" value="1"><span class="v" id="smv"></span></div>
+          <div class="slider"><span>용수철 상수 k</span><input type="range" id="sk" min="5" max="200" step="1" value="100"><span class="v" id="skv"></span></div>
+          <div class="slider"><span>진폭 A</span><input type="range" id="sa" min="0.05" max="0.3" step="0.01" value="0.15"><span class="v" id="sav"></span></div>
+          <div class="note">g = 9.8 m/s². 마찰과 공기 저항은 없다고 봐요. 위치는 x = A cos ωt 로 정확히 계산해요.</div>
+          <div class="adv" style="margin-top:10px"><b>진폭 A를 바꿔 보세요.</b> 주기 T는 그대로예요. T를 정하는 것은 m과 k뿐!</div>
+        </div>
+        <div class="panel hide" id="vertBox">
+          <h2>수직 용수철 진자</h2>
+          <div class="info" id="vertInfo"></div>
+        </div>
+        <div class="panel">
+          <div class="row tight" style="justify-content:space-between"><h2 style="margin:0">역학적 에너지</h2><span class="chip on" id="eTog">보이기</span></div>
+          <div id="eBox" style="margin-top:8px">
+            <div class="ebar"><span><span class="sw" style="background:var(--cv)"></span>운동 에너지</span><div class="tr"><div class="fl" id="eK" style="background:var(--cv)"></div></div></div>
+            <div class="ebar"><span id="ePlbl"><span class="sw" style="background:var(--ck)"></span>탄성 퍼텐셜</span><div class="tr"><div class="fl" id="eP" style="background:var(--ck)"></div></div></div>
+            <div class="ebar"><span><span class="sw" style="background:#e2e8f0"></span>합 (일정)</span><div class="tr"><div class="fl" id="eT" style="background:#e2e8f0;width:100%"></div></div></div>
+            <div class="note" id="eNote">운동 에너지 ½mv² + 탄성 퍼텐셜 에너지 ½kx² = ½kA² (일정)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 탭 2: 증명 ===== -->
+  <section id="tab-proof" class="tabp hide">
+    <div class="lay">
+      <div class="panel" style="padding:10px">
+        <canvas id="pfCv"></canvas>
+        <div class="note" id="pfCvNote" style="margin-top:6px"></div>
+      </div>
+      <div class="panel">
+        <div class="steps" id="pfDots"></div>
+        <div class="pf-title" id="pfTitle"></div>
+        <div class="pf-eq" id="pfEq"></div>
+        <div class="pf-note" id="pfNote"></div>
+        <div class="grid2" style="margin-top:14px">
+          <button class="btn ghost" id="pfPrev">← 이전</button>
+          <button class="btn" id="pfNext">다음 →</button>
+        </div>
+        <div class="pf-prev" id="pfPrevList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 탭 3: 단진자 ===== -->
+  <section id="tab-pend" class="tabp hide">
+    <div class="lay">
+      <div>
+        <div class="panel" style="padding:10px">
+          <div class="row tight" style="margin-bottom:8px">
+            <span class="chip on" data-cmp="none">진자 하나</span>
+            <span class="chip" data-cmp="mass">질량 비교</span>
+            <span class="chip" data-cmp="len">길이 4배 비교</span>
+            <span style="flex:1"></span>
+            <button class="btn sm" id="pdPlay">일시정지</button>
+            <button class="btn sm ghost" id="pdReset">처음부터</button>
+          </div>
+          <canvas id="pdCv"></canvas>
+          <div class="note" id="pdCmpNote" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="bigT">
+            <div class="f fx">T = 2π<span class="sq">√<span class="r"><span class="fr"><span><i>L</i></span><span><i>g</i></span></span></span></span></div>
+            <div class="t" id="pdT">2.01 s</div>
+            <div class="m">시뮬레이션에서 잰 주기: <b id="pdTm">측정 중…</b></div>
+            <div class="note">실제 운동 방정식 θ″ = −(g/L) sin θ 를 컴퓨터로 잘게 나눠 계산(RK4)해서 잰 값이에요. 공식은 sin θ ≈ θ 로 근사한 것이라 아주 조금 다를 수 있어요.</div>
+          </div>
+          <div class="slider"><span>실 길이 L</span><input type="range" id="pL" min="0.2" max="2" step="0.05" value="1"><span class="v" id="pLv"></span></div>
+          <div class="slider"><span>추 질량 m</span><input type="range" id="pM" min="0.1" max="2" step="0.1" value="0.5"><span class="v" id="pMv"></span></div>
+          <div class="row tight" style="margin:6px 0"><span class="lbl">중력 가속도 g</span>
+            <span class="chip on" data-gsel="9.8">지구 9.8</span><span class="chip" data-gsel="1.6">달 1.6</span><span class="chip" data-gsel="c">직접</span></div>
+          <div class="slider hide" id="pGrow"><span>g</span><input type="range" id="pG" min="1" max="25" step="0.1" value="9.8"><span class="v" id="pGv"></span></div>
+          <div class="slider"><span>처음 각도</span><input type="range" id="pA" min="1" max="15" step="1" value="10"><span class="v" id="pAv"></span></div>
+          <div class="note">주기 공식 T = 2π√(L/g)는 <b style="color:var(--hl)">각도가 작을 때만</b> 성립해요(여기서는 최대 15°).</div>
+          <div class="row tight" style="margin-top:8px"><span class="lbl">재생 속도</span>
+            <span class="chip" data-pspd="1">×1</span><span class="chip" data-pspd="0.5">×0.5</span><span class="chip" data-pspd="0.25">×0.25</span></div>
+        </div>
+        <div class="panel">
+          <h2>주기에 영향을 주는 것 / 주지 않는 것</h2>
+          <table class="cmp">
+            <tr><th></th><th>용수철 진자<br><span class="fx" style="font-weight:400">T = 2π√(m/k)</span></th><th>단진자<br><span class="fx" style="font-weight:400">T = 2π√(L/g)</span></th></tr>
+            <tr><th>영향 줌</th><td class="y">질량 m (√m에 비례)<br>용수철 상수 k (√k에 반비례)</td><td class="y">실 길이 L (√L에 비례)<br>중력 가속도 g (√g에 반비례)</td></tr>
+            <tr><th>영향 없음</th><td class="n">진폭 A<br>중력 가속도 g (수직이어도 같음)</td><td class="n">추의 질량 m<br>진폭(각도가 작을 때)</td></tr>
+          </table>
+          <div class="note" style="margin-top:8px">예) 길이 4배 → 주기 2배. 달(g 약 1/6)에서는 주기가 약 √6 ≈ 2.4배.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 탭 4: 확인 문제 ===== -->
+  <section id="tab-quiz" class="tabp hide">
+    <div id="quizBox"></div>
+  </section>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const DPR = () => Math.min(window.devicePixelRatio || 1, 2.5);
+const G = 9.8, TAU = Math.PI * 2;
+
+/* ---------- 공통 그리기 도구 ---------- */
+function fitCanvas(cv, h){
+  const w = Math.max(200, cv.clientWidth), d = DPR();
+  if(cv._w !== w || cv._h !== h || cv._d !== d){
+    cv.style.height = h + "px"; cv.width = Math.round(w * d); cv.height = Math.round(h * d);
+    cv._w = w; cv._h = h; cv._d = d;
+  }
+  const ctx = cv.getContext("2d"); ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, w, h);
+  return { ctx, W: w, H: h };
+}
+function arrow(ctx, x1, y1, x2, y2, col, lw){
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+  if(L < 3) return;
+  lw = lw || 3.5; const hd = Math.min(12, L * 0.45) + lw;
+  const ux = dx / L, uy = dy / L;
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hd * 0.7, y2 - uy * hd * 0.7); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * hd - uy * hd * 0.5, y2 - uy * hd + ux * hd * 0.5);
+  ctx.lineTo(x2 - ux * hd + uy * hd * 0.5, y2 - uy * hd - ux * hd * 0.5); ctx.closePath(); ctx.fill();
+}
+function springPath(ctx, x1, y1, x2, y2, coils, amp, col){
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy); if(L < 1) return;
+  const ux = dx / L, uy = dy / L, nx = -uy, ny = ux, lead = Math.min(14, L * 0.12), body = L - 2 * lead;
+  ctx.strokeStyle = col || "#cbd5e1"; ctx.lineWidth = 2.2; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 + ux * lead, y1 + uy * lead);
+  const n = coils * 2;
+  for(let i = 1; i < n; i++){
+    const s = lead + body * i / n, o = (i % 2 ? 1 : -1) * amp;
+    ctx.lineTo(x1 + ux * s + nx * o, y1 + uy * s + ny * o);
+  }
+  ctx.lineTo(x2 - ux * lead, y2 - uy * lead); ctx.lineTo(x2, y2); ctx.stroke();
+}
+function dash(ctx, x1, y1, x2, y2, col, w){
+  ctx.save(); ctx.setLineDash([6, 6]); ctx.strokeStyle = col; ctx.lineWidth = w || 1.5;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+}
+function txt(ctx, s, x, y, col, size, align, base){
+  ctx.fillStyle = col || "#e2e8f0"; ctx.font = `600 ${size || 14}px -apple-system,"Noto Sans CJK KR",sans-serif`;
+  ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle"; ctx.fillText(s, x, y);
+}
+function block(ctx, x, y, w, h, label){
+  const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, "#64748b"); g.addColorStop(1, "#334155");
+  ctx.fillStyle = g; ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, 6) : ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();
+  if(label) txt(ctx, label, x + w / 2, y + h / 2, "#fff", Math.max(12, Math.min(18, w * 0.32)), "center");
+}
+const f2 = v => v.toFixed(2), sgn = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(3);
+function chipGroup(sel, attr, onPick){
+  const els = document.querySelectorAll(sel);
+  els.forEach(el => el.addEventListener("click", () => { els.forEach(e => e.classList.toggle("on", e === el)); onPick(el.dataset[attr], el); }));
+  return v => els.forEach(e => e.classList.toggle("on", e.dataset[attr] === String(v)));
+}
+
+/* =========================================================
+   탭 1: 용수철 진자 (해석해 x = A cos ωt)
+   ========================================================= */
+const SP = {
+  mode: "h", m: 1, k: 100, A: 0.15, t: 0, run: true, speed: 1,
+  arr: { v: true, a: true, f: true, d: false }, gr: { all: true, x: true, v: true, a: true, F: true }, energy: true,
+  cross: [], lastA: null,
+  get w(){ return Math.sqrt(this.k / this.m); },
+  get T(){ return TAU * Math.sqrt(this.m / this.k); },
+  get d(){ return this.m * G / this.k; },
+  x(t){ return this.A * Math.cos(this.w * t); },
+  v(t){ return -this.A * this.w * Math.sin(this.w * t); },
+  a(t){ return -this.w * this.w * this.x(t); },
+  measured(){ const c = this.cross; return c.length >= 2 ? c[c.length - 1] - c[c.length - 2] : null; }
+};
+function spReset(){ SP.t = 0; SP.cross = []; $("spTm").textContent = "측정 중…"; }
+function spAdvance(dt){
+  // 잘게 나눠 진행하면서 평형점(x=0)을 + → − 방향으로 지나는 순간을 잰다
+  let left = dt;
+  while(left > 1e-12){
+    const h = Math.min(left, 0.002), t0 = SP.t, x0 = SP.x(t0), t1 = t0 + h, x1 = SP.x(t1);
+    if(x0 > 0 && x1 <= 0){ SP.cross.push(t0 + h * x0 / (x0 - x1)); if(SP.cross.length > 20) SP.cross.shift(); }
+    SP.t = t1; left -= h;
+  }
+}
+function spUI(){
+  $("smv").textContent = SP.m.toFixed(1) + " kg";
+  $("skv").textContent = SP.k + " N/m";
+  $("sav").textContent = SP.A.toFixed(2) + " m";
+  $("spT").textContent = SP.T.toFixed(2) + " s";
+  $("spW").textContent = SP.w.toFixed(1);
+  $("spF").textContent = (1 / SP.T).toFixed(2);
+  $("vertBox").classList.toggle("hide", SP.mode !== "v");
+  $("chipDecomp").classList.toggle("hide", SP.mode !== "v");
+  if(SP.mode === "v"){
+    const d = SP.d;
+    $("vertInfo").innerHTML = `물체를 매달면 용수철이 <b class="fx">d = mg/k</b> 만큼 늘어난 곳에서 힘이 평형을 이뤄요.<br>
+      지금 d = ${SP.m.toFixed(1)} × 9.8 ÷ ${SP.k} = <b>${d >= 1 ? d.toFixed(2) + " m" : (d * 100).toFixed(1) + " cm"}</b><br>
+      이 새 평형 위치를 x = 0으로 잡으면 (아래쪽 +)<br>
+      <span class="fx">탄성력 −k(d + x) + 중력 mg = −kx</span> (kd = mg 이므로)<br>
+      → 복원력이 −kx로 수평일 때와 똑같아요.<br>
+      <b style="color:var(--hl)">수직이어도 주기는 T = 2π√(m/k) 로 같다!</b> (g는 평형 위치만 바꾸고 주기는 못 바꿔요)`;
+  }
+  $("ePlbl").innerHTML = SP.mode === "v" ? `<span class="sw" style="background:var(--ck)"></span>퍼텐셜 ½kx²` : `<span class="sw" style="background:var(--ck)"></span>탄성 퍼텐셜`;
+  $("eNote").textContent = SP.mode === "v"
+    ? "새 평형 위치 기준: 운동 에너지 ½mv² + (탄성 + 중력) 퍼텐셜 에너지 ½kx² = ½kA² (일정)"
+    : "운동 에너지 ½mv² + 탄성 퍼텐셜 에너지 ½kx² = ½kA² (일정)";
+  $("grNote").textContent = (SP.mode === "v" ? "아래쪽을 + 로 잡았어요. F는 복원력(탄성력+중력의 합력). " : "F는 탄성력(복원력). ")
+    + "세로 점선 간격 = T/4. x가 최대일 때 a와 F는 반대로 최소, v는 1/4주기 어긋나 있어요.";
+}
+function bindSlider(id, fn){ const el = $(id); el.addEventListener("input", () => fn(parseFloat(el.value))); }
+bindSlider("sm", v => { SP.m = v; SP.lastA = null; $("ampMsg").textContent = ""; spReset(); spUI(); });
+bindSlider("sk", v => { SP.k = v; SP.lastA = null; $("ampMsg").textContent = ""; spReset(); spUI(); });
+bindSlider("sa", v => {
+  if(SP.lastA == null) SP.lastA = SP.A;
+  SP.A = v; spReset(); spUI();
+  if(Math.abs(SP.lastA - v) > 1e-9){
+    $("ampMsg").innerHTML = `진폭 ${SP.lastA.toFixed(2)} m → ${v.toFixed(2)} m 로 바꿨지만 T = ${SP.T.toFixed(2)} s 그대로!`;
+    const b = $("spTbox"); b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse");
+  }
+});
+chipGroup("[data-mode]", "mode", v => { SP.mode = v; spReset(); spUI(); CS.store.set("shm_mode", v); });
+document.querySelectorAll("[data-arr]").forEach(el => el.addEventListener("click", () => {
+  const k = el.dataset.arr; SP.arr[k] = !SP.arr[k]; el.classList.toggle("on", SP.arr[k]); if(!SP.run) spDraw();
+}));
+document.querySelectorAll("[data-g]").forEach(el => el.addEventListener("click", () => {
+  const k = el.dataset.g; SP.gr[k] = !SP.gr[k]; el.classList.toggle("on", SP.gr[k]);
+  if(k === "all") el.textContent = SP.gr.all ? "켜기" : "꺼짐";
+  $("grCv").classList.toggle("hide", !SP.gr.all); $("grNote").classList.toggle("hide", !SP.gr.all);
+  if(!SP.run) spDraw();
+}));
+$("eTog").addEventListener("click", () => { SP.energy = !SP.energy; $("eTog").classList.toggle("on", SP.energy); $("eTog").textContent = SP.energy ? "보이기" : "숨김"; $("eBox").classList.toggle("hide", !SP.energy); });
+const spSpd = chipGroup("[data-spd]", "spd", v => SP.speed = parseFloat(v)); spSpd(1);
+$("spPlay").addEventListener("click", () => { SP.run = !SP.run; $("spPlay").textContent = SP.run ? "일시정지" : "재생"; });
+$("spReset").addEventListener("click", () => { spReset(); spDraw(); });
+
+function spDraw(){
+  const cv = $("spCv"), cw = Math.max(200, cv.clientWidth);
+  const H = SP.mode === "h" ? Math.round(Math.max(250, Math.min(370, cw * 0.36))) : Math.round(Math.max(440, Math.min(600, cw * 0.9)));
+  const { ctx, W } = fitCanvas(cv, H);
+  const x = SP.x(SP.t), v = SP.v(SP.t), a = SP.a(SP.t), w = SP.w;
+  const bwM = 0.09 + 0.05 * Math.cbrt(SP.m);
+  if(SP.mode === "h"){
+    const X0 = 26, s = (W - X0 - 24) / 1.02, Leq = 0.62, floorY = H - 46;
+    const px = m => X0 + m * s;
+    const bw = bwM * s, bh = Math.min(bw, H * 0.3);
+    // 벽, 바닥
+    ctx.fillStyle = "#475569"; ctx.fillRect(X0 - 12, floorY - bh - 70, 12, bh + 70);
+    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X0 - 12, floorY); ctx.lineTo(W - 8, floorY); ctx.stroke();
+    // 기준선
+    const xe = px(Leq), xA = px(Leq + SP.A), xmA = px(Leq - SP.A), top = 12;
+    dash(ctx, xe, top, xe, floorY + 8, "#e2e8f0", 1.6);
+    dash(ctx, xA, top + 20, xA, floorY + 8, "#64748b"); dash(ctx, xmA, top + 20, xmA, floorY + 8, "#64748b");
+    txt(ctx, "평형 위치 x=0", xe, floorY + 22, "#e2e8f0", 13, "center");
+    txt(ctx, "+A", xA, floorY + 22, "#94a3b8", 13, "center"); txt(ctx, "−A", xmA, floorY + 22, "#94a3b8", 13, "center");
+    // 용수철 + 물체
+    const bc = px(Leq + x);
+    springPath(ctx, X0, floorY - bh / 2, bc - bw / 2, floorY - bh / 2, 12, Math.min(13, bh * 0.28));
+    block(ctx, bc - bw / 2, floorY - bh, bw, bh, "m");
+    // 화살표 (각 값의 최댓값 기준 길이)
+    const Lm = Math.min(120, s * 0.26); let ay = floorY - bh - 18;
+    const items = [];
+    if(SP.arr.v) items.push(["v", v / (SP.A * w), "--cv", "#60a5fa"]);
+    if(SP.arr.a) items.push(["a", a / (SP.A * w * w), "--ca", "#f87171"]);
+    if(SP.arr.f) items.push(["F", -SP.k * x / (SP.k * SP.A), "--cf", "#fb923c"]);
+    items.forEach(([n, r, , col]) => {
+      arrow(ctx, bc, ay, bc + r * Lm, ay, col, 4);
+      txt(ctx, n, bc + r * Lm + (r >= 0 ? 8 : -8), ay, col, 15, r >= 0 ? "left" : "right");
+      ay -= 24;
+    });
+    txt(ctx, "x = " + sgn(x) + " m", W - 12, 16, "#5eead4", 15, "right");
+    txt(ctx, "t = " + SP.t.toFixed(2) + " s", W - 12, 36, "#94a3b8", 14, "right");
+  } else {
+    const top = 18, L0 = 0.3, dMax = 0.5, s = (H - top - 26) / (L0 + dMax + 0.3 + 0.2 + 0.04);
+    const bwP = Math.min(bwM * s, W * 0.2), cx = Math.round(Math.max(W * 0.4, bwP / 2 + 150)), d = SP.d, dd = Math.min(d, dMax), clipped = d > dMax;
+    const bw = Math.min(bwM * s, W * 0.2), bh = bw;
+    const py = m => top + m * s;
+    // 천장
+    ctx.fillStyle = "#475569"; ctx.fillRect(cx - 70, top - 12, 140, 12);
+    ctx.strokeStyle = "#64748b"; ctx.lineWidth = 1.5;
+    for(let i = -70; i < 70; i += 12){ ctx.beginPath(); ctx.moveTo(cx + i, top - 12); ctx.lineTo(cx + i + 8, top - 18); ctx.stroke(); }
+    // 기준선: 물체 중심 위치
+    const yNat = py(L0) + bh / 2, yEq = py(L0 + dd) + bh / 2, yA = py(L0 + dd + SP.A) + bh / 2, ymA = py(L0 + dd - SP.A) + bh / 2;
+    const lx1 = cx - bw / 2 - 64, lx2 = W - 8;
+    dash(ctx, lx1, yNat, lx2, yNat, "#64748b", 1.3);
+    dash(ctx, lx1, yEq, lx2, yEq, "#e2e8f0", 1.8);
+    dash(ctx, cx - bw / 2 - 30, yA, lx2, yA, "#475569", 1.2); dash(ctx, cx - bw / 2 - 30, ymA, lx2, ymA, "#475569", 1.2);
+    const narrow = W < 520;
+    txt(ctx, narrow ? "원래 길이" : "용수철 원래 길이일 때", lx2, yNat - 10, "#94a3b8", 12, "right");
+    txt(ctx, narrow ? "평형 x=0" : "새 평형 위치 x=0", lx2, yEq + 10, "#e2e8f0", 13, "right");
+    txt(ctx, "+A", lx2, yA + 10, "#94a3b8", 12, "right"); txt(ctx, "−A", lx2, ymA - 10, "#94a3b8", 12, "right");
+    // d 치수
+    const dx = lx1 + 8;
+    if(yEq - yNat > 6){ arrow(ctx, dx, yNat, dx, yEq, "#a3e635", 2); arrow(ctx, dx, yEq, dx, yNat, "#a3e635", 2); }
+    if(clipped){ const ym = (yNat + yEq) / 2; ctx.fillStyle = "#0b1222"; ctx.fillRect(dx - 8, ym - 6, 16, 12); txt(ctx, "≈", dx, ym, "#a3e635", 16, "center"); }
+    const ym2 = (yNat + yEq) / 2;
+    txt(ctx, "d = mg/k", dx - 8, ym2 - 9, "#a3e635", 13, "right");
+    txt(ctx, "= " + (d >= 1 ? d.toFixed(2) + " m" : (d * 100).toFixed(1) + " cm"), dx - 8, ym2 + 9, "#a3e635", 13, "right");
+    if(clipped) txt(ctx, "(축척 줄임)", dx - 8, ym2 + 26, "#a3e635", 11, "right");
+    // 용수철 + 물체
+    const yTop = py(L0 + dd + x);
+    springPath(ctx, cx, top, cx, yTop, 11, Math.min(14, bw * 0.3));
+    block(ctx, cx - bw / 2, yTop, bw, bh, "m");
+    const bc = yTop + bh / 2;
+    const Lm = Math.min(110, s * 0.22);
+    let ax = cx + bw / 2 + 18;
+    const items = [];
+    if(SP.arr.v) items.push(["v", v / (SP.A * w), "#60a5fa"]);
+    if(SP.arr.a) items.push(["a", a / (SP.A * w * w), "#f87171"]);
+    if(SP.arr.f && !SP.arr.d) items.push(["F", -SP.k * x / (SP.k * SP.A), "#fb923c"]);
+    items.forEach(([n, r, col]) => {
+      arrow(ctx, ax, bc, ax, bc + r * Lm, col, 4);
+      txt(ctx, n, ax, bc + r * Lm + (r >= 0 ? 12 : -12), col, 15, "center");
+      ax += 26;
+    });
+    if(SP.arr.d){
+      // 탄성력, 중력, 합력을 같은 축척으로
+      const Fs = -SP.k * (d + x), Fg = SP.m * G, Fn = -SP.k * x;
+      const sc = Lm * 1.2 / Math.max(Math.abs(Fs), Fg, SP.k * SP.A);
+      arrow(ctx, cx - 8, yTop, cx - 8, yTop + Fs * sc, "#a3e635", 4);
+      txt(ctx, "탄성력", cx - 14, yTop + Fs * sc * 0.5, "#a3e635", 13, "right");
+      arrow(ctx, cx + 8, yTop + bh, cx + 8, yTop + bh + Fg * sc, "#cbd5e1", 4);
+      txt(ctx, "중력 mg", cx + 14, yTop + bh + Fg * sc * 0.6, "#cbd5e1", 13, "left");
+      arrow(ctx, ax, bc, ax, bc + Fn * sc, "#fb923c", 4);
+      txt(ctx, narrow ? "합력" : "합력 −kx", ax + 6, bc + Fn * sc + (Fn >= 0 ? 12 : -12), "#fb923c", 13, "left");
+    }
+    txt(ctx, "x = " + sgn(x) + " m (아래 +)", 10, H - 30, "#5eead4", 14, "left");
+    txt(ctx, "t = " + SP.t.toFixed(2) + " s", 10, H - 12, "#94a3b8", 13, "left");
+  }
+  $("spX").textContent = (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(3);
+  if(SP.energy){
+    const E = 0.5 * SP.k * SP.A * SP.A, K = 0.5 * SP.m * v * v, P = 0.5 * SP.k * x * x;
+    $("eK").style.width = (K / E * 100).toFixed(1) + "%"; $("eP").style.width = (P / E * 100).toFixed(1) + "%";
+  }
+  if(SP.gr.all) grDraw();
+}
+function grDraw(){
+  const keys = ["x", "v", "a", "F"].filter(k => SP.gr[k]);
+  const cv = $("grCv"), mob = cv.clientWidth < 600, sh = mob ? 70 : 92;
+  const H = Math.max(40, keys.length * sh + 22);
+  const { ctx, W } = fitCanvas(cv, H);
+  if(!keys.length){ txt(ctx, "그래프를 하나 이상 골라 주세요", W / 2, H / 2, "#94a3b8", 14, "center"); return; }
+  const T = SP.T, Wt = 2.5 * T, tN = SP.t, t0 = tN - Wt, LX = mob ? 46 : 60, RX = W - 10;
+  const tx = t => LX + (t - t0) / Wt * (RX - LX);
+  const w = SP.w, A = SP.A;
+  const info = {
+    x: { lab: "x", col: "#5eead4", mx: A, unit: "m", f: t => SP.x(t) },
+    v: { lab: "v", col: "#60a5fa", mx: A * w, unit: "m/s", f: t => SP.v(t) },
+    a: { lab: "a", col: "#f87171", mx: A * w * w, unit: "m/s²", f: t => SP.a(t) },
+    F: { lab: "F", col: "#fb923c", mx: SP.k * A, unit: "N", f: t => -SP.k * SP.x(t) }
+  };
+  // T/4 세로선
+  const n0 = Math.ceil(Math.max(0, t0) / (T / 4)), n1 = Math.floor(tN / (T / 4));
+  for(let n = n0; n <= n1; n++){
+    const X = tx(n * T / 4);
+    ctx.strokeStyle = n % 4 === 0 ? "rgba(226,232,240,.35)" : "rgba(148,163,184,.18)"; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 5]); ctx.beginPath(); ctx.moveTo(X, 4); ctx.lineTo(X, H - 20); ctx.stroke(); ctx.setLineDash([]);
+    if(n % 4 === 0) txt(ctx, n === 0 ? "0" : (n / 4) + "T", X, H - 10, "#94a3b8", 12, "center");
+  }
+  txt(ctx, "t →", RX, H - 10, "#94a3b8", 12, "right");
+  keys.forEach((k, i) => {
+    const I = info[k], y0 = 6 + i * sh, ym = y0 + (sh - 12) / 2, amp = (sh - 16) / 2;
+    ctx.strokeStyle = "#334155"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(LX, ym); ctx.lineTo(RX, ym); ctx.stroke();
+    txt(ctx, I.lab, 10, ym - 8, I.col, mob ? 17 : 20, "left");
+    txt(ctx, "±" + (I.mx >= 100 ? I.mx.toFixed(0) : I.mx >= 10 ? I.mx.toFixed(1) : I.mx.toFixed(2)), 6, ym + 12, "#94a3b8", 10.5, "left");
+    txt(ctx, I.unit, 6, ym + 25, "#64748b", 10, "left");
+    ctx.strokeStyle = I.col; ctx.lineWidth = 2.4; ctx.beginPath();
+    const ts = Math.max(0, t0), N = 260; let first = true;
+    for(let j = 0; j <= N; j++){
+      const t = ts + (tN - ts) * j / N, X = tx(t), Y = ym - I.f(t) / I.mx * amp;
+      if(first){ ctx.moveTo(X, Y); first = false; } else ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = I.col; ctx.beginPath(); ctx.arc(tx(tN), ym - I.f(tN) / I.mx * amp, 4.5, 0, TAU); ctx.fill();
+  });
+}
+
+/* =========================================================
+   탭 2: 증명 보기
+   ========================================================= */
+const I = s => `<i>${s}</i>`;
+const FR = (a, b) => `<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const SQ = x => `<span class="sq">√<span class="r">${x}</span></span>`;
+const HL = x => `<span class="hl">${x}</span>`;
+const W2 = `${I("ω")}<sup>2</sup>`;
+const PF = [
+  { title: "① 복원력 — 훅 법칙",
+    eq: [`${I("F")} = ${HL("−" + I("k") + I("x"))}`],
+    note: "용수철은 늘어난(줄어든) 길이 x에 비례하는 힘으로 물체를 평형 위치 쪽으로 되돌려요. <b>− 부호</b>는 힘의 방향이 변위와 <b>반대</b>라는 뜻이에요.",
+    short: `${I("F")} = −${I("k")}${I("x")}` },
+  { title: "② 뉴턴 운동 제2법칙 F = ma",
+    eq: [`${HL(I("m") + I("a"))} = −${I("k")}${I("x")}`, `${I("a")} = ${HL("−" + FR(I("k"), I("m")) + I("x"))}`],
+    note: "가속도는 변위에 <b>비례</b>하고 방향은 <b>반대</b>예요. 이런 운동을 <b>단진동</b>이라고 해요. k/m는 상수!",
+    short: `${I("a")} = −${FR(I("k"), I("m"))}${I("x")}` },
+  { title: "③ 등속 원운동의 그림자(정사영)",
+    eq: [`${I("x")} = ${I("A")} cos ${I("ω")}${I("t")}`, `${I("a")} = −${W2}${I("A")} cos ${I("ω")}${I("t")} = ${HL("−" + W2 + I("x"))}`],
+    note: "반지름 A, 각속도 ω로 등속 원운동하는 점을 옆에서 보면(그림자) x = A cos ωt로 움직여요. 구심 가속도는 크기 ω²A, 방향은 원의 중심 쪽 → 그 x성분이 −ω²A cos ωt = <b>−ω²x</b>. 왼쪽 그림에서 용수철 물체가 그림자와 똑같이 움직이는 것을 보세요.",
+    short: `${I("a")} = −${W2}${I("x")}` },
+  { title: "④ 두 식을 비교하기",
+    eq: [`−${FR(I("k"), I("m"))}${I("x")} = −${W2}${I("x")}`, `${W2} = ${FR(I("k"), I("m"))}`, `${I("ω")} = ${HL(SQ(FR(I("k"), I("m"))))}`],
+    note: "②와 ③은 모양이 똑같아요(가속도 = −상수 × 변위). 그러니 용수철 물체는 ω = √(k/m)인 원운동의 그림자와 똑같이 움직여요.",
+    short: `${I("ω")} = ${SQ(FR(I("k"), I("m")))}` },
+  { title: "⑤ 주기 구하기",
+    eq: [`${I("T")} = ${FR("2π", I("ω"))} = ${HL("2π" + SQ(FR(I("m"), I("k"))))}`],
+    note: "한 바퀴(2π)를 도는 데 걸리는 시간이 주기예요. 예) m = 1 kg, k = 100 N/m → ω = 10 rad/s, T = 2π/10 ≈ <b>0.63 s</b>. 식에 <b>진폭 A가 없어요</b> → 주기는 진폭과 관계없어요!",
+    short: `${I("T")} = 2π${SQ(FR(I("m"), I("k")))}` }
+];
+const PFS = { step: 0, t: 0, w: TAU / 3 };
+function pfShow(){
+  const st = PF[PFS.step];
+  $("pfDots").innerHTML = PF.map((_, i) => `<span class="${i === PFS.step ? "on" : i < PFS.step ? "done" : ""}" data-i="${i}">${i + 1}</span>`).join("");
+  $("pfDots").querySelectorAll("span").forEach(s => s.onclick = () => { PFS.step = +s.dataset.i; pfShow(); });
+  $("pfTitle").textContent = st.title;
+  $("pfEq").innerHTML = st.eq.map((e, i) => `<span class="ln fx">${i ? '<span class="arw">→ </span>' : ""}${e}</span>`).join("");
+  $("pfNote").innerHTML = st.note;
+  $("pfPrev").disabled = PFS.step === 0;
+  $("pfNext").textContent = PFS.step === PF.length - 1 ? "처음부터 ↺" : "다음 →";
+  $("pfPrevList").innerHTML = PFS.step ? "지금까지: " + PF.slice(0, PFS.step).map(p => `<span class="fx">${p.short}</span>`).join(" &nbsp;→&nbsp; ") : "";
+  $("pfCvNote").textContent = PFS.step < 2 ? "용수철 물체의 운동. 주황 = 복원력 F, 빨강 = 가속도 a (항상 평형 위치 쪽)."
+    : "위: 등속 원운동하는 점과 그 그림자(초록). 아래: 용수철 물체. 둘이 똑같이 움직여요. 빨강 = 구심 가속도와 그 x성분.";
+}
+$("pfNext").onclick = () => { PFS.step = PFS.step === PF.length - 1 ? 0 : PFS.step + 1; pfShow(); };
+$("pfPrev").onclick = () => { if(PFS.step > 0){ PFS.step--; pfShow(); } };
+document.addEventListener("keydown", e => {
+  if(curTab !== "proof") return;
+  if(e.key === "ArrowRight" || e.key === " "){ e.preventDefault(); $("pfNext").click(); }
+  if(e.key === "ArrowLeft") $("pfPrev").click();
+});
+function pfDraw(){
+  const cv = $("pfCv"), cw = Math.max(200, cv.clientWidth);
+  const H = Math.round(Math.max(330, Math.min(600, cw * 0.72)));
+  const { ctx, W } = fitCanvas(cv, H);
+  const st = PFS.step, th = PFS.w * PFS.t, cosv = Math.cos(th), sinv = Math.sin(th);
+  const showC = st >= 2;
+  const R = Math.min(W * 0.27, H * (showC ? 0.27 : 0.3));
+  const cx = Math.max(W * 0.55, R + 110), cy = showC ? 24 + R : H * 0.25;
+  const floorY = H - 30, bw = Math.max(34, R * 0.32), bh = bw;
+  const bc = cx + R * cosv, wallX = cx - R - bw / 2 - 60;
+  // 아래: 용수철
+  ctx.fillStyle = "#475569"; ctx.fillRect(wallX - 12, floorY - bh - 50, 12, bh + 50);
+  ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(wallX - 12, floorY); ctx.lineTo(W - 6, floorY); ctx.stroke();
+  dash(ctx, cx, floorY - bh - 40, cx, floorY + 6, "#e2e8f0", 1.3);
+  txt(ctx, "x=0", cx, floorY + 16, "#e2e8f0", 12, "center");
+  txt(ctx, "+A", cx + R, floorY + 16, "#94a3b8", 12, "center"); txt(ctx, "−A", cx - R, floorY + 16, "#94a3b8", 12, "center");
+  springPath(ctx, wallX, floorY - bh / 2, bc - bw / 2, floorY - bh / 2, 11, bh * 0.25);
+  block(ctx, bc - bw / 2, floorY - bh, bw, bh, "m");
+  const Lm = R * 0.75;
+  if(st === 0 || st === 1){
+    arrow(ctx, bc, floorY - bh - 14, bc - cosv * Lm, floorY - bh - 14, "#fb923c", 4);
+    txt(ctx, "F = −kx", bc - cosv * Lm + (cosv > 0 ? -6 : 6), floorY - bh - 32, "#fb923c", 15, cosv > 0 ? "right" : "left");
+    if(st === 1){
+      arrow(ctx, bc, floorY - bh - 52, bc - cosv * Lm, floorY - bh - 52, "#f87171", 4);
+      txt(ctx, "a = −(k/m)x", bc - cosv * Lm + (cosv > 0 ? -6 : 6), floorY - bh - 70, "#f87171", 15, cosv > 0 ? "right" : "left");
+    }
+  }
+  if(showC){
+    // 원, 점, 그림자
+    ctx.strokeStyle = "#475569"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = "#334155"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx - R - 14, cy); ctx.lineTo(cx + R + 14, cy); ctx.stroke();
+    const qx = cx + R * cosv, qy = cy - R * sinv;
+    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(qx, qy); ctx.stroke();
+    // 각도 호
+    ctx.strokeStyle = "#fcd34d"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R * 0.22, -(th % TAU), 0, false); ctx.stroke();
+    txt(ctx, "ωt", cx + R * 0.3, cy - 12, "#fcd34d", 14, "left");
+    txt(ctx, "A", (cx + qx) / 2 - 8 * sinv, (cy + qy) / 2 - 8 * cosv, "#cbd5e1", 15, "center");
+    dash(ctx, qx, qy, qx, floorY - bh / 2, "rgba(163,230,53,.55)", 1.5);
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(qx, qy, 8, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#a3e635"; ctx.beginPath(); ctx.arc(qx, cy, 7, 0, TAU); ctx.fill();
+    txt(ctx, "그림자", qx, cy + 20, "#a3e635", 13, "center");
+    // 구심 가속도, x성분
+    const La = R * 0.6;
+    arrow(ctx, qx, qy, qx - cosv * La, qy + sinv * La, "#f87171", 3.5);
+    txt(ctx, "ω²A", qx - cosv * La * 0.5 + 14 * sinv + (cosv > 0 ? -4 : 4), qy + sinv * La * 0.5 + 14 * cosv, "#fca5a5", 14, "center");
+    arrow(ctx, qx, cy, qx - cosv * La, cy, "#f87171", 4);
+    arrow(ctx, bc, floorY - bh - 14, bc - cosv * La, floorY - bh - 14, "#f87171", 4);
+    txt(ctx, "a = −ω²x", bc - cosv * La + (cosv > 0 ? -6 : 6), floorY - bh - 32, "#f87171", 15, cosv > 0 ? "right" : "left");
+    if(st >= 3) txt(ctx, st === 3 ? "ω = √(k/m)" : "T = 2π√(m/k)", 12, 20, "#fcd34d", 18, "left");
+  }
+}
+
+/* =========================================================
+   탭 3: 단진자 (θ'' = −(g/L) sin θ, RK4)
+   ========================================================= */
+const PD = { L: 1, m: 0.5, g: 9.8, gsel: "9.8", a0: 10, run: true, speed: 1, cmp: "none", ps: [] };
+function newPend(L, m, g, a0){ return { L, m, g, th: a0 * Math.PI / 180, om: 0, t: 0, cross: [], trail: [] }; }
+function pendT(p){ return TAU * Math.sqrt(p.L / p.g); }
+function pendMeas(p){ const c = p.cross; return c.length >= 2 ? c[c.length - 1] - c[c.length - 2] : null; }
+function rk4(p, h){
+  const f = th => -(p.g / p.L) * Math.sin(th);
+  const k1t = p.om, k1o = f(p.th);
+  const k2t = p.om + h / 2 * k1o, k2o = f(p.th + h / 2 * k1t);
+  const k3t = p.om + h / 2 * k2o, k3o = f(p.th + h / 2 * k2t);
+  const k4t = p.om + h * k3o, k4o = f(p.th + h * k3t);
+  p.th += h / 6 * (k1t + 2 * k2t + 2 * k3t + k4t);
+  p.om += h / 6 * (k1o + 2 * k2o + 2 * k3o + k4o);
+}
+function pendAdvance(p, dt){
+  let left = dt;
+  while(left > 1e-12){
+    const h = Math.min(left, 0.001), th0 = p.th;
+    rk4(p, h);
+    if(th0 > 0 && p.th <= 0){ p.cross.push(p.t + h * th0 / (th0 - p.th)); if(p.cross.length > 20) p.cross.shift(); }
+    p.t += h; left -= h;
+  }
+}
+function pdReset(){
+  if(PD.cmp === "none") PD.ps = [newPend(PD.L, PD.m, PD.g, PD.a0)];
+  else if(PD.cmp === "mass") PD.ps = [newPend(PD.L, 0.2, PD.g, PD.a0), newPend(PD.L, 2, PD.g, PD.a0)];
+  else { const La = Math.min(PD.L, 0.5); PD.ps = [newPend(La, PD.m, PD.g, PD.a0), newPend(4 * La, PD.m, PD.g, PD.a0)]; }
+  pdUI();
+}
+function pdUI(){
+  $("pLv").textContent = PD.L.toFixed(2) + " m"; $("pMv").textContent = PD.m.toFixed(1) + " kg";
+  $("pGv").textContent = PD.g.toFixed(1) + " m/s²"; $("pAv").textContent = PD.a0 + "°";
+  const p = PD.ps[0];
+  $("pdT").textContent = pendT(PD.ps[0]).toFixed(2) + " s" + (PD.ps.length > 1 ? " / " + pendT(PD.ps[1]).toFixed(2) + " s" : "");
+  pdMeasUI();
+  const n = $("pdCmpNote");
+  if(PD.cmp === "mass") n.innerHTML = `왼쪽 0.2 kg, 오른쪽 2 kg (10배). 길이는 둘 다 ${PD.L.toFixed(2)} m. → <b style="color:var(--hl)">추의 질량을 바꿔도 주기는 그대로!</b>`;
+  else if(PD.cmp === "len") n.innerHTML = `왼쪽 L = ${PD.ps[0].L.toFixed(2)} m, 오른쪽 L = ${PD.ps[1].L.toFixed(2)} m (4배). → <b style="color:var(--hl)">길이가 4배면 주기는 √4 = 2배!</b> 왼쪽이 2번 왕복할 때 오른쪽은 1번.`;
+  else n.textContent = "점선 호 = 추가 지나는 길. 추의 크기는 질량에 따라 달라져요.";
+}
+function pdMeasUI(){
+  const s = PD.ps.map(p => { const m = pendMeas(p); if(m == null) return "측정 중…"; const d = (m - pendT(p)) / pendT(p) * 100; return m.toFixed(3) + " s (" + (d >= 0 ? "+" : "−") + Math.abs(d).toFixed(2) + "%)"; });
+  $("pdTm").textContent = s.join(" / ");
+}
+bindSlider("pL", v => { PD.L = v; pdReset(); });
+bindSlider("pM", v => { PD.m = v; pdReset(); });
+bindSlider("pG", v => { PD.g = v; pdReset(); });
+bindSlider("pA", v => { PD.a0 = v; pdReset(); });
+chipGroup("[data-gsel]", "gsel", v => {
+  PD.gsel = v; $("pGrow").classList.toggle("hide", v !== "c");
+  if(v !== "c") PD.g = parseFloat(v); else PD.g = parseFloat($("pG").value);
+  pdReset();
+});
+chipGroup("[data-cmp]", "cmp", v => { PD.cmp = v; pdReset(); });
+const pdSpd = chipGroup("[data-pspd]", "pspd", v => PD.speed = parseFloat(v)); pdSpd(1);
+$("pdPlay").addEventListener("click", () => { PD.run = !PD.run; $("pdPlay").textContent = PD.run ? "일시정지" : "재생"; });
+$("pdReset").addEventListener("click", () => { pdReset(); pdDraw(); });
+function pdDraw(){
+  const cv = $("pdCv"), cw = Math.max(200, cv.clientWidth);
+  const H = Math.round(Math.max(340, Math.min(620, cw * 0.72)));
+  const { ctx, W } = fitCanvas(cv, H);
+  const n = PD.ps.length, top = 30, s = (H - top - 70) / 2.0;
+  PD.ps.forEach((p, i) => {
+    const px = W * (n === 1 ? 0.5 : (i === 0 ? 0.27 : 0.73)), r = 8 + 10 * Math.cbrt(p.m), Lp = p.L * s, a0 = PD.a0 * Math.PI / 180;
+    ctx.fillStyle = "#475569"; ctx.fillRect(px - 40, top - 10, 80, 10);
+    dash(ctx, px, top, px, top + Lp + r + 14, "#475569", 1.2);
+    ctx.save(); ctx.setLineDash([5, 6]); ctx.strokeStyle = "#64748b"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(px, top, Lp, Math.PI / 2 - a0, Math.PI / 2 + a0); ctx.stroke(); ctx.restore();
+    const bx = px + Lp * Math.sin(p.th), by = top + Lp * Math.cos(p.th);
+    p.trail.push([bx, by]); if(p.trail.length > 40) p.trail.shift();
+    p.trail.forEach(([x, y], j) => { ctx.fillStyle = `rgba(94,234,212,${j / p.trail.length * 0.35})`; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, TAU); ctx.fill(); });
+    ctx.strokeStyle = "#e2e8f0"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, top); ctx.lineTo(bx, by); ctx.stroke();
+    const g = ctx.createRadialGradient(bx - r * 0.3, by - r * 0.3, 2, bx, by, r);
+    g.addColorStop(0, "#fde68a"); g.addColorStop(1, "#d97706");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, r, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#e2e8f0"; ctx.beginPath(); ctx.arc(px, top, 4, 0, TAU); ctx.fill();
+    const lab = n === 1 ? "" : (i === 0 ? "A  " : "B  ");
+    txt(ctx, `${lab}L = ${p.L.toFixed(2)} m, m = ${p.m.toFixed(1)} kg`, px, H - 46, "#e2e8f0", n === 1 ? 15 : 13, "center");
+    const Tm = pendMeas(p) || pendT(p), swings = Math.floor(p.t / Tm + 1e-9);
+    txt(ctx, `T = ${pendT(p).toFixed(2)} s · 왕복 ${swings}번`, px, H - 24, "#fcd34d", n === 1 ? 15 : 13, "center");
+    txt(ctx, "θ = " + (p.th * 180 / Math.PI).toFixed(1) + "°", px + 10, top + 16, "#94a3b8", 13, "left");
+  });
+  txt(ctx, "t = " + PD.ps[0].t.toFixed(2) + " s", 10, 16, "#94a3b8", 13, "left");
+  txt(ctx, "g = " + PD.g.toFixed(1) + " m/s²", W - 10, 16, "#94a3b8", 13, "right");
+}
+
+/* =========================================================
+   확인 문제 (자동 생성, 무한)
+   ========================================================= */
+/*QGEN-START*/
+const QG = (function(){
+  const gcd = (a, b) => b ? gcd(b, a % b) : Math.abs(a);
+  const R = (n, d) => { d = d || 1; if(d < 0){ n = -n; d = -d; } const g = gcd(n, d) || 1; return [n / g, d / g]; };
+  const mul = (a, b) => R(a[0] * b[0], a[1] * b[1]);
+  const div = (a, b) => R(a[0] * b[1], a[1] * b[0]);
+  const isq = n => { const s = Math.round(Math.sqrt(n)); return s * s === n ? s : null; };
+  const sqrtR = a => { const p = isq(a[0]), q = isq(a[1]); return p != null && q != null ? [p, q] : null; };
+  const val = a => a[0] / a[1];
+  const dec = v => v < 0.1 ? v.toFixed(3) : v.toFixed(2);
+  const piStr = c => { const num = c[0] === 1 ? "π" : c[0] + "π"; return (c[1] === 1 ? num : num + "/" + c[1]) + " 초 (≈ " + dec(val(c) * Math.PI) + " 초)"; };
+  const ratioStr = r => r[0] === r[1] ? "그대로 (1배)" : (r[1] === 1 ? r[0] + "배" : r[0] + "/" + r[1] + "배");
+  const nice = v => String(Number(v.toPrecision(3)));
+  const facStr = f => f[1] === 1 ? f[0] + "배" : f[0] + "/" + f[1] + "배";
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  // 만든 보기: [문자열, 값] 쌍 → CS.makeChoices
+  function build(base, ansStr, ansVal, dists){
+    const vmap = {}; vmap[ansStr] = ansVal;
+    const ds = []; dists.forEach(([s, v]) => { if(!(s in vmap)){ vmap[s] = v; ds.push(s); } });
+    const mc = CS.makeChoices(ansStr, ds, 5);
+    return Object.assign(base, { choices: mc.choices, answer: mc.answer, _cv: mc.choices.map(c => vmap[c]), _ans: ansVal });
+  }
+  // √(m/k) = p/q 인 깔끔한 조합
+  const SPR = [[1,100,1,10],[4,100,1,5],[1,25,1,5],[2,50,1,5],[0.5,50,1,10],[0.4,10,1,5],[9,100,3,10],[0.9,10,3,10],[2,8,1,2],[1,4,1,2],[3,12,1,2],[1,16,1,4],[0.25,100,1,20],[0.8,20,1,5],[0.2,20,1,10],[2,200,1,10],[4,25,2,5],[1.6,10,2,5],[0.1,40,1,20]];
+  const PDL = [[0.1,1,10],[0.4,1,5],[0.9,3,10],[1.6,2,5],[2.5,1,2],[3.6,3,5],[0.025,1,20]];
+  const FAC = [[1,1],[4,1],[9,1],[1,4],[1,9],[16,1]];
+  function tDists(r){ // r = √(…) 의 유리수 값, 정답 계수 2r
+    return [mul([2,1], mul(r, r)), div([2,1], r), r, mul([4,1], r), div([2,1], mul(r, r)), mul([1,2], r)].map(c => [piStr(c), val(c) * Math.PI]);
+  }
+  function ratioDists(r){
+    const c = [mul(r, r), div([1,1], r), div([1,1], mul(r, r)), [1,1], mul([2,1], r), mul([1,2], r)];
+    return c.map(x => [ratioStr(x), val(x)]);
+  }
+  const K = {
+    springT(){
+      const [m, k, p, q] = pick(SPR), r = R(p, q), c = mul([2,1], r);
+      return build({ id: "sT" + m + "_" + k, _k: "springT", _p: { m, k },
+        q: `질량 ${m} kg인 물체가 용수철 상수 ${k} N/m인 용수철에 매달려 단진동한다. 주기는?`,
+        exp: `T = 2π√(m/k) = 2π√(${m}/${k}) = 2π × ${p}/${q} = ${piStr(c)}. √를 빼먹거나 m/k를 뒤집지 않도록!` },
+        piStr(c), val(c) * Math.PI, tDists(r));
+    },
+    omega(){
+      const [m, k, p, q] = pick(SPR), w = q / p;
+      const d = [[k / m, "k/m"], [p / q, "√(m/k)"], [2 * Math.PI * w, "2πω"], [w / (2 * Math.PI), "ω/2π"], [2 * w, "2ω"]];
+      return build({ id: "sW" + m + "_" + k, _k: "omega", _p: { m, k },
+        q: `질량 ${m} kg, 용수철 상수 ${k} N/m인 용수철 진자의 각진동수 ω는?`,
+        exp: `ω = √(k/m) = √(${k}/${m}) = ${nice(w)} rad/s` },
+        nice(w) + " rad/s", w, d.map(([v]) => [nice(v) + " rad/s", v]));
+    },
+    springRatio(){
+      let mf, kf; do { mf = pick(FAC); kf = pick(FAC); } while(val(mf) === val(kf));
+      const r = sqrtR(div(mf, kf));
+      const parts = []; if(val(mf) !== 1) parts.push("질량을 " + facStr(mf)); if(val(kf) !== 1) parts.push("용수철 상수를 " + facStr(kf));
+      return build({ id: "sR" + mf + "_" + kf, _k: "springRatio", _p: { mf: val(mf), kf: val(kf) },
+        q: `용수철 진자에서 ${parts.join(", ")}로 하면 주기는 처음의 몇 배?`,
+        exp: `T ∝ √(m/k) → √(${facStr(mf).replace("배","")} ÷ ${facStr(kf).replace("배","")}) = ${ratioStr(r)}. 제곱근을 꼭 씌워요.` },
+        ratioStr(r), val(r), ratioDists(r));
+    },
+    amp(){
+      const f = pick([2, 3, 4]), which = pick(["sp", "pd"]);
+      const q = which === "sp" ? `용수철 진자의 진폭만 ${f}배로 하면 주기는?` : `단진자의 처음 각도를 3°에서 ${3 * f}°로 바꾸면 주기는? (각도가 작을 때)`;
+      const d = [[f + "배", f], ["√" + f + "배", Math.sqrt(f)], [f * f + "배", f * f], ["1/" + f + "배", 1 / f], ["1/√" + f + "배", 1 / Math.sqrt(f)]];
+      return build({ id: "amp" + which + f, _k: "amp", _p: { f },
+        q, exp: which === "sp" ? "T = 2π√(m/k)에 진폭이 없어요. 진폭이 커지면 속력도 커져서 한 주기 시간은 같아요." : "작은 각도에서 T = 2π√(L/g)는 각도와 관계없어요(등시성)." },
+        "그대로 (1배)", 1, d);
+    },
+    pendRatio(){
+      let lf, gf; do { lf = pick(FAC); gf = pick(FAC); } while(val(lf) === val(gf));
+      const r = sqrtR(div(lf, gf));
+      const parts = []; if(val(lf) !== 1) parts.push("실 길이를 " + facStr(lf)); if(val(gf) !== 1) parts.push("중력 가속도를 " + facStr(gf));
+      return build({ id: "pR" + lf + "_" + gf, _k: "pendRatio", _p: { lf: val(lf), gf: val(gf) },
+        q: `단진자에서 ${parts.join(", ")}로 하면 주기는 처음의 몇 배?`,
+        exp: `T ∝ √(L/g) → ${ratioStr(r)}` },
+        ratioStr(r), val(r), ratioDists(r));
+    },
+    pendMass(){
+      const f = pick([2, 3, 4]);
+      const d = [[f + "배", f], ["√" + f + "배", Math.sqrt(f)], ["1/" + f + "배", 1 / f], ["1/√" + f + "배", 1 / Math.sqrt(f)], [f * f + "배", f * f]];
+      return build({ id: "pM" + f, _k: "pendMass", _p: { f },
+        q: `단진자에서 추의 질량만 ${f}배로 하면 주기는?`,
+        exp: "T = 2π√(L/g)에 질량이 없어요. 질량이 커지면 중력도 같은 비율로 커져서 가속도는 같아요." },
+        "그대로 (1배)", 1, d);
+    },
+    moon(){
+      const d = [["6배", 6], ["1/6배", 1 / 6], ["1/√6배", 1 / Math.sqrt(6)], ["36배", 36], ["그대로 (1배)", 1]];
+      return build({ id: "moon", _k: "moon", _p: {},
+        q: "같은 단진자를 중력 가속도가 지구의 1/6인 달로 가져가면 주기는 지구에서의 몇 배?",
+        exp: "T ∝ 1/√g → g가 1/6배면 T는 √6 ≈ 2.4배. 달에서는 더 천천히 흔들려요." },
+        "√6배 (≈ 2.4배)", Math.sqrt(6), d);
+    },
+    pendT(){
+      const [L, p, q] = pick(PDL), r = R(p, q), c = mul([2,1], r);
+      return build({ id: "pT" + L, _k: "pendT", _p: { L },
+        q: `길이 ${L} m인 단진자의 주기는? (g = 10 m/s²)`,
+        exp: `T = 2π√(L/g) = 2π√(${L}/10) = 2π × ${p}/${q} = ${piStr(c)}` },
+        piStr(c), val(c) * Math.PI, tDists(r));
+    },
+    stretch(){
+      const m = pick([0.1, 0.2, 0.5, 1, 2]), k = pick([10, 20, 25, 40, 50, 100, 200]), dcm = m * 10 / k * 100;
+      const cm = v => nice(v) + " cm";
+      const d = [[cm(dcm / 10), dcm / 10], [cm(2 * dcm), 2 * dcm], [cm(dcm / 2), dcm / 2], [cm(10 * dcm), 10 * dcm], [cm(4 * dcm), 4 * dcm]];
+      return build({ id: "st" + m + "_" + k, _k: "stretch", _p: { m, k },
+        q: `용수철 상수 ${k} N/m인 용수철을 천장에 매달고 질량 ${m} kg인 물체를 걸었다. 평형 위치에서 용수철이 늘어난 길이는? (g = 10 m/s²)`,
+        exp: `평형: kd = mg → d = mg/k = ${m} × 10 ÷ ${k} = ${nice(dcm / 100)} m = ${cm(dcm)}. g를 빼먹으면 1/10이 돼요.` },
+        cm(dcm), dcm, d);
+    },
+    concept(){
+      const C = [
+        ["단진동하는 물체가 평형 위치를 지날 때는?", "속력 최대, 가속도 0", ["속력 0, 가속도 최대", "속력 최대, 가속도 최대", "속력 0, 가속도 0", "속력과 가속도 모두 최댓값의 절반"], "평형 위치에서 x = 0 → a = −ω²x = 0. 퍼텐셜 에너지가 0이라 운동 에너지(속력)는 최대."],
+        ["단진동에서 변위가 +A(가장 멀리)일 때 가속도는?", "크기 최대, 방향은 −(평형 위치 쪽)", ["0", "크기 최대, 방향은 +", "크기는 최대의 절반, 방향은 −", "속도와 같은 방향으로 최대"], "a = −ω²x → x = +A이면 a = −ω²A. 가장 크고 평형 위치 쪽."],
+        ["단진동에서 가속도 a와 변위 x의 관계는?", "a = −ω²x", ["a = ω²x", "a = −ωx", "a = −x/ω²", "a는 x와 관계없이 일정"], "가속도는 변위에 비례하고 방향은 반대: a = −ω²x."],
+        ["질량 m인 물체를 용수철(상수 k)에 수직으로 매달아 진동시킬 때 주기는?", "2π√(m/k), 수평일 때와 같다", ["2π√(m/k)보다 길다 (중력 때문)", "2π√(m/k)보다 짧다 (중력 때문)", "2π√(k/m)", "2π√(L/g)"], "새 평형 위치를 기준으로 복원력이 −kx → 주기는 그대로 2π√(m/k). 중력은 평형 위치만 mg/k 내려요."],
+        ["용수철 상수 k, 진폭 A인 단진동에서 최대 운동 에너지는?", "½kA²", ["kA²", "½kA", "¼kA²", "2kA²"], "역학적 에너지 보존: 끝점의 탄성 퍼텐셜 에너지 ½kA²가 평형 위치에서 모두 운동 에너지."],
+        ["단진동에서 속도 v–t 그래프는 변위 x–t 그래프와 어떤 관계?", "1/4주기 어긋나 있다", ["완전히 같다", "1/2주기 어긋나 있다(반대)", "주기가 2배이다", "주기가 1/2배이다"], "x = A cos ωt, v = −Aω sin ωt → 1/4주기(90°) 차이. a는 x와 반대(1/2주기 차이)."]
+      ];
+      const i = Math.floor(Math.random() * C.length), [q, a, ds, e] = C[i];
+      return build({ id: "c" + i, _k: "concept", _p: { i }, q, exp: e }, a, null, ds.map(s => [s, null]));
+    }
+  };
+  const W = { springT: 3, omega: 1, springRatio: 3, amp: 2, pendRatio: 3, pendMass: 1, moon: 1, pendT: 2, stretch: 2, concept: 3 };
+  const bag = []; Object.keys(W).forEach(k => { for(let i = 0; i < W[k]; i++) bag.push(k); });
+  function make(n){
+    const out = [], ids = new Set(); let guard = 0;
+    while(out.length < n && guard++ < 500){ const q = K[pick(bag)](); if(!ids.has(q.id)){ ids.add(q.id); out.push(q); } }
+    return out;
+  }
+  return { make, K };
+})();
+/*QGEN-END*/
+let quiz = null;
+function quizStart(){ if(!quiz){ quiz = CS.QuizRound($("quizBox"), { make: QG.make, count: 10 }); quiz.start(); } }
+
+/* =========================================================
+   탭 전환 + 애니메이션 루프
+   ========================================================= */
+let curTab = "spring";
+function setTab(t){
+  curTab = t; CS.store.set("shm_tab", t);
+  document.querySelectorAll("#tabs .btn").forEach(b => { const on = b.dataset.t === t; b.classList.toggle("ghost", !on); });
+  document.querySelectorAll(".tabp").forEach(s => s.classList.toggle("hide", s.id !== "tab-" + t));
+  if(t === "quiz") quizStart();
+  if(t === "proof") pfShow();
+  drawCur();
+}
+document.querySelectorAll("#tabs .btn").forEach(b => b.addEventListener("click", () => setTab(b.dataset.t)));
+function drawCur(){ if(curTab === "spring") spDraw(); else if(curTab === "proof") pfDraw(); else if(curTab === "pend") pdDraw(); }
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+  if(!document.hidden){
+    if(curTab === "spring"){
+      if(SP.run){ const before = SP.cross.length, lastC = SP.cross[SP.cross.length - 1]; spAdvance(dt * SP.speed);
+        if(SP.cross[SP.cross.length - 1] !== lastC || SP.cross.length !== before){ const m = SP.measured(); if(m != null){ const d = (m - SP.T) / SP.T * 100; $("spTm").innerHTML = `${m.toFixed(3)} s <span class="ok">(공식과 차이 ${Math.abs(d).toFixed(2)}%)</span>`; } } }
+      spDraw();
+    } else if(curTab === "proof"){ PFS.t += dt; pfDraw(); }
+    else if(curTab === "pend"){
+      if(PD.run){ PD.ps.forEach(p => pendAdvance(p, dt * PD.speed)); if(Math.floor(now / 250) !== loop._q){ loop._q = Math.floor(now / 250); pdMeasUI(); } }
+      pdDraw();
+    }
+  }
+  requestAnimationFrame(loop);
+}
+document.addEventListener("visibilitychange", () => { last = performance.now(); });
+window.addEventListener("resize", () => drawCur());
+
+// 시작
+(function init(){
+  const md = CS.store.get("shm_mode", "h"); SP.mode = md === "v" ? "v" : "h";
+  document.querySelectorAll("[data-mode]").forEach(e => e.classList.toggle("on", e.dataset.mode === SP.mode));
+  SP.m = parseFloat($("sm").value); SP.k = parseFloat($("sk").value); SP.A = parseFloat($("sa").value);
+  PD.L = parseFloat($("pL").value); PD.m = parseFloat($("pM").value); PD.a0 = parseFloat($("pA").value);
+  spUI(); pdReset();
+  const t = CS.store.get("shm_tab", "spring");
+  setTab(["spring", "proof", "pend", "quiz"].includes(t) ? t : "spring");
+  requestAnimationFrame(loop);
+})();
+// 테스트용
+window.__shm = { SP, PD, QG, pendT, pendMeas };
+</script>
+</body>
+</html>

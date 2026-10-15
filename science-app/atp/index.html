@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ATP 합성 효소 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.wrap{max-width:1680px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tabs .btn{font-size:16px;padding:12px 8px}
+.main{display:flex;flex-direction:column}
+.col{display:contents}
+.o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}
+#side{margin-bottom:12px}
+.big-btn{width:100%;font-size:18px;padding:14px}
+.big-btn.on{background:#ca8a04}
+.big-btn.on.mit{background:#c2410c}
+.btn3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
+.btn3 .btn{padding:11px 6px;font-size:15px}
+.gauge{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px;text-align:center}
+.tile .k{font-size:13px;color:var(--muted)}
+.tile .val{font-size:24px;white-space:nowrap;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.25}
+.tile .val small{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+.tile.h .val{color:#fca5a5}.tile.a .val{color:#fdba74}.tile.r .val{color:#93c5fd}
+.diff{grid-column:1/-1;text-align:left}
+.bar{height:16px;background:#0b1222;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:6px 0 4px}
+.bar>div{height:100%;width:0;background:linear-gradient(90deg,#f87171,#ef4444);transition:width .15s}
+.diff .row{justify-content:space-between;font-size:14px}
+.calc{grid-column:1/-1;font-size:15px;line-height:1.6;margin:0}
+.steps{margin:0;padding-left:0;list-style:none;font-size:16px;line-height:1.65}
+.steps li{display:flex;gap:10px;margin-bottom:8px;word-break:keep-all}
+.steps .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-weight:700;
+  display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
+.steps b{color:#fde68a}
+.tagx{display:inline-block;font-size:12px;border:1px solid var(--warn);color:#fcd34d;border-radius:8px;padding:1px 7px;margin-left:6px;vertical-align:middle}
+.adv p{margin:6px 0}
+.adv ul{margin:6px 0;padding-left:20px}
+.tiny{font-size:13px;color:var(--muted);margin:6px 2px 0;line-height:1.5}
+table.cmp{width:100%;border-collapse:collapse;font-size:15px;line-height:1.5}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top;word-break:keep-all}
+table.cmp thead th{background:var(--card2);text-align:center}
+table.cmp tbody th{background:rgba(255,255,255,.03);color:#cbd5e1;width:24%}
+table.cmp .hl{color:#fdba74;font-weight:700}
+.status{font-size:15px;margin-top:8px;min-height:22px;color:#cbd5e1}
+@media (min-width:1000px){
+  .main{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(380px,1fr);gap:14px;align-items:start}
+  .col{display:block}
+  .tile .val{font-size:34px}
+  .steps{font-size:17px}
+  table.cmp{font-size:17px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>ATP 합성 효소<small>세포와 물질대사 · H⁺ 농도 기울기로 고리가 돌아 ATP를 만든다(화학 삼투)</small></h1></header>
+<div class="wrap">
+ <div class="main">
+  <div class="col">
+   <canvas id="side" class="o2" aria-label="막 단면과 ATP 합성 효소 그림"></canvas>
+   <div class="panel o5">
+    <div class="gauge">
+     <div class="tile h"><div class="k">통과한 H⁺</div><div class="val" id="gH">0<small>개</small></div></div>
+     <div class="tile a"><div class="k">만들어진 ATP</div><div class="val" id="gA">0<small>개</small></div></div>
+     <div class="tile r"><div class="k">고리 회전</div><div class="val" id="gR">0<small>바퀴</small></div></div>
+     <div class="tile diff">
+      <div class="k">H⁺ 농도 차 (<span id="gTopN">위</span> − <span id="gBotN">아래</span>)</div>
+      <div class="bar"><div id="gBar"></div></div>
+      <div class="row"><span id="gCnt">위 20개 · 아래 20개</span><b id="gDiff">차 0</b></div>
+     </div>
+     <div class="adv calc hide" id="gCalc"></div>
+    </div>
+   </div>
+   <div class="panel o6">
+    <h2>무슨 일이 일어날까? (교과서 수준)</h2>
+    <ol class="steps" id="steps"></ol>
+   </div>
+  </div>
+  <div class="col">
+   <div class="panel o1">
+    <div class="tabs">
+     <button class="btn ghost" data-mode="chl">🌿 엽록체 (광합성)</button>
+     <button class="btn ghost" data-mode="mit">🔋 미토콘드리아 (세포 호흡)</button>
+    </div>
+   </div>
+   <div class="panel o3">
+    <button class="btn big-btn" id="pumpBtn">☀️ 빛 켜기</button>
+    <div class="status" id="status"></div>
+    <div class="slider"><span>속도</span><input type="range" id="spd" min="0.25" max="3" step="0.25" value="1"><span class="v" id="spdV">1×</span></div>
+    <div class="btn3">
+     <button class="btn ghost" id="pauseBtn">⏸ 멈춤</button>
+     <button class="btn ghost" id="stepBtn">한 단계씩</button>
+     <button class="btn ghost" id="resetBtn">↺ 처음부터</button>
+    </div>
+    <p class="tiny">「한 단계씩」: H⁺ 1개만 ATP 합성 효소를 지나가게 한다(자동 진행은 멈춤).</p>
+   </div>
+   <div class="panel o4">
+    <h2 id="topTitle">위에서 내려다본 모습</h2>
+    <canvas id="topv" aria-label="c 고리와 F1 머리를 위에서 본 그림"></canvas>
+    <p class="tiny">H⁺가 하나 들어올 때마다 고리가 한 칸씩 돈다. 고리와 축은 함께 돌고, 머리(촉매 자리 3개)는 돌지 않는다.<br>※ 회전 방향은 보는 쪽에 따라 반대로 보인다.</p>
+   </div>
+   <div class="panel o7">
+    <div class="row" style="justify-content:space-between">
+     <b style="font-size:16px">숫자로 더 깊이</b>
+     <button class="btn ghost sm" id="advBtn">심화 보기</button>
+    </div>
+    <div class="adv hide" id="advBox" style="margin-top:10px"></div>
+   </div>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h2>두 세포 소기관 비교</h2>
+  <div style="overflow-x:auto">
+  <table class="cmp">
+   <thead><tr><th></th><th>🌿 엽록체</th><th>🔋 미토콘드리아</th></tr></thead>
+   <tbody>
+    <tr><th>막 이름</th><td>타이라코이드 막</td><td>미토콘드리아 내막</td></tr>
+    <tr><th>에너지원</th><td>빛 에너지<br><span class="muted">(빛을 받아 들뜬 전자가 전자 전달계로)</span></td><td>유기물 산화로 얻은 NADH · FADH₂의 전자</td></tr>
+    <tr><th>H⁺가 쌓이는 곳<br><span class="muted">(H⁺ 농도 높음, pH 낮음)</span></th><td class="hl">타이라코이드 내부</td><td class="hl">막 사이 공간</td></tr>
+    <tr><th>H⁺가 빠져나가는 쪽<br><span class="muted">(= ATP 생성 장소)</span></th><td class="hl">스트로마</td><td class="hl">미토콘드리아 기질</td></tr>
+    <tr><th>공통점</th><td colspan="2">전자 전달계가 H⁺를 능동 수송해 농도 기울기를 만들고, H⁺가 농도 기울기에 따라 ATP 합성 효소를 통해 확산하며 ATP가 합성된다(화학 삼투).</td></tr>
+   </tbody>
+  </table>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h2>확인 문제</h2>
+  <div id="quizBox"><button class="btn full" id="quizStart">문제 풀기 (10문제)</button></div>
+ </div>
+</div>
+<script src="../common/common.js"></script>
+<script>"use strict";
+const PI = Math.PI, TAU = 2 * PI;
+const FONT = '-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans CJK KR",sans-serif';
+const MODES = {
+  chl: { n: 14, top: "타이라코이드 내부", bot: "스트로마", mem: "타이라코이드 막", org: "시금치 엽록체",
+         on: "☀️ 빛 끄기", off: "☀️ 빛 켜기", memCol: "#365314", headCol: "#166534" },
+  mit: { n: 8, top: "막 사이 공간", bot: "미토콘드리아 기질", mem: "미토콘드리아 내막", org: "소 미토콘드리아",
+         on: "⚡ 전자 공급 끄기", off: "⚡ 전자 공급 켜기", memCol: "#7c2d12", headCol: "#9a3412" }
+};
+const K_SYN = 0.1;     // 초당 H⁺ 통과 수 = K_SYN × 농도 차 (1× 기준)
+const P_PUMP = 2.4;    // 전자 전달계가 퍼 올리는 H⁺ 수/초 (1× 기준)
+const H0 = 20;         // 처음 양쪽 H⁺ 개수(같음 → 기울기 0)
+const P_WATER = 0.5;   // 엽록체: 물의 광분해 횟수/초 (1번에 H⁺ 2개가 타이라코이드 내부로)
+
+let mode = CS.store.get("atp_mode", "chl");
+let adv = CS.store.get("atp_adv", false);
+let speed = 1;
+let S;
+
+/* ---------- 캔버스 ---------- */
+const cvS = document.getElementById("side"), cxS = cvS.getContext("2d");
+const cvT = document.getElementById("topv"), cxT = cvT.getContext("2d");
+let VW = 1000, VH = 600, scS = 1, G = null;      // 단면도 가상 좌표
+const TW = 600, TH = 310; let scT = 1;            // 위에서 본 그림 가상 좌표
+
+function fitCanvas(cv, ctx, vw, vh){
+  const w = cv.clientWidth || cv.parentElement.clientWidth;
+  const h = w * vh / vw, dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  cv.style.height = h + "px";
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const s = w / vw;
+  ctx.setTransform(s * dpr, 0, 0, s * dpr, 0, 0);
+  return s;
+}
+function geom(){
+  const narrow = VW < 800;
+  const g = { mT: 232, mB: 300 };
+  g.ex = narrow ? 92 : 200;          // 전자 전달계 중심
+  g.sx = narrow ? 372 : 650;         // ATP 합성 효소 중심
+  g.R = 50;                           // c 고리 반지름(단면 폭의 절반)
+  g.aX = g.sx + g.R + 21;             // H⁺ 통로(a) 중심
+  g.headY = 408;
+  g.inTop = [g.aX, g.mT - 18]; g.inEnd = [g.sx + g.R - 4, g.mT + 18];
+  g.outStart = [g.sx + g.R - 4, g.mB - 18]; g.outEnd = [g.aX, g.mB + 18];
+  g.etcTop = [g.ex + 24, g.mT - 22]; g.etcBot = [g.ex + 24, g.mB + 22];
+  // 입자를 두지 않을 구역
+  g.water = [g.ex + 34, g.mT - 46];   // 물의 광분해 표시 위치(타이라코이드 내부)
+  g.nadph = narrow ? [g.ex, g.mB + 222] : [g.ex, g.mB + 84];   // NADP⁺ 환원 표시 위치(스트로마)
+  g.exTop = [[g.ex - 90, 0, g.ex + 70, g.mT], [g.ex + 20, g.mT - 72, g.ex + 210, g.mT], [g.sx - g.R - 10, g.mT - 50, g.aX + 30, g.mT], [VW / 2 - 170, 0, VW / 2 + 170, 64]];
+  g.exBot = [[g.sx - 112, g.mB, g.sx + 140, g.headY + 100], [g.ex - 75, g.mB, g.ex + 75, g.mB + 130],
+             [VW / 2 - 190, VH - 56, VW / 2 + 190, VH], [g.ex - 95, g.nadph[1] - 14, g.ex + 95, g.nadph[1] + 40], [g.sx - 260, g.headY - 40, g.sx - 100, g.headY + 62]];
+  return g;
+}
+function resize(){
+  const w = cvS.clientWidth || 600;
+  const nvw = w < 640 ? 560 : 1000;
+  const changed = nvw !== VW || !G;
+  VW = nvw; scS = fitCanvas(cvS, cxS, VW, VH);
+  scT = fitCanvas(cvT, cxT, TW, TH);
+  if(changed){ G = geom(); if(S) rebuildVisual(); }
+}
+
+/* ---------- 상태 ---------- */
+function randIn(region){
+  const g = G;
+  const box = region === "top" ? [18, 72, VW - 18, g.mT - 16] : [18, g.mB + 18, VW - 18, VH - 60];
+  const ex = region === "top" ? g.exTop : g.exBot;
+  let p;
+  for(let t = 0; t < 60; t++){
+    p = { x: box[0] + Math.random() * (box[2] - box[0]), y: box[1] + Math.random() * (box[3] - box[1]), ph: Math.random() * TAU };
+    if(!ex.some(r => p.x > r[0] - 10 && p.x < r[2] + 10 && p.y > r[1] - 10 && p.y < r[3] + 10)) return p;
+  }
+  return p;
+}
+function reset(){
+  const n = MODES[mode].n;
+  S = { n, step: TAU / n, Ltop: H0, Lbot: H0, topDots: [], botDots: [], flights: [], pops: [], elec: [],
+        pumpOn: false, paused: false, pumpAcc: 0, waterAcc: 0, synAcc: 0, elecAcc: 0,
+        stepsDone: 0, ringV: PI / 2, loaded: [], atp: 0, kPrev: 0, t: 0 };
+  for(let i = 0; i < n; i++) S.loaded.push(i !== 0);   // 통로 입구 앞 조각만 비어 있음
+  rebuildVisual();
+  updateUI();
+}
+function rebuildVisual(){
+  // 날아가던 입자는 결과만 반영하고 그림을 다시 배치
+  S.flights.filter(f => f.kind === "in").forEach(() => completeStep(false));
+  S.flights = []; S.pops = []; S.elec = [];
+  S.topDots = []; S.botDots = [];
+  for(let i = 0; i < S.Ltop; i++) S.topDots.push(randIn("top"));
+  for(let i = 0; i < S.Lbot; i++) S.botDots.push(randIn("bot"));
+}
+const ringTarget = () => PI / 2 + S.stepsDone * S.step;
+const mod = (a, n) => ((a % n) + n) % n;
+
+function takeDot(arr, tx, ty){
+  if(!arr.length) return null;
+  return arr.splice(Math.floor(Math.random() * arr.length), 1)[0];
+}
+function addFlight(pts, dur, kind, onArrive){ S.flights.push({ pts, dur, t: 0, kind, onArrive }); }
+
+// H⁺ 1개가 ATP 합성 효소 통로로 들어감
+function launchSyn(){
+  S.Ltop--; S.Lbot++;
+  const d = takeDot(S.topDots, G.inTop[0], G.inTop[1]) || randIn("top");
+  addFlight([[d.x, d.y], G.inTop, G.inEnd], 0.55, "in", () => completeStep(true));
+}
+// H⁺가 c 고리 조각에 끼워지고 → 고리 한 칸 회전, 거의 한 바퀴 돈 H⁺는 낮은 쪽으로 빠져나감
+function completeStep(visual){
+  const n = S.n, k = S.stepsDone;
+  const entry = mod(-k, n), exit = mod(-k - 1, n);
+  S.loaded[entry] = true;
+  const had = S.loaded[exit];
+  S.loaded[exit] = false;
+  S.stepsDone++;
+  if(visual && had){
+    const home = randIn("bot");
+    addFlight([G.outStart, G.outEnd, [home.x, home.y]], 0.6, "out", () => S.botDots.push(home));
+  } else if(visual){ S.botDots.push(randIn("bot")); }
+}
+// 엽록체: 물의 광분해(H₂O → 2H⁺ + ½O₂)로 H⁺ 2개가 타이라코이드 내부에 더해지고,
+// NADP⁺ 환원(NADP⁺ + 2e⁻ + H⁺ → NADPH)에 스트로마의 H⁺ 1개가 쓰인다
+function waterSplit(){
+  if(S.Ltop + S.Lbot >= 60) return;
+  for(let i = 0; i < 2; i++){
+    S.Ltop++;
+    const home = randIn("top");
+    addFlight([[G.water[0] + 20 * i, G.water[1] + 6], [home.x, home.y]], 0.8, "water", () => S.topDots.push(home));
+  }
+  if(S.Lbot > 3){
+    S.Lbot--;
+    const d = takeDot(S.botDots) || randIn("bot");
+    addFlight([[d.x, d.y], G.nadph], 0.8, "nadph", () => {});
+  }
+}
+function launchPump(){
+  S.Lbot--; S.Ltop++;
+  const d = takeDot(S.botDots, G.etcBot[0], G.etcBot[1]) || randIn("bot");
+  const home = randIn("top");
+  addFlight([[d.x, d.y], G.etcBot, G.etcTop, [home.x, home.y]], 0.9, "pump", () => S.topDots.push(home));
+}
+
+/* ---------- 진행 ---------- */
+function tick(dt){
+  S.t += dt;
+  const sdt = dt * speed;
+  if(!S.paused){
+    if(S.pumpOn){
+      S.pumpAcc += P_PUMP * sdt;
+      while(S.pumpAcc >= 1){ S.pumpAcc -= 1; if(S.Lbot > 3) launchPump(); else { S.pumpAcc = 0; break; } }
+      if(mode === "chl"){
+        S.waterAcc += P_WATER * sdt;
+        while(S.waterAcc >= 1){ S.waterAcc -= 1; waterSplit(); }
+      }
+      S.elecAcc += 3 * sdt;
+      while(S.elecAcc >= 1){ S.elecAcc -= 1; S.elec.push({ t: 0 }); }
+    }
+    const diff = S.Ltop - S.Lbot;
+    if(diff > 0){
+      S.synAcc += K_SYN * diff * sdt;
+      if(S.synAcc >= 1){ S.synAcc -= 1; launchSyn(); }
+      S.synAcc = Math.min(S.synAcc, 1);
+    } else S.synAcc = 0;
+  }
+  // 날아가는 입자
+  for(const f of S.flights) f.t += sdt / f.dur;
+  const done = S.flights.filter(f => f.t >= 1);
+  S.flights = S.flights.filter(f => f.t < 1);
+  done.forEach(f => f.onArrive());
+  // 고리 회전(그림): 목표 각도로 따라감
+  const tgt = ringTarget(), gap = tgt - S.ringV;
+  if(gap > 1e-6){
+    const v = Math.max(S.step * 4 * speed, gap * 7);
+    S.ringV = Math.min(tgt, S.ringV + v * dt);
+    if(tgt - S.ringV < 1e-5) S.ringV = tgt;
+  }
+  // 축이 120°씩 돌 때마다 ATP 1분자 완성 → 방출
+  const k = Math.floor((S.ringV - PI / 2) / (TAU / 3) + 1e-7);
+  while(S.kPrev < k){
+    S.kPrev++; S.atp++;
+    S.pops.push({ site: mod(S.kPrev + 1, 3), t: 0, dir: Math.random() < .5 ? -1 : 1 });
+  }
+  S.pops.forEach(p => p.t += dt / 1.4); S.pops = S.pops.filter(p => p.t < 1);
+  S.elec.forEach(e => e.t += sdt / 1.1); S.elec = S.elec.filter(e => e.t < 1);
+}
+
+/* ---------- 그리기 도우미 ---------- */
+function txt(ctx, s, x, y, size, color, align, weight, base){
+  ctx.font = (weight || "600") + " " + size + "px " + FONT;
+  ctx.fillStyle = color; ctx.textAlign = align || "center"; ctx.textBaseline = base || "middle";
+  ctx.fillText(s, x, y);
+}
+function pill(ctx, s, x, y, size, color, bg){
+  ctx.font = "700 " + size + "px " + FONT;
+  const w = ctx.measureText(s).width + size * 0.9, h = size * 1.5;
+  ctx.fillStyle = bg; rr(ctx, x - w / 2, y - h / 2, w, h, h / 2); ctx.fill();
+  txt(ctx, s, x, y + 1, size, color, "center", "700");
+}
+function rr(ctx, x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function hDot(ctx, x, y, r, alpha){
+  ctx.globalAlpha = alpha == null ? 1 : alpha;
+  ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "#fecaca"; ctx.lineWidth = 1.5; ctx.stroke();
+  txt(ctx, "H⁺", x, y + 1, r * 1.05, "#fff", "center", "800");
+  ctx.globalAlpha = 1;
+}
+function along(pts, t){
+  const L = []; let tot = 0;
+  for(let i = 1; i < pts.length; i++){ const d = Math.hypot(pts[i][0] - pts[i-1][0], pts[i][1] - pts[i-1][1]); L.push(d); tot += d; }
+  let s = t * tot;
+  for(let i = 0; i < L.length; i++){
+    if(s <= L[i] || i === L.length - 1){ const u = L[i] ? Math.min(1, s / L[i]) : 1;
+      return [pts[i][0] + (pts[i+1][0] - pts[i][0]) * u, pts[i][1] + (pts[i+1][1] - pts[i][1]) * u]; }
+    s -= L[i];
+  }
+  return pts[pts.length - 1];
+}
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+/* ---------- 단면도 ---------- */
+function drawSide(){
+  const c = cxS, g = G, M = MODES[mode], t = S.t;
+  c.clearRect(0, 0, VW, VH);
+  // 구역 색(H⁺가 많을수록 붉게)
+  const tint = n => "rgba(239,68,68," + (0.04 + 0.26 * Math.min(1, n / 36)).toFixed(3) + ")";
+  c.fillStyle = tint(S.Ltop); c.fillRect(0, 0, VW, g.mT);
+  c.fillStyle = tint(S.Lbot); c.fillRect(0, g.mB, VW, VH - g.mB);
+  // 막(인지질 2중층)
+  c.fillStyle = M.memCol; c.fillRect(0, g.mT, VW, g.mB - g.mT);
+  c.fillStyle = "rgba(0,0,0,.25)"; c.fillRect(0, g.mT + 14, VW, g.mB - g.mT - 28);
+  c.strokeStyle = "rgba(255,255,255,.12)"; c.lineWidth = 1.5;
+  for(let x = 6; x < VW; x += 14){
+    c.beginPath(); c.moveTo(x - 2, g.mT + 10); c.lineTo(x - 2, g.mT + 30); c.moveTo(x + 2, g.mT + 10); c.lineTo(x + 2, g.mT + 30);
+    c.moveTo(x - 2, g.mB - 10); c.lineTo(x - 2, g.mB - 30); c.moveTo(x + 2, g.mB - 10); c.lineTo(x + 2, g.mB - 30); c.stroke();
+  }
+  c.fillStyle = "rgba(226,232,240,.55)";
+  for(let x = 6; x < VW; x += 14){ c.beginPath(); c.arc(x, g.mT + 6, 5, 0, TAU); c.arc(x, g.mB - 6, 5, 0, TAU); c.fill(); }
+  // 막 이름
+  const ml = g.ex + 70, mr = g.sx - g.R - 12;
+  c.font = "700 21px " + FONT;
+  const memName = M.mem;
+  if(c.measureText(memName).width < mr - ml - 8) pill(c, memName, (ml + mr) / 2, (g.mT + g.mB) / 2, 21, "#f8fafc", "rgba(15,23,42,.75)");
+  else { const ps = memName.split(" "); pill(c, ps[0], (ml + mr) / 2, (g.mT + g.mB) / 2 - 13, 19, "#f8fafc", "rgba(15,23,42,.75)");
+         pill(c, ps.slice(1).join(" ") || "", (ml + mr) / 2, (g.mT + g.mB) / 2 + 15, 19, "#f8fafc", "rgba(15,23,42,.75)"); }
+
+  drawETC(c, g, M, t);
+  drawSynthaseSide(c, g, M, t);
+
+  // H⁺ 입자
+  const jit = (d) => [d.x + 3 * Math.sin(t * 1.7 + d.ph), d.y + 3 * Math.cos(t * 1.3 + d.ph * 1.7)];
+  S.topDots.forEach(d => { const p = jit(d); hDot(c, p[0], p[1], 11); });
+  S.botDots.forEach(d => { const p = jit(d); hDot(c, p[0], p[1], 11); });
+  S.flights.forEach(f => { const p = along(f.pts, ease(f.t)); hDot(c, p[0], p[1], 12); });
+
+  // ATP 방출(F₁ 머리에서 낮은 쪽 구역으로)
+  S.pops.forEach(p => {
+    const x0 = g.sx + (p.site - 1) * 30, y0 = g.headY + 30, e = ease(Math.min(1, p.t * 1.3));
+    const x = x0 + (60 + 25 * p.site) * e, y = y0 + (45 + 15 * p.dir) * e;
+    c.globalAlpha = 1 - Math.max(0, (p.t - .6) / .4);
+    pill(c, "ATP", x, y, 20, "#1c1917", "#fb923c"); c.globalAlpha = 1;
+  });
+
+  // 구역 이름(크게)
+  const topState = lvl(S.Ltop - S.Lbot), botState = lvl(S.Lbot - S.Ltop);
+  pill(c, M.top, VW / 2, 30, 30, "#fff", "rgba(15,23,42,.8)");
+  txt(c, "H⁺ " + S.Ltop + "개 · " + topState, VW / 2, 60, 18, "#fecaca", "center", "600");
+  pill(c, M.bot, VW / 2, VH - 38, 30, "#fff", "rgba(15,23,42,.8)");
+  txt(c, "H⁺ " + S.Lbot + "개 · " + botState, VW / 2, VH - 10, 18, "#fecaca", "center", "600");
+}
+function lvl(d){ return d >= 4 ? "농도 높음" : d <= -4 ? "농도 낮음" : "농도 거의 같음"; }
+
+function drawETC(c, g, M, t){
+  const x1 = g.ex - 52, x2 = g.ex + 4, w = 46, y = g.mT - 22, h = g.mB - g.mT + 44;
+  c.fillStyle = "#1d4ed8"; rr(c, x1, y + 6, w, h - 12, 10); c.fill();
+  c.fillStyle = "#2563eb"; rr(c, x2, y, w, h, 10); c.fill();
+  c.strokeStyle = "#93c5fd"; c.lineWidth = 2; rr(c, x1, y + 6, w, h - 12, 10); c.stroke(); rr(c, x2, y, w, h, 10); c.stroke();
+  // H⁺ 통로 표시
+  c.strokeStyle = "rgba(255,255,255,.35)"; c.setLineDash([5, 5]); c.lineWidth = 2;
+  c.beginPath(); c.moveTo(g.etcBot[0], y + h); c.lineTo(g.etcTop[0], y); c.stroke(); c.setLineDash([]);
+  const lblY = mode === "chl" ? g.mB + 40 : g.mT - 44;
+  pill(c, "전자 전달계", g.ex, lblY, 20, "#dbeafe", "rgba(30,64,175,.85)");
+  // 전자 흐름
+  S.elec.forEach(e => {
+    const x = x1 + w / 2 + (x2 + w / 2 - x1 - w / 2) * e.t, yy = (g.mT + g.mB) / 2 + Math.sin(e.t * PI) * -14;
+    c.fillStyle = "#fde047"; c.beginPath(); c.arc(x, yy, 6, 0, TAU); c.fill();
+  });
+  if(S.elec.length) txt(c, "e⁻", (x1 + x2 + w) / 2, g.mT + 20, 16, "#fde047", "center", "800");
+  const on = S.pumpOn && !S.paused;
+  if(mode === "chl"){
+    if(on){
+      c.strokeStyle = "#facc15"; c.lineWidth = 4;
+      for(let i = 0; i < 3; i++){
+        const sx0 = g.ex - 64 + i * 26, sy0 = 76, ex0 = g.ex - 40 + i * 16, ey0 = g.mT - 26;
+        c.beginPath();
+        for(let s = 0; s <= 1.0001; s += 0.05){
+          const px = sx0 + (ex0 - sx0) * s + 6 * Math.sin(s * 18 - t * 10), py = sy0 + (ey0 - sy0) * s;
+          s === 0 ? c.moveTo(px, py) : c.lineTo(px, py);
+        }
+        c.stroke();
+      }
+      txt(c, "빛", g.ex - 80, 92, 24, "#fde047", "center", "800");
+    }
+    c.globalAlpha = on ? 1 : 0.35;
+    txt(c, "H₂O → 2H⁺ + ½O₂", g.water[0] - 6, g.water[1] - 4, 16, "#bae6fd", "left", "700");
+    txt(c, "물의 광분해", g.water[0] - 6, g.water[1] - 24, 13, "#94a3b8", "left", "600");
+    txt(c, "NADP⁺ + H⁺ → NADPH", g.nadph[0], g.nadph[1] + 22, 15, "#bae6fd", "center", "700");
+    c.globalAlpha = 1;
+  } else {
+    // NADH의 전자가 기질 쪽에서 전자 전달계로 들어감
+    const ax = x1 + w / 2;
+    c.globalAlpha = on ? 1 : 0.35;
+    c.strokeStyle = "#fde047"; c.fillStyle = "#fde047"; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(ax, g.mB + 96); c.lineTo(ax, g.mB + 22); c.stroke();
+    c.beginPath(); c.moveTo(ax, g.mB + 14); c.lineTo(ax - 8, g.mB + 28); c.lineTo(ax + 8, g.mB + 28); c.fill();
+    txt(c, "NADH의 e⁻", ax + 4, g.mB + 112, 18, "#fde047", "center", "700");
+    c.globalAlpha = 1;
+  }
+}
+
+function drawSynthaseSide(c, g, M, t){
+  const n = S.n, sx = g.sx, R = g.R, top = g.mT - 8, bot = g.mB + 8;
+  // 고정 줄기(돌지 않음)
+  c.strokeStyle = "#64748b"; c.lineWidth = 9; c.lineCap = "round";
+  c.beginPath(); c.moveTo(g.aX + 4, g.mB + 14); c.lineTo(g.aX + 14, g.headY - 26); c.lineTo(sx + 52, g.headY - 44); c.stroke();
+  c.lineCap = "butt";
+  // 축
+  c.fillStyle = "#cbd5e1"; c.fillRect(sx - 8, g.mB - 4, 16, g.headY - g.mB);
+  const sh = Math.sin(S.ringV - PI / 2);
+  c.fillStyle = "#475569"; c.fillRect(sx - 2 + sh * 5, g.mB, 4, g.headY - g.mB - 30);
+  // c 고리 — 뒤쪽 조각 먼저, 앞쪽 나중
+  const subs = [];
+  for(let i = 0; i < n; i++){ const th = S.ringV + i * S.step; subs.push({ i, th, x: sx + R * Math.sin(th), d: Math.cos(th) }); }
+  subs.sort((a, b) => a.d - b.d);
+  const cw = TAU * R / n * 0.86;
+  subs.forEach(s => {
+    const w = Math.max(3, cw * Math.abs(s.d)), front = s.d > 0;
+    c.globalAlpha = front ? 1 : 0.45;
+    c.fillStyle = front ? "#0ea5e9" : "#0c4a6e";
+    rr(c, s.x - w / 2, top, w, bot - top, Math.min(6, w / 2)); c.fill();
+    if(s.i === 0 && front){ c.strokeStyle = "#fff"; c.lineWidth = 2.5; rr(c, s.x - w / 2, top, w, bot - top, Math.min(6, w / 2)); c.stroke(); }
+    if(S.loaded[s.i] && w > 8) hDot(c, s.x, (top + bot) / 2, Math.min(10, w / 2 - 1), front ? 1 : 0.5);
+    c.globalAlpha = 1;
+  });
+  // a(H⁺ 통로) — 고정
+  c.fillStyle = "#475569"; rr(c, g.aX - 16, g.mT - 18, 32, g.mB - g.mT + 36, 8); c.fill();
+  c.strokeStyle = "#94a3b8"; c.lineWidth = 2; rr(c, g.aX - 16, g.mT - 18, 32, g.mB - g.mT + 36, 8); c.stroke();
+  c.strokeStyle = "rgba(254,202,202,.8)"; c.lineWidth = 7; c.lineCap = "round";
+  c.beginPath(); c.moveTo(g.inTop[0], g.inTop[1]); c.lineTo(g.inEnd[0] + 6, g.inEnd[1]); c.stroke();
+  c.beginPath(); c.moveTo(g.outStart[0] + 6, g.outStart[1]); c.lineTo(g.outEnd[0], g.outEnd[1]); c.stroke();
+  c.lineCap = "butt";
+  // F₁ 머리(돌지 않음) — 촉매 자리(β)와 α 소단위
+  const hy = g.headY, cols = ["#16a34a", "#64748b", "#16a34a", "#64748b"];
+  c.fillStyle = "#64748b"; c.beginPath(); c.arc(sx, hy - 40, 20, 0, TAU); c.fill();
+  [-60, -20, 20, 60].forEach((dx, j) => {
+    c.fillStyle = j % 2 ? "#64748b" : "#15803d";
+    c.beginPath(); c.ellipse(sx + dx, hy + 4, 30, 42, 0, 0, TAU); c.fill();
+    c.strokeStyle = "rgba(255,255,255,.25)"; c.lineWidth = 2; c.stroke();
+  });
+  txt(c, "ADP + Pi → ATP", sx - 98, hy + 48, 18, "#fed7aa", "right", "700");
+  // 이름
+  txt(c, "ATP 합성 효소", sx - 98, hy - 6, 21, "#f8fafc", "right", "800");
+  txt(c, adv ? "F₁ 머리" : "(머리)", sx - 98, hy + 20, 17, "#cbd5e1", "right", "600");
+  txt(c, "H⁺ 통로", g.aX + 20, g.mT - 30, 16, "#fecaca", "left", "700");
+  if(adv){
+    pill(c, "F₀ · c 고리 " + n + "조각", sx - 24, g.mT - 34, 16, "#bae6fd", "rgba(12,74,110,.9)");
+  }
+}
+
+/* ---------- 위에서 본 그림 ---------- */
+function drawTop(){
+  const c = cxT, n = S.n;
+  c.clearRect(0, 0, TW, TH);
+  // (1) c 고리
+  const cx = 150, cy = 165, r1 = 56, r2 = 100;
+  txt(c, "c 고리 (위에서 본 모습)", cx, 20, 21, "#e2e8f0", "center", "700");
+  const half = S.step / 2;
+  for(let i = 0; i < n; i++){
+    const th = S.ringV + i * S.step;
+    const a0 = th - half + 0.035, a1 = th + half - 0.035;
+    c.beginPath();
+    for(let s = 0; s <= 8; s++){ const a = a0 + (a1 - a0) * s / 8; const x = cx + r2 * Math.sin(a), y = cy + r2 * Math.cos(a); s ? c.lineTo(x, y) : c.moveTo(x, y); }
+    for(let s = 8; s >= 0; s--){ const a = a0 + (a1 - a0) * s / 8; c.lineTo(cx + r1 * Math.sin(a), cy + r1 * Math.cos(a)); }
+    c.closePath();
+    c.fillStyle = S.loaded[i] ? "#dc2626" : "#0c4a6e"; c.fill();
+    c.strokeStyle = i === 0 ? "#fff" : "#38bdf8"; c.lineWidth = i === 0 ? 3 : 1.5; c.stroke();
+    const rm = (r1 + r2) / 2, mx = cx + rm * Math.sin(th), my = cy + rm * Math.cos(th);
+    if(adv) txt(c, String(i + 1), mx, my, n > 10 ? 15 : 18, "#fff", "center", "800");
+    else if(S.loaded[i]) txt(c, "H⁺", mx, my, n > 10 ? 13 : 16, "#fff", "center", "800");
+  }
+  // 축
+  c.fillStyle = "#cbd5e1"; c.beginPath(); c.arc(cx, cy, 20, 0, TAU); c.fill();
+  const sa = S.ringV;
+  c.fillStyle = "#334155"; c.beginPath(); c.arc(cx + 11 * Math.sin(sa), cy + 11 * Math.cos(sa), 5, 0, TAU); c.fill();
+  // a (H⁺ 통로, 고정)
+  c.fillStyle = "#475569"; rr(c, cx + r2 + 4, cy - 40, 24, 70, 7); c.fill();
+  // 들어옴/나감 위치
+  const ea = PI / 2, xa = PI / 2 - S.step;
+  const mark = (a, s, col) => { const x = cx + (r2 + 16) * Math.sin(a), y = cy + (r2 + 16) * Math.cos(a);
+    c.fillStyle = col; c.beginPath(); c.arc(x, y, 5, 0, TAU); c.fill(); return [x, y]; };
+  const pe = mark(ea, "들어옴", "#fca5a5"), px = mark(xa, "나감", "#fdba74");
+  txt(c, "H⁺ 들어옴", cx + r2 + 34, cy - 18, 15, "#fca5a5", "left", "700");
+  txt(c, "H⁺ 나감", cx + r2 + 34, Math.max(px[1] + 6, cy + 18), 15, "#fdba74", "left", "700");
+  if(adv) txt(c, "한 칸 = 360° ÷ " + n + " ≈ " + (360 / n).toFixed(1) + "°", cx, TH - 10, 15, "#fcd34d", "center", "600");
+
+  // (2) F₁ 머리 촉매 자리
+  const fx = 452, fy = 165, d = 64;
+  txt(c, "F₁ 머리: 촉매 자리 3개", fx, 20, 21, "#e2e8f0", "center", "700");
+  const k = Math.floor((S.ringV - PI / 2) / (TAU / 3) + 1e-7);
+  const A0 = PI / 2;
+  for(let m = 0; m < 6; m++){
+    if(m % 2 === 0) continue;
+    const a = A0 + m * PI / 3; c.fillStyle = "#475569";
+    c.beginPath(); c.arc(fx + d * Math.sin(a), fy + d * Math.cos(a), 30, 0, TAU); c.fill();
+  }
+  const ST = { 0: "ADP+Pi", 1: "빈 자리", 2: "ATP" };
+  for(let j = 0; j < 3; j++){
+    const a = A0 + j * 2 * PI / 3, x = fx + d * Math.sin(a), y = fy + d * Math.cos(a);
+    const s = mod(j - k, 3);
+    c.fillStyle = s === 2 ? "#c2410c" : "#15803d";
+    c.beginPath(); c.arc(x, y, 38, 0, TAU); c.fill();
+    c.strokeStyle = "#bbf7d0"; c.lineWidth = 2; c.stroke();
+    txt(c, ST[s], x, y, s === 0 ? 15 : 18, s === 1 ? "#bbf7d0" : "#fff", "center", "800");
+  }
+  // 축(γ): 비대칭 모양이 돌아감
+  const ga = A0 + 2 * PI / 3 + (S.ringV - PI / 2);
+  c.fillStyle = "#cbd5e1"; c.beginPath(); c.arc(fx, fy, 18, 0, TAU); c.fill();
+  c.beginPath(); c.moveTo(fx + 30 * Math.sin(ga), fy + 30 * Math.cos(ga));
+  c.lineTo(fx + 15 * Math.sin(ga + 1.1), fy + 15 * Math.cos(ga + 1.1)); c.lineTo(fx + 15 * Math.sin(ga - 1.1), fy + 15 * Math.cos(ga - 1.1)); c.fill();
+  txt(c, "축", fx, fy + 1, 14, "#0f172a", "center", "800");
+  // 튀어나가는 ATP
+  S.pops.forEach(p => {
+    const a = A0 + p.site * 2 * PI / 3, e = ease(Math.min(1, p.t * 1.3)), rr0 = d + 14 + 26 * e;
+    c.globalAlpha = 1 - Math.max(0, (p.t - .6) / .4);
+    pill(c, "ATP", fx + rr0 * Math.sin(a), fy + rr0 * Math.cos(a), 18, "#1c1917", "#fb923c"); c.globalAlpha = 1;
+  });
+  if(adv) txt(c, "축 120° 회전마다 ATP 1개", fx, TH - 10, 15, "#fcd34d", "center", "600");
+}
+
+/* ---------- 화면 글 ---------- */
+const $ = id => document.getElementById(id);
+function updateUI(){
+  const M = MODES[mode];
+  document.querySelectorAll("[data-mode]").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
+  const pb = $("pumpBtn");
+  pb.textContent = S.pumpOn ? M.on : M.off;
+  pb.classList.toggle("on", S.pumpOn); pb.classList.toggle("mit", mode === "mit");
+  $("pauseBtn").textContent = S.paused ? "▶ 계속" : "⏸ 멈춤";
+  $("gTopN").textContent = M.top; $("gBotN").textContent = M.bot;
+  $("advBtn").textContent = adv ? "심화 닫기" : "심화 보기";
+  $("advBox").classList.toggle("hide", !adv); $("gCalc").classList.toggle("hide", !adv);
+  $("advBox").innerHTML = advHTML();
+  $("steps").innerHTML = stepsHTML();
+  lastG = "";
+}
+function stepsHTML(){
+  if(mode === "chl") return `
+   <li><span class="no">1</span><span><b>빛</b>을 받으면 전자가 타이라코이드 막의 <b>전자 전달계</b>를 따라 이동한다. 이때 H⁺가 <b>스트로마 → 타이라코이드 내부</b>로 능동 수송된다. 또 <b>물의 광분해</b>(H₂O → 2H⁺ + ½O₂)로 생긴 H⁺도 타이라코이드 내부에 더해진다. (스트로마의 H⁺ 일부는 NADP⁺가 NADPH로 환원될 때 쓰인다.)</span></li>
+   <li><span class="no">2</span><span>타이라코이드 내부에 H⁺가 쌓여 <b>H⁺ 농도 기울기</b>가 생긴다. (내부 H⁺ 농도 높음 = pH 낮음)</span></li>
+   <li><span class="no">3</span><span>H⁺가 농도 기울기에 따라 <b>ATP 합성 효소</b>를 통해 스트로마 쪽으로 <b>확산</b>한다. 이때 고리와 축이 돌아 <b>스트로마</b>에서 ADP + Pi → <b>ATP</b>가 합성된다. → <b>화학 삼투</b></span></li>
+   <li><span class="no">4</span><span>빛을 끄면 퍼 올리기가 멈추고, 농도 차가 줄어들면서 회전이 느려지다 멈춘다.</span></li>`;
+  return `
+   <li><span class="no">1</span><span>유기물이 산화될 때 생긴 <b>NADH · FADH₂의 전자</b>가 미토콘드리아 내막의 <b>전자 전달계</b>를 따라 이동한다. 이때 H⁺가 <b>기질 → 막 사이 공간</b>으로 능동 수송된다.</span></li>
+   <li><span class="no">2</span><span>막 사이 공간에 H⁺가 쌓여 <b>H⁺ 농도 기울기</b>가 생긴다. (막 사이 공간 H⁺ 농도 높음 = pH 낮음)</span></li>
+   <li><span class="no">3</span><span>H⁺가 농도 기울기에 따라 <b>ATP 합성 효소</b>를 통해 기질 쪽으로 <b>확산</b>한다. 이때 고리와 축이 돌아 <b>미토콘드리아 기질</b>에서 ADP + Pi → <b>ATP</b>가 합성된다. → <b>화학 삼투</b></span></li>
+   <li><span class="no">4</span><span>전자 공급을 끊으면 퍼 올리기가 멈추고, 농도 차가 줄어들면서 회전이 느려지다 멈춘다.</span></li>`;
+}
+function advHTML(){
+  const M = MODES[mode], n = M.n;
+  const per = (n / 3);
+  return `<p><b>심화</b><span class="tagx">교과서 범위를 넘는 내용</span></p>
+   <ul>
+    <li>ATP 합성 효소는 막에 박힌 <b>F₀</b>(c 고리 + H⁺ 통로)와 막 밖으로 튀어나온 <b>F₁ 머리</b>, 둘을 잇는 <b>축</b>으로 되어 있다.</li>
+    <li>${mode === "chl" ? "엽록체" : "미토콘드리아"}: c 고리 조각 <b>${n}개</b>(${M.org} 기준) → 한 바퀴에 <b>H⁺ ${n}개</b> → <b>ATP 3분자</b></li>
+    <li>H⁺ 하나가 들어올 때마다 고리가 360° ÷ ${n} ≈ ${(360 / n).toFixed(1)}° 씩 돈다. 축이 120° 돌 때마다 촉매 자리 한 곳에서 ATP 1분자가 완성되어 나온다.</li>
+    <li>따라서 ATP 1분자당 H⁺ ${n} ÷ 3 ≈ <b>${per.toFixed(2)}개</b>가 지나간다.</li>
+    <li>c 고리 조각 수는 생물마다 다르다(예: 대장균 10개). 한 바퀴에 ATP 3분자가 만들어지는 것은 같다.</li>
+   </ul>
+   <p class="muted" style="font-size:13px">비교: 엽록체 14조각 → 14 ÷ 3 ≈ 4.67개, 미토콘드리아 8조각 → 8 ÷ 3 ≈ 2.67개의 H⁺가 ATP 1분자를 만든다.</p>`;
+}
+let lastG = "";
+function updateGauge(){
+  const rot = (S.ringV - PI / 2) / TAU;
+  const diff = S.Ltop - S.Lbot;
+  const key = [S.stepsDone, S.atp, rot.toFixed(2), S.Ltop, S.Lbot, adv].join("|");
+  if(key === lastG) return; lastG = key;
+  $("gH").innerHTML = S.stepsDone + "<small>개</small>";
+  $("gA").innerHTML = S.atp + "<small>개</small>";
+  $("gR").innerHTML = rot.toFixed(2) + "<small>바퀴</small>";
+  $("gBar").style.width = Math.max(0, Math.min(100, diff / 30 * 100)) + "%";
+  $("gCnt").textContent = `${MODES[mode].top} ${S.Ltop}개 · ${MODES[mode].bot} ${S.Lbot}개`;
+  $("gDiff").textContent = "차 " + diff;
+  if(adv){
+    const n = S.n, h = S.stepsDone, r = h / n, a = h * 3 / n;
+    $("gCalc").innerHTML = `<b>계산</b> H⁺ ${h}개 ÷ ${n} = ${r.toFixed(2)}바퀴 → ATP = ${r.toFixed(2)} × 3 = ${a.toFixed(2)} → 완성된 ATP <b>${Math.floor(a + 1e-9)}개</b>`;
+  }
+  const st = $("status");
+  if(S.paused) st.textContent = "⏸ 멈춤 — 「한 단계씩」으로 H⁺를 하나씩 보내 보세요.";
+  else if(S.pumpOn) st.textContent = "H⁺를 " + MODES[mode].top + "(으)로 퍼 올리는 중…";
+  else if(diff > 0) st.textContent = "퍼 올리기 멈춤 — 쌓인 H⁺가 빠져나가며 회전이 느려져요.";
+  else st.textContent = "농도 기울기 없음 → 고리가 멈춰 있어요.";
+}
+
+/* ---------- 조작 ---------- */
+document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
+  if(b.dataset.mode === mode) return;
+  mode = b.dataset.mode; CS.store.set("atp_mode", mode); reset();
+});
+$("pumpBtn").onclick = () => { S.pumpOn = !S.pumpOn; S.paused = false; updateUI(); };
+$("pauseBtn").onclick = () => { S.paused = !S.paused; updateUI(); };
+$("stepBtn").onclick = () => {
+  S.paused = true; updateUI();
+  if(S.Ltop - S.Lbot <= 0){ CS.toast(mode === "chl" ? "농도 기울기가 없어요. 먼저 빛을 켜 H⁺를 쌓아 보세요." : "농도 기울기가 없어요. 먼저 전자 공급을 켜 H⁺를 쌓아 보세요."); return; }
+  launchSyn();
+};
+$("resetBtn").onclick = () => reset();
+$("spd").oninput = e => { speed = +e.target.value; $("spdV").textContent = speed + "×"; };
+$("advBtn").onclick = () => { adv = !adv; CS.store.set("atp_adv", adv); updateUI(); };
+
+/* ---------- 반복 ---------- */
+let lastT = 0, rafId = 0;
+function frame(ts){
+  rafId = 0;
+  if(document.hidden) return;
+  const dt = lastT ? Math.min(0.05, (ts - lastT) / 1000) : 0; lastT = ts;
+  tick(dt); drawSide(); drawTop(); updateGauge();
+  rafId = requestAnimationFrame(frame);
+}
+function startLoop(){ if(!rafId && !document.hidden){ lastT = 0; rafId = requestAnimationFrame(frame); } }
+document.addEventListener("visibilitychange", startLoop);
+let rzT; window.addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { resize(); }, 120); });
+
+/* ---------- 확인 문제 ---------- */
+const QS = [
+  { id: "atp1", q: "엽록체에서 ATP 합성 효소에 의해 ATP가 만들어지는 장소는?",
+    ans: "스트로마", dis: ["타이라코이드 내부", "엽록체 외막과 내막 사이", "세포질", "미토콘드리아 기질"],
+    exp: "ATP 합성 효소의 머리(F₁)는 <b>스트로마 쪽</b>으로 튀어나와 있다. H⁺가 타이라코이드 내부 → 스트로마로 확산할 때 스트로마에서 ATP가 만들어진다. 타이라코이드 내부는 H⁺가 쌓이는 곳이다." },
+  { id: "atp2", q: "미토콘드리아에서 ATP 합성 효소에 의해 ATP가 만들어지는 장소는?",
+    ans: "미토콘드리아 기질", dis: ["막 사이 공간", "미토콘드리아 외막", "세포질", "스트로마"],
+    exp: "H⁺는 막 사이 공간에 쌓였다가 ATP 합성 효소를 통해 <b>기질</b>로 확산한다. ATP 합성 효소의 머리(F₁)가 기질 쪽에 있어 ATP는 기질에서 만들어진다." },
+  { id: "atp3", q: "H⁺가 ATP 합성 효소를 통과하는 방식으로 옳은 것은?",
+    ans: "농도 기울기에 따른 확산", dis: ["ATP를 소모하는 능동 수송", "전자 전달계의 에너지를 쓰는 능동 수송", "삼투", "세포내 섭취"],
+    exp: "H⁺는 농도가 높은 쪽에서 낮은 쪽으로 ATP 합성 효소를 통해 <b>확산</b>한다(에너지를 쓰지 않음). 에너지를 써서 H⁺를 거꾸로 퍼 올리는 능동 수송은 <b>전자 전달계</b>가 한다. 삼투는 물의 이동이다." },
+  { id: "atp4", q: "빛이 비치고 있는 엽록체에 대한 설명으로 옳지 <u>않은</u> 것은?",
+    ans: "ATP는 타이라코이드 내부에서 생성된다.",
+    keep: ["타이라코이드 내부의 H⁺ 농도는 스트로마보다 높다.", "타이라코이드 내부의 pH는 스트로마보다 낮다.",
+           "전자 전달계는 H⁺를 스트로마에서 타이라코이드 내부로 이동시킨다.", "ATP 합성 효소의 머리 부분은 스트로마 쪽으로 튀어나와 있다."],
+    exp: "ATP는 <b>스트로마</b>에서 생성된다. 타이라코이드 내부는 H⁺가 쌓여 H⁺ 농도가 높고 pH가 낮은 곳이다." },
+  { id: "atp5", q: "세포 호흡이 활발한 미토콘드리아에 대한 설명으로 옳지 <u>않은</u> 것은?",
+    ans: "미토콘드리아 기질은 막 사이 공간보다 pH가 낮다.",
+    keep: ["전자 전달계는 H⁺를 기질에서 막 사이 공간으로 능동 수송한다.", "막 사이 공간의 H⁺ 농도는 기질보다 높다.",
+           "ATP 합성 효소는 미토콘드리아 내막에 있다.", "전자 전달계로 전달되는 전자는 NADH와 FADH₂에서 온다."],
+    exp: "H⁺가 많은 쪽은 <b>막 사이 공간</b>이다. H⁺ 농도가 높을수록 pH가 낮으므로, 기질의 pH가 막 사이 공간보다 <b>높다</b>." },
+  { id: "atp6", q: "화학 삼투에 의한 ATP 합성에서 ATP 합성 효소가 ATP를 만드는 데 <b>직접</b> 이용하는 것은?",
+    ans: "막을 경계로 형성된 H⁺ 농도 기울기", dis: ["ATP 합성 효소가 직접 흡수한 빛 에너지", "ATP가 분해될 때 나오는 에너지", "ATP 합성 효소에서 직접 분해되는 포도당", "물이 증발할 때의 열"],
+    exp: "빛 에너지(엽록체)나 NADH의 전자(미토콘드리아)는 전자 전달계가 <b>H⁺ 농도 기울기를 만드는 데</b> 쓰인다. ATP 합성 효소는 그 <b>H⁺ 농도 기울기</b>에 따라 H⁺가 확산하는 힘으로 ATP를 만든다." },
+  { id: "atp7", q: "빛을 받고 있던 엽록체에서 빛을 끈 직후 나타나는 변화로 옳은 것은?",
+    ans: "타이라코이드 내부와 스트로마 사이의 H⁺ 농도 차가 점점 줄어든다.",
+    dis: ["전자 전달계가 H⁺를 더 빠르게 퍼 올린다.", "타이라코이드 내부의 pH가 점점 낮아진다.", "ATP 합성 속도가 점점 빨라진다.", "H⁺가 ATP 합성 효소를 통해 스트로마에서 타이라코이드 내부로 이동한다."],
+    exp: "빛이 없으면 전자 전달이 멈춰 H⁺를 퍼 올리지 못한다. 쌓여 있던 H⁺는 타이라코이드 내부 → 스트로마로 빠져나가므로 농도 차가 줄고(내부 pH는 높아짐), ATP 합성도 느려지다 멈춘다." },
+  { id: "atp8", q: "엽록체와 미토콘드리아의 ATP 합성에 대한 <b>공통점</b>으로 옳은 것은?",
+    ans: "H⁺가 ATP 합성 효소를 통해 농도가 높은 쪽에서 낮은 쪽으로 이동할 때 ATP가 합성된다.",
+    dis: ["둘 다 빛 에너지를 이용해 H⁺ 농도 기울기를 만든다.", "둘 다 H⁺ 농도가 높은 쪽에서 ATP가 만들어진다.", "둘 다 NADH의 전자가 전자 전달계로 들어간다.", "둘 다 막 사이 공간에 H⁺가 쌓인다."],
+    exp: "두 소기관 모두 <b>화학 삼투</b>로 ATP를 만든다. 에너지원(빛 / NADH·FADH₂의 전자)과 H⁺가 쌓이는 곳(타이라코이드 내부 / 막 사이 공간)은 다르다. ATP는 둘 다 H⁺ 농도가 <b>낮은 쪽</b>(스트로마 / 기질)에서 만들어진다." },
+  { id: "atp9", q: "미토콘드리아에서 H⁺의 이동 방향을 바르게 짝 지은 것은? (전자 전달계를 통한 이동 / ATP 합성 효소를 통한 이동)",
+    ans: "기질 → 막 사이 공간 / 막 사이 공간 → 기질",
+    dis: ["막 사이 공간 → 기질 / 기질 → 막 사이 공간", "기질 → 막 사이 공간 / 기질 → 막 사이 공간", "막 사이 공간 → 기질 / 막 사이 공간 → 기질", "세포질 → 기질 / 기질 → 세포질"],
+    exp: "전자 전달계는 에너지를 써서 H⁺를 <b>기질 → 막 사이 공간</b>으로 능동 수송한다. 쌓인 H⁺는 ATP 합성 효소를 통해 <b>막 사이 공간 → 기질</b>로 확산한다." },
+  { id: "atp10", q: "타이라코이드 막에 H⁺가 자유롭게 지나갈 수 있는 구멍이 많이 생겨 H⁺ 농도 기울기가 사라졌다. 이때 일어나는 일로 옳은 것은?",
+    ans: "ATP 합성 효소를 통한 ATP 합성이 거의 일어나지 않는다.",
+    dis: ["ATP 합성 효소의 회전이 더 빨라진다.", "ATP 합성 효소가 H⁺를 능동 수송하여 ATP를 더 많이 만든다.", "타이라코이드 내부의 pH가 스트로마보다 훨씬 낮아진다.", "ATP가 타이라코이드 내부에서 만들어지기 시작한다."],
+    exp: "ATP 합성 효소는 <b>H⁺ 농도 기울기</b>가 있어야 돈다. 기울기가 사라지면 H⁺가 ATP 합성 효소를 지나갈 까닭이 없어 고리가 멈추고, ATP 합성이 거의 일어나지 않는다." }
+];
+function makeQuiz(){
+  return QS.map(o => {
+    const mc = CS.makeChoices(o.ans, CS.shuffle(o.dis || o.keep), 5);
+    return { id: o.id, q: o.q, choices: mc.choices, answer: mc.answer, exp: o.exp };
+  });
+}
+$("quizStart").onclick = () => {
+  const qr = CS.QuizRound($("quizBox"), { make: makeQuiz, count: QS.length });
+  qr.start();
+};
+
+/* ---------- 시작 ---------- */
+resize(); reset(); startLoop();
+window.__atp = { get S(){ return S; }, setSpeed(v){ speed = v; } };
+</script>
+</body>
+</html>
