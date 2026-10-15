@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>TCA · 캘빈 회로 빈칸 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.wrap.app{max-width:1560px;padding:10px 8px 40px}
+.lay{display:grid;grid-template-columns:1fr;grid-template-areas:"ctrl" "fig" "side";gap:10px}
+.ctrl{grid-area:ctrl}.figcol{grid-area:fig}.side{grid-area:side}
+.ctrl .panel{margin-bottom:0}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.tabs button{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:9px 4px;
+  font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;line-height:1.25;min-height:46px}
+.tabs button small{display:block;font-size:11.5px;font-weight:500;color:var(--muted)}
+.tabs button.on{background:var(--accent2);border-color:var(--accent)}
+.tabs button.on small{color:#dbeafe}
+.opt{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.opt .lb{font-size:13px;color:var(--muted);margin-right:2px}
+.chip{min-height:38px;font-size:14px}
+.stat{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:15px}
+.stat b{color:#fff}
+.bar{height:6px;background:var(--card2);border-radius:6px;overflow:hidden;margin:8px 0 2px}
+.bar>div{height:100%;background:var(--ok);width:0;transition:width .25s}
+#fig{touch-action:manipulation;user-select:none;-webkit-user-select:none;height:auto}
+#fig text{font-family:inherit}
+#fig .slot{cursor:default}
+#fig .slot.bl{cursor:pointer}
+#fig .pill{stroke-width:1.6}
+#fig .k-name .pill{fill:#1e3a5f;stroke:#60a5fa}
+#fig .k-name text{fill:#fff;font-weight:700}
+#fig .k-c .pill{fill:#0e3440;stroke:#22d3ee}
+#fig .k-c text{fill:#a5f3fc;font-weight:700}
+#fig .k-e .pill{fill:#3a3212;stroke:#facc15}
+#fig .k-e text{fill:#fde68a;font-weight:700}
+#fig .k-n .pill{fill:#40220e;stroke:#fb923c}
+#fig .k-n text{fill:#fed7aa;font-weight:800}
+#fig .k-place .pill{fill:#12331f;stroke:#4ade80}
+#fig .k-place text{fill:#bbf7d0;font-weight:700}
+#fig .k-lab text{fill:#cbd5e1;font-weight:600}
+#fig .slot.bl .pill{fill:#0b1222;stroke:#94a3b8;stroke-dasharray:5 4;stroke-width:2}
+#fig .slot.bl text{fill:#e2e8f0;font-weight:800}
+#fig .slot.bl.sel .pill{fill:rgba(59,130,246,.28);stroke:#60a5fa;stroke-dasharray:none;stroke-width:3}
+#fig .slot.bl .qm{animation:qm 1.6s ease-in-out infinite}
+@keyframes qm{50%{opacity:.45}}
+#fig .slot.okk .pill{fill:rgba(34,197,94,.28);stroke:#22c55e;stroke-dasharray:none;stroke-width:2.6}
+#fig .slot.okk text{fill:#dcfce7}
+#fig .slot.bad .pill{fill:rgba(239,68,68,.3);stroke:#ef4444;stroke-dasharray:none;stroke-width:2.6}
+#fig .slot.bad text{fill:#fee2e2}
+#fig .slot.rv .pill{fill:rgba(167,139,250,.25);stroke:#a78bfa;stroke-dasharray:none;stroke-width:2.2}
+#fig .slot.rv text{fill:#ede9fe}
+#fig .hit{fill:transparent}
+#fig .sk{transform-box:fill-box;transform-origin:center}
+#fig .sk.shake{animation:shake .45s}
+#fig .sk.pop{animation:pop .35s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes pop{40%{transform:scale(1.18)}}
+#fig .nbox{fill:#1e293b;stroke:#475569;stroke-width:1.4}
+#fig .loop{fill:none;stroke:#64748b;stroke-width:3}
+#fig .ln{stroke:#94a3b8;stroke-width:2.4;fill:none}
+#fig .ln.thin{stroke-width:1.8;stroke:#7c8aa0}
+#fig .ln.dash{stroke-dasharray:7 6;stroke:#64748b;stroke-width:2}
+#fig .ah{fill:#94a3b8}
+#fig .reg{fill:rgba(148,163,184,.05);stroke:#334155;stroke-width:1.5;stroke-dasharray:6 5}
+#fig .reg2{fill:rgba(74,222,128,.05)}
+#fig .ttl{fill:#e2e8f0;font-weight:800}
+#fig .sub{fill:#94a3b8;font-weight:600}
+/* 보기 카드 */
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.sheet .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-size:15px}
+.sheet .hd b{color:#fff}
+.sheet .x{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;width:40px;height:40px;font-size:18px;cursor:pointer}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:var(--card2);border:1.5px solid var(--line);color:#fff;border-radius:14px;min-height:54px;padding:8px;
+  font-size:19px;font-weight:700;font-family:inherit;cursor:pointer;transition:transform .1s;word-break:keep-all}
+.card:active{transform:scale(.96)}
+.card.k-name{border-color:#3b5f8f}.card.k-c{border-color:#1b6573;color:#a5f3fc}.card.k-e{border-color:#7a6a1c;color:#fde68a}
+.card.k-n{border-color:#80461d;color:#fed7aa}.card.k-place{border-color:#2a6b40;color:#bbf7d0}
+.card.gone{visibility:hidden}
+.fly{position:fixed;z-index:60;pointer-events:none;margin:0;transition:transform .36s cubic-bezier(.5,0,.3,1),opacity .36s;transform-origin:0 0}
+.idle{font-size:15px;color:var(--muted);line-height:1.6;text-align:center;padding:10px 4px}
+.res .big{font-size:42px;font-weight:800;text-align:center;margin:2px 0}
+.res ul{margin:8px 0 4px;padding-left:20px;font-size:15px;line-height:1.7}
+.res .bad{color:#fca5a5}
+.res .btn{margin-top:8px;min-height:48px;font-size:16px}
+details.panel summary{cursor:pointer;font-weight:600;font-size:15px;min-height:28px}
+.chk{font-size:15px;line-height:1.7;margin:8px 0 0;padding-left:18px}
+.chk li{margin-bottom:4px}
+.chk .ok{color:var(--ok);font-weight:700}
+.chk .no{color:var(--no);font-weight:700}
+.tally{font-size:15px;line-height:1.7;margin-top:8px}
+.tally b{color:#fde68a}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:4px;vertical-align:-1px;border:2px solid}
+@media (max-width:899px){
+  .sheet.float{position:fixed;left:0;right:0;bottom:0;z-index:40;border-radius:18px 18px 0 0;border-bottom:none;
+    padding:12px 12px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(0,0,0,.5);
+    transform:translateY(105%);transition:transform .22s;max-height:62vh;overflow:auto}
+  .sheet.float.open{transform:none}
+}
+@media (min-width:900px){
+  .wrap.app{padding:14px 18px 30px}
+  .lay{grid-template-columns:minmax(0,1fr) 400px;grid-template-areas:"fig ctrl" "fig side";grid-template-rows:auto 1fr;column-gap:20px}
+  #fig{max-height:calc(100vh - 100px);width:auto;max-width:100%;margin:0 auto}
+  .figcol{display:flex;justify-content:center;align-items:flex-start}
+  .card{font-size:22px;min-height:62px}
+  .stat{font-size:17px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>TCA 회로 · 캘빈 회로 빈칸<small>생명과학 · 회로 그림 빈칸 채우기 반복 암기</small></h1></header>
+<div class="wrap app">
+ <div class="lay">
+  <div class="ctrl">
+   <div class="tabs" id="tabs"></div>
+   <div class="panel">
+    <div class="stat"><span id="stTxt"></span><span><button class="btn sm ghost" id="btnReveal">모두 보기</button> <button class="btn sm" id="btnNew">새로 섞기</button></span></div>
+    <div class="bar"><div id="stBar"></div></div>
+    <div class="opt"><span class="lb">빈칸</span><span id="diffChips" class="row" style="gap:6px"></span></div>
+    <div class="opt" id="optSimple"><span class="lb">표기</span><button class="chip" id="chSimple">물질 이름 단순 보기</button></div>
+    <div class="opt" id="optMult"><span class="lb">기준</span><button class="chip" data-m="1">CO₂ 3분자</button><button class="chip" data-m="2">CO₂ 6분자 (포도당 1분자)</button></div>
+   </div>
+  </div>
+  <div class="figcol"><svg id="fig" class="fig" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="회로 그림"></svg></div>
+  <div class="side">
+   <div class="sheet float" id="sheet"></div>
+   <details class="panel" id="carbonBox" style="margin-top:12px"><summary>탄소 수 맞추기 · 개수 세기 <span class="muted" style="font-weight:400">(열면 정답이 보여요)</span></summary><div id="carbon"></div></details>
+   <div class="panel">
+    <div class="legend"><span><i style="border-color:#60a5fa"></i>물질</span><span><i style="border-color:#22d3ee"></i>탄소 수</span><span><i style="border-color:#facc15"></i>조효소·에너지</span><span><i style="border-color:#fb923c"></i>분자 수</span><span><i style="border-color:#4ade80"></i>장소</span></div>
+    <p class="note" style="margin:8px 0 0">빈칸 <b>?</b>을 누르고 아래 카드에서 골라요. 틀린 칸은 기억해 두었다가 다음 판에 더 자주 빈칸으로 나와요. <span id="missInfo"></span></p>
+    <button class="btn sm ghost" id="btnClear" style="margin-top:8px">틀린 기록 지우기</button>
+   </div>
+  </div>
+ </div>
+</div>
+<script src="../common/common.js"></script>
+<script>"use strict";
+/* ===== 정답 데이터 (scratchpad 검산 스크립트가 이 부분을 그대로 읽어 검사함) ===== */
+/*DATA-START*/
+const DATA = (function(){
+  const L = (t, t2) => ({k:"lab", t, t2});
+  const S = (id, k, t, extra) => Object.assign({id, k, t}, extra || {});
+  const N = (id, v) => ({id, k:"n", v});
+  // 타원 위의 점: 0° = 맨 위, 시계 방향
+  const ell = (cx, cy, rx, ry) => (deg, s) => { s = s || 1; const a = deg*Math.PI/180; return [cx + rx*s*Math.sin(a), cy - ry*s*Math.cos(a)]; };
+
+  /* 1) 해당 과정 + 피루브산 산화 */
+  const glyco = {
+    key:"glyco", tab:"해당 과정", sub:"+ 피루브산 산화", vb:[420,600],
+    shapes:[
+      {t:"rect", x:6, y:6, w:408, h:296, cls:"reg"},
+      {t:"rect", x:6, y:316, w:408, h:278, cls:"reg reg2"},
+      {t:"line", x1:210, y1:136, x2:210, y2:196, ar:1},
+      {t:"line", x1:213, y1:166, x2:252, y2:166, ar:1, cls:"thin"},
+      {t:"line", x1:210, y1:281, x2:210, y2:436, ar:1},
+      {t:"line", x1:213, y1:410, x2:262, y2:410, ar:1, cls:"thin"},
+      {t:"line", x1:210, y1:521, x2:210, y2:552, ar:1}
+    ],
+    nodes:[
+      {x:305, y:34, rows:[[L("장소:"), S("pl_cyto","place","세포질")]]},
+      {x:210, y:96, box:1, rows:[[S("glc","name","포도당")],[S("glc_c","c","6C")]]},
+      {x:112, y:166, rows:[[L("해당 과정")]]},
+      {x:330, y:166, flow:"out", stage:"해당 과정 (포도당 1분자당)", rows:[[S("gl_atp","e","ATP"), N("gl_atp_n",2), L("(순생성)")],[S("gl_nadh","e","NADH"), N("gl_nadh_n",2)]]},
+      {x:210, y:242, box:1, rows:[[N("pyr_n",2), S("pyr","name","피루브산")],[S("pyr_c","c","3C")]]},
+      {x:305, y:346, rows:[[L("장소:"), S("pl_mito","place","미토콘드리아 기질")]]},
+      {x:108, y:410, rows:[[L("피루브산 산화")],[L("(피루브산 1분자당)")]]},
+      {x:330, y:410, flow:"out", group:1, stage:"피루브산 산화 (피루브산 1분자당)", rows:[[S("po_co2","e","CO₂")],[S("po_nadh","e","NADH")]]},
+      {x:210, y:482, box:1, rows:[[S("acc","name","아세틸 CoA")],[S("acc_c","c","2C")]]},
+      {x:210, y:572, rows:[[L("TCA 회로로")]]}
+    ],
+    checks(V){ return [
+      {txt:`포도당 ${V("glc_c")}C = 피루브산 ${V("pyr_n")} × ${V("pyr_c")}C`, l:V("glc_c"), r:V("pyr_n")*V("pyr_c")},
+      {txt:`피루브산 ${V("pyr_c")}C = 아세틸 CoA ${V("acc_c")}C + CO₂ 1C`, l:V("pyr_c"), r:V("acc_c")+1}
+    ]; }
+  };
+
+  /* 2) TCA 회로 */
+  const T = ell(210, 318, 132, 172);
+  const tca = {
+    key:"tca", tab:"TCA 회로", sub:"미토콘드리아 기질", vb:[420,590], simple:true,
+    title:{x:210, y:318, t:"TCA 회로"},
+    shapes:[
+      {t:"loop", cx:210, cy:318, rx:132, ry:172, arrows:[0, 66, 118, 180, 242, 295]},
+      {t:"line", x1:210, y1:90, x2:210, y2:142, ar:1},
+      {t:"line", p1:T(66), x2:280, y2:263, ar:1, cls:"thin"},
+      {t:"line", p1:T(118), x2:303, y2:394, ar:1, cls:"thin"},
+      {t:"line", p1:T(180), x2:210, y2:513, ar:1, cls:"thin"},
+      {t:"line", p1:T(295), x2:116, y2:252, ar:1, cls:"thin"}
+    ],
+    nodes:[
+      {x:210, y:50, box:1, rows:[[S("t_acc","name","아세틸 CoA")],[S("t_acc_c","c","2C")]]},
+      {x:122, y:184, box:1, rows:[[S("oaa","name","옥살아세트산")],[S("oaa_c","c","4C")]]},
+      {x:298, y:184, box:1, rows:[[S("cit","name","시트르산")],[S("cit_c","c","6C")]]},
+      {x:342, y:318, box:1, rows:[[S("akg","name","α-케토글루타르산",{simple:"5탄소 화합물"})],[S("akg_c","c","5C",{hideSimple:1})]]},
+      {x:288, y:458, box:1, rows:[[S("suc","name","숙신산",{simple:"4탄소 화합물"})],[S("suc_c","c","4C",{hideSimple:1})]]},
+      {x:132, y:458, box:1, rows:[[S("fum","name","푸마르산",{simple:"4탄소 화합물"})],[S("fum_c","c","4C",{hideSimple:1})]]},
+      {x:78, y:318, box:1, rows:[[S("mal","name","말산",{simple:"4탄소 화합물"})],[S("mal_c","c","4C",{hideSimple:1})]]},
+      {x:246, y:263, flow:"out", group:1, rows:[[S("t1_co2","e","CO₂")],[S("t1_nadh","e","NADH")]]},
+      {x:238, y:392, flow:"out", group:1, rows:[[S("t2_co2","e","CO₂"), S("t2_nadh","e","NADH")],[S("t2_atp","e","ATP")]]},
+      {x:210, y:530, flow:"out", rows:[[S("t3_fadh","e","FADH₂")]]},
+      {x:150, y:252, flow:"out", rows:[[S("t4_nadh","e","NADH")]]},
+      {x:210, y:572, rows:[[L("장소:"), S("pl_tca","place","미토콘드리아 기질")]]}
+    ],
+    checks(V, tally){ return [
+      {txt:`아세틸 CoA ${V("t_acc_c")}C + 옥살아세트산 ${V("oaa_c")}C = 시트르산 ${V("cit_c")}C`, l:V("t_acc_c")+V("oaa_c"), r:V("cit_c")},
+      {txt:`시트르산 ${V("cit_c")}C = α-케토글루타르산 ${V("akg_c")}C + CO₂ 1C`, l:V("cit_c"), r:V("akg_c")+1},
+      {txt:`α-케토글루타르산 ${V("akg_c")}C = 숙신산 ${V("suc_c")}C + CO₂ 1C`, l:V("akg_c"), r:V("suc_c")+1},
+      {txt:`숙신산 → 푸마르산 → 말산 → 옥살아세트산: ${V("suc_c")}C → ${V("fum_c")}C → ${V("mal_c")}C → ${V("oaa_c")}C`, l:V("suc_c"), r:(V("fum_c")===V("suc_c") && V("mal_c")===V("suc_c")) ? V("oaa_c") : -1},
+      {txt:`들어온 탄소: 아세틸 CoA ${V("t_acc_c")}C = 나간 CO₂ ${tally.out["CO₂"]||0}개`, l:V("t_acc_c"), r:tally.out["CO₂"]||0}
+    ]; }
+  };
+
+  /* 3) 캘빈 회로 (기본: CO₂ 3분자 기준, 6분자 기준은 모든 개수 × 2) */
+  const C = ell(210, 318, 132, 172);
+  const calvin = {
+    key:"calvin", tab:"캘빈 회로", sub:"엽록체 스트로마", vb:[420,600], mult:true,
+    title:{x:200, y:300, t:"캘빈 회로"},
+    shapes:[
+      {t:"loop", cx:210, cy:318, rx:132, ry:172, arrows:[0, 112, 247]},
+      {t:"line", x1:210, y1:72, x2:210, y2:142, ar:1},
+      {t:"line", x1:312, y1:368, p2:C(116), ar:1, cls:"thin"},
+      {t:"line", x1:116, y1:372, p2:C(247), ar:1, cls:"thin"},
+      {t:"line", x1:274, y1:505, x2:296, y2:519, ar:1}
+    ],
+    nodes:[
+      {x:210, y:50, box:1, flow:"in", rows:[[N("c_co2_n",3), S("c_co2","e","CO₂")]]},
+      {x:112, y:192, box:1, rows:[[N("rubp_n",3), S("rubp","name","RuBP")],[S("rubp_c","c","5C")]]},
+      {x:308, y:192, box:1, rows:[[N("pg3_n",6), S("pg3","name","3PG")],[S("pg3_c","c","3C")]]},
+      {x:262, y:345, flow:"in", group:1, rows:[[N("cv_atp_n",6), S("cv_atp","e","ATP")],[N("cv_nadph_n",6), S("cv_nadph","e","NADPH")]]},
+      {x:210, y:490, box:1, rows:[[N("pgal_n",6), S("pgal","name","PGAL")],[S("pgal_c","c","3C")]]},
+      {x:150, y:358, flow:"in", rows:[[N("rg_atp_n",3), S("rg_atp","e","ATP")]]},
+      {x:152, y:428, rows:[[N("back_n",5), S("back","name","PGAL")]]},
+      {x:350, y:540, rows:[[N("out_n",1), S("out","name","PGAL")],[L("→ 포도당 합성", "→ 포도당 1분자")]]},
+      {x:110, y:572, rows:[[L("장소: 엽록체"), S("pl_str","place","스트로마")]]}
+    ],
+    checks(V){ return [
+      {txt:`CO₂ ${V("c_co2_n")} × 1C + RuBP ${V("rubp_n")} × ${V("rubp_c")}C = 3PG ${V("pg3_n")} × ${V("pg3_c")}C`, l:V("c_co2_n")*1 + V("rubp_n")*V("rubp_c"), r:V("pg3_n")*V("pg3_c")},
+      {txt:`3PG ${V("pg3_n")} × ${V("pg3_c")}C = PGAL ${V("pgal_n")} × ${V("pgal_c")}C`, l:V("pg3_n")*V("pg3_c"), r:V("pgal_n")*V("pgal_c")},
+      {txt:`PGAL ${V("pgal_n")} = 밖으로 ${V("out_n")} + 회로에 남음 ${V("back_n")}`, l:V("pgal_n"), r:V("out_n")+V("back_n")},
+      {txt:`PGAL ${V("back_n")} × ${V("pgal_c")}C = RuBP ${V("rubp_n")} × ${V("rubp_c")}C`, l:V("back_n")*V("pgal_c"), r:V("rubp_n")*V("rubp_c")},
+      {txt:`밖으로 나간 PGAL ${V("out_n")} × ${V("pgal_c")}C = 들어온 CO₂ ${V("c_co2_n")} × 1C`, l:V("out_n")*V("pgal_c"), r:V("c_co2_n")}
+    ]; }
+  };
+  return {glyco, tca, calvin};
+})();
+/* 슬롯 도우미: 현재 표시 텍스트 / 수치 / 개수 세기 */
+const CYC = {
+  text(d, s, o){ // o: {m, simple}
+    if(s.k === "n") return String(s.v * (d.mult ? o.m : 1));
+    if(s.k === "lab") return (d.mult && o.m === 2 && s.t2) ? s.t2 : s.t;
+    return (d.simple && o.simple && s.simple) ? s.simple : s.t;
+  },
+  visible(d, s, o){ return !(d.simple && o.simple && s.hideSimple); },
+  slots(d){ const a = []; d.nodes.forEach(nd => nd.rows.forEach(r => r.forEach(s => { if(s.k !== "lab") a.push(s); }))); return a; },
+  val(d, id, o){
+    const s = CYC.slots(d).find(x => x.id === id);
+    if(!s) throw new Error("no slot " + id);
+    return s.k === "n" ? s.v * (d.mult ? o.m : 1) : parseInt(s.t, 10);
+  },
+  tally(d, o){ // flow 노드의 조효소·에너지 개수 합
+    const t = {out:{}, in:{}};
+    d.nodes.forEach(nd => { if(!nd.flow) return; nd.rows.forEach(r => {
+      const n = r.find(s => s.k === "n"); const c = n ? n.v * (d.mult ? o.m : 1) : 1;
+      r.filter(s => s.k === "e").forEach(e => t[nd.flow][e.t] = (t[nd.flow][e.t] || 0) + c);
+    }); });
+    return t;
+  },
+  checks(d, o){ const V = id => CYC.val(d, id, o); return d.checks(V, CYC.tally(d, o)); }
+};
+/*DATA-END*/
+
+/* ===== 앱 ===== */
+const KIND = {name:"물질 이름", c:"탄소 수", e:"조효소 · 에너지", n:"분자 수", place:"장소"};
+const FS = {name:16.5, c:15.5, e:15.5, n:17, place:15.5, lab:14};
+const PH = 32, PADX = 9, GAP = 5, RGAP = 5, BOXP = 6;
+const POOL = {
+  c:["1C","2C","3C","4C","5C","6C"],
+  e:["CO₂","NADH","FADH₂","ATP","NADPH","O₂","H₂O"],
+  place:["세포질","미토콘드리아 기질","스트로마","틸라코이드 막","미토콘드리아 내막"],
+  names:["포도당","피루브산","아세틸 CoA","옥살아세트산","시트르산","α-케토글루타르산","숙신산","푸마르산","말산","RuBP","3PG","PGAL"],
+  generic:["3탄소 화합물","4탄소 화합물","5탄소 화합물","6탄소 화합물"],
+  n:[1,2,3,4,5,6,9,10,12,15,18]
+};
+const TABS = ["glyco","tca","calvin"];
+const st = Object.assign({tab:"tca", diff:6, simple:true, m:1}, CS.store.get("cycles_set", {}));
+st.reveal = false;
+let miss = CS.store.get("cycles_miss", {});
+let R = null;            // 현재 판
+let busy = false;
+const svg = document.getElementById("fig");
+const sheet = document.getElementById("sheet");
+const wide = () => window.matchMedia("(min-width:900px)").matches;
+const D = () => DATA[st.tab];
+const opt = () => ({m:st.m, simple:st.simple});
+const saveSet = () => CS.store.set("cycles_set", {tab:st.tab, diff:st.diff, simple:st.simple, m:st.m});
+const mkey = id => st.tab + ":" + id;
+
+/* --- 판 만들기 (틀린 칸 가중치) --- */
+function visibleSlots(){ const d = D(); return CYC.slots(d).filter(s => CYC.visible(d, s, opt())); }
+function newRound(ids){
+  const d = D(), all = visibleSlots();
+  let pick;
+  if(ids) pick = all.filter(s => ids.includes(s.id));
+  else {
+    const n = st.diff === 0 ? all.length : Math.min(st.diff, all.length);
+    const cand = all.slice(); pick = [];
+    while(pick.length < n && cand.length){
+      const w = cand.map(s => 1 + 2.5 * Math.min(miss[mkey(s.id)] || 0, 4));
+      let r = Math.random() * w.reduce((a,b) => a+b, 0), k = 0;
+      while(k < cand.length - 1 && (r -= w[k]) > 0) k++;
+      pick.push(cand.splice(k, 1)[0]);
+    }
+  }
+  const order = all.filter(s => pick.includes(s));
+  R = {tab:st.tab, b:{}, order:order.map(s => s.id), sel:null, retry:!!ids};
+  order.forEach(s => R.b[s.id] = {ans:CYC.text(d, s, opt()), k:s.k, chosen:null, ok:null, choices:null});
+  st.reveal = false;
+  render();
+  selectNext();
+}
+function remaining(){ return R.order.filter(id => R.b[id].ok === null); }
+function selectNext(){
+  const rem = remaining();
+  R.sel = rem.length ? rem[0] : null;
+  if(!rem.length) finish();
+  render(); renderSheet();
+  if(R.sel && !wide()) setTimeout(ensureVisible, 260);
+}
+
+/* --- 보기 카드 만들기 (같은 종류에서 오답) --- */
+function makeCards(id){
+  const b = R.b[id], d = D(), ans = b.ans;
+  const shown = new Set(visibleSlots().filter(s => s.k === b.k).map(s => CYC.text(d, s, opt())));
+  let dis;
+  if(b.k === "name"){
+    const generic = /탄소 화합물$/.test(ans);
+    const same = [...shown].filter(x => x !== ans && (generic || !/탄소 화합물$/.test(x)));
+    const other = POOL.names.filter(x => !shown.has(x));
+    dis = CS.shuffle(same).concat(CS.shuffle(other));
+    if(generic) dis = CS.shuffle(POOL.generic.filter(x => x !== ans)).slice(0, 2).concat(dis);
+  } else if(b.k === "n"){
+    const a = +ans;
+    const pool = POOL.n.map(x => x * (D().mult ? st.m : 1)).concat(POOL.n).filter((x, i, arr) => x !== a && arr.indexOf(x) === i);
+    dis = pool.map(x => ({x, s:Math.abs(Math.log(x / a)) + Math.random() * .8})).sort((p, q) => p.s - q.s).map(p => String(p.x));
+  } else {
+    dis = CS.shuffle(POOL[b.k].filter(x => x !== ans));
+  }
+  return CS.makeChoices(ans, dis, 4).choices;
+}
+
+/* --- 그리기 --- */
+let mt = null;
+function tw(t, size, weight){ mt.setAttribute("font-size", size); mt.setAttribute("font-weight", weight || 700); mt.textContent = t; return mt.getComputedTextLength(); }
+function arrowHead(x, y, ang, sz){
+  sz = sz || 11; const c = Math.cos(ang), s = Math.sin(ang);
+  const p = (dx, dy) => (x + dx*c - dy*s).toFixed(1) + "," + (y + dx*s + dy*c).toFixed(1);
+  return `<path class="ah" d="M${p(sz*.55,0)} L${p(-sz*.55,sz*.55)} L${p(-sz*.55,-sz*.55)} Z"/>`;
+}
+function render(){
+  const d = D(), o = opt(), [W, H] = d.vb;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = `<rect width="${W}" height="${H}" fill="#0b1222"/><text id="mt" x="-999" y="-999" visibility="hidden"></text>`;
+  mt = svg.querySelector("#mt");
+  let h = "";
+  // 도형
+  d.shapes.forEach(sh => {
+    if(sh.t === "rect") h += `<rect class="${sh.cls}" x="${sh.x}" y="${sh.y}" width="${sh.w}" height="${sh.h}" rx="14"/>`;
+    else if(sh.t === "text") h += `<text class="${sh.cls}" x="${sh.x}" y="${sh.y}" font-size="${sh.s}" text-anchor="${sh.a || "middle"}">${sh.t}</text>`;
+    else if(sh.t === "loop"){
+      h += `<ellipse class="loop" cx="${sh.cx}" cy="${sh.cy}" rx="${sh.rx}" ry="${sh.ry}"/>`;
+      sh.arrows.forEach(deg => {
+        const a = deg * Math.PI / 180, x = sh.cx + sh.rx*Math.sin(a), y = sh.cy - sh.ry*Math.cos(a);
+        h += arrowHead(x, y, Math.atan2(sh.ry*Math.sin(a), sh.rx*Math.cos(a)), 15);
+      });
+    } else if(sh.t === "line"){
+      const [x1, y1] = sh.p1 || [sh.x1, sh.y1], [x2, y2] = sh.p2 || [sh.x2, sh.y2];
+      const ang = Math.atan2(y2 - y1, x2 - x1), sz = sh.cls === "thin" ? 10 : 13;
+      const ex = x2 - Math.cos(ang)*sz*.5, ey = y2 - Math.sin(ang)*sz*.5;
+      h += `<line class="ln ${sh.cls || ""}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`;
+      if(sh.ar) h += arrowHead(x2 - Math.cos(ang)*sz*.55, y2 - Math.sin(ang)*sz*.55, ang, sz);
+    }
+  });
+  if(d.title) h += `<text class="ttl" x="${d.title.x}" y="${d.title.y}" font-size="19" text-anchor="middle" dominant-baseline="central">${d.title.t}</text>`;
+  // 노드
+  d.nodes.forEach(nd => {
+    const rows = nd.rows.map(r => r.filter(s => s.k === "lab" || CYC.visible(d, s, o))).filter(r => r.length);
+    const meas = rows.map(r => r.map(s => {
+      const txt = CYC.text(d, s, o), isLab = s.k === "lab";
+      const w = isLab ? tw(txt, FS.lab, 600) : Math.max(tw(txt, FS[s.k]), (R && R.b[s.id]) ? (s.k === "name" ? 46 : 20) : 0) + PADX*2;
+      return {s, txt, w, h:isLab ? 22 : PH, isLab};
+    }));
+    const rw = meas.map(r => r.reduce((a, m) => a + m.w, 0) + GAP*(r.length - 1));
+    const rh = meas.map(r => Math.max(...r.map(m => m.h)));
+    const iw = Math.max(...rw), ih = rh.reduce((a, b) => a + b, 0) + RGAP*(rows.length - 1);
+    const pad = nd.box ? BOXP : 0;
+    let cx = nd.x;
+    const half = iw/2 + pad;
+    cx = Math.max(half + 3, Math.min(W - half - 3, cx));
+    let g = "";
+    if(nd.box) g += `<rect class="nbox" x="${(cx - half).toFixed(1)}" y="${(nd.y - ih/2 - pad).toFixed(1)}" width="${(half*2).toFixed(1)}" height="${(ih + pad*2).toFixed(1)}" rx="12"/>`;
+    let y = nd.y - ih/2;
+    meas.forEach((r, ri) => {
+      let x = cx - rw[ri]/2;
+      const yc = y + rh[ri]/2;
+      r.forEach(m => {
+        if(m.isLab){
+          g += `<g class="slot k-lab"><text x="${(x + m.w/2).toFixed(1)}" y="${yc.toFixed(1)}" font-size="${FS.lab}" text-anchor="middle" dominant-baseline="central">${CS.esc(m.txt)}</text></g>`;
+        } else g += slotSvg(m, x, yc);
+        x += m.w + GAP;
+      });
+      y += rh[ri] + RGAP;
+    });
+    h += g;
+  });
+  svg.insertAdjacentHTML("beforeend", h);
+  renderStat();
+}
+function slotSvg(m, x, yc){
+  const s = m.s, b = R && R.b[s.id];
+  let cls = "slot k-" + s.k, txt = m.txt, qm = false;
+  if(b){
+    if(b.ok === true){ cls += " okk"; txt = b.ans; }
+    else if(b.ok === false){ cls += " bad"; txt = b.ans; }
+    else if(st.reveal){ cls += " rv"; txt = b.ans; }
+    else { cls += " bl" + (R.sel === s.id ? " sel" : ""); txt = "?"; qm = true; }
+  }
+  const y0 = yc - PH/2;
+  return `<g class="${cls}" data-slot="${s.id}"><g class="sk"><rect class="pill" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${m.w.toFixed(1)}" height="${PH}" rx="9"/>` +
+    `<text class="${qm ? "qm" : ""}" x="${(x + m.w/2).toFixed(1)}" y="${(yc + 1).toFixed(1)}" font-size="${qm ? 19 : FS[s.k]}" text-anchor="middle" dominant-baseline="central">${CS.esc(txt)}</text></g>` +
+    (b && b.ok === null ? `<rect class="hit" x="${(x - 3).toFixed(1)}" y="${(y0 - 8).toFixed(1)}" width="${(m.w + 6).toFixed(1)}" height="${PH + 16}"/>` : "") + `</g>`;
+}
+function renderStat(){
+  if(!R) return;
+  const n = R.order.length, done = n - remaining().length, ok = R.order.filter(id => R.b[id].ok === true).length;
+  document.getElementById("stTxt").innerHTML = `${R.retry ? "틀린 칸 다시 · " : ""}채움 <b>${done}</b> / ${n} · 맞힘 <b style="color:var(--ok)">${ok}</b>`;
+  document.getElementById("stBar").style.width = (n ? done/n*100 : 0) + "%";
+  document.getElementById("btnReveal").textContent = st.reveal ? "다시 가리기" : "모두 보기";
+}
+
+/* --- 보기 카드 / 결과 --- */
+function renderSheet(){
+  if(!R) return;
+  if(st.reveal){ sheet.innerHTML = `<div class="idle">정답을 모두 보여 주는 중이에요.<br>「다시 가리기」를 누르면 이어서 풀 수 있어요.</div>`; openSheet(false); return; }
+  if(!remaining().length){ return; }
+  const id = R.sel;
+  if(!id){ sheet.innerHTML = `<div class="idle">그림에서 빈칸 <b>?</b>을 눌러요.</div>`; openSheet(false); return; }
+  const b = R.b[id];
+  if(!b.choices) b.choices = makeCards(id);
+  const no = R.order.indexOf(id) + 1;
+  sheet.innerHTML = `<div class="hd"><span>빈칸 ${no} · <b>${KIND[b.k]}</b> 고르기</span><button class="x" id="shX" aria-label="닫기">✕</button></div>
+    <div class="cards">${b.choices.map((c, k) => `<button class="card k-${b.k}" data-i="${k}">${CS.esc(c)}</button>`).join("")}</div>`;
+  sheet.querySelectorAll(".card").forEach(el => el.onclick = () => choose(id, el));
+  sheet.querySelector("#shX").onclick = () => { R.sel = null; render(); renderSheet(); };
+  openSheet(true);
+}
+function openSheet(on){
+  if(wide()){ sheet.classList.add("open"); document.body.style.paddingBottom = ""; return; }
+  sheet.classList.toggle("open", on);
+  document.body.style.paddingBottom = on ? (sheet.offsetHeight + 10) + "px" : "";
+}
+function ensureVisible(){
+  if(!R || !R.sel) return;
+  const el = svg.querySelector(`[data-slot="${R.sel}"] .pill`); if(!el) return;
+  const r = el.getBoundingClientRect(), top = 70, bottom = innerHeight - sheet.offsetHeight - 12;
+  if(r.bottom > bottom) window.scrollBy({top:r.bottom - bottom + 20, behavior:"smooth"});
+  else if(r.top < top) window.scrollBy({top:r.top - top - 20, behavior:"smooth"});
+}
+function choose(id, cardEl){
+  if(busy) return;
+  const b = R.b[id], val = cardEl.textContent;
+  // 같은 무리(group) 안의 조효소 칸은 순서가 바뀌어도 정답 처리
+  if(val !== b.ans && b.k === "e"){
+    const nd = D().nodes.find(n => n.rows.some(r => r.some(s => s.id === id)));
+    if(nd && nd.group){
+      const mate = nd.rows.flat().find(s => s.k === "e" && s.id !== id && R.b[s.id] && R.b[s.id].ok === null && R.b[s.id].ans === val);
+      if(mate){ R.b[mate.id].ans = b.ans; R.b[mate.id].choices = null; b.ans = val; }
+    }
+  }
+  const ok = val === b.ans;
+  busy = true;
+  const tgt = svg.querySelector(`[data-slot="${id}"] .pill`);
+  const cr = cardEl.getBoundingClientRect(), tr = tgt.getBoundingClientRect();
+  const fly = cardEl.cloneNode(true);
+  fly.classList.add("fly");
+  Object.assign(fly.style, {left:cr.left + "px", top:cr.top + "px", width:cr.width + "px", height:cr.height + "px"});
+  document.body.appendChild(fly);
+  cardEl.classList.add("gone");
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const sx = tr.width / cr.width, sy = tr.height / cr.height;
+    fly.style.transform = `translate(${tr.left - cr.left}px, ${tr.top - cr.top}px) scale(${sx}, ${sy})`;
+    fly.style.opacity = ".35";
+  }));
+  setTimeout(() => {
+    fly.remove(); busy = false;
+    b.chosen = val; b.ok = ok;
+    const k = mkey(id);
+    miss[k] = ok ? Math.max(0, (miss[k] || 0) - 1) : Math.min(6, (miss[k] || 0) + 1);
+    if(!miss[k]) delete miss[k];
+    CS.store.set("cycles_miss", miss); updMissInfo();
+    render();
+    const g = svg.querySelector(`[data-slot="${id}"] .sk`);
+    if(g) g.classList.add(ok ? "pop" : "shake");
+    if(!ok) CS.toast(`정답은 「${b.ans}」 (고른 것: ${val})`);
+    setTimeout(selectNext, ok ? 250 : 650);
+  }, 380);
+}
+function finish(){
+  const n = R.order.length, wrong = R.order.filter(id => R.b[id].ok === false), ok = n - wrong.length;
+  const pct = n ? ok / n : 0;
+  let h = `<div class="res"><div class="center muted">${R.retry ? "틀린 칸 다시 · 결과" : "결과"}</div>
+    <div class="big" style="color:${pct >= .8 ? "var(--ok)" : pct >= .5 ? "var(--warn)" : "var(--no)"}">${ok} / ${n}</div>`;
+  if(wrong.length){
+    h += `<ul>${wrong.map(id => `<li>${KIND[R.b[id].k]}: <span class="bad">${CS.esc(R.b[id].chosen)}</span> → <b>${CS.esc(R.b[id].ans)}</b></li>`).join("")}</ul>
+      <button class="btn full" id="rsRetry">🔁 틀린 칸만 다시 (${wrong.length})</button>`;
+  } else h += `<div class="center" style="color:var(--ok);font-weight:700">${R.retry ? "틀렸던 칸을 모두 맞혔어요!" : "모두 맞혔어요!"}</div>`;
+  h += `<button class="btn ${wrong.length ? "ghost" : ""} full" id="rsNew">🔀 새로 섞기 (빈칸 위치 바뀜)</button></div>`;
+  sheet.innerHTML = h;
+  const r = sheet.querySelector("#rsRetry"); if(r) r.onclick = () => newRound(wrong);
+  sheet.querySelector("#rsNew").onclick = () => newRound();
+  openSheet(true);
+}
+
+/* --- 탄소 수 · 개수 --- */
+function renderCarbon(){
+  const d = D(), o = opt();
+  const cs = CYC.checks(d, o), t = CYC.tally(d, o);
+  let h = `<ol class="chk">${cs.map(c => `<li>${c.txt} → ${c.l} = ${c.r} <span class="${c.l === c.r ? "ok" : "no"}">${c.l === c.r ? "✓" : "✗"}</span></li>`).join("")}</ol>`;
+  const fmt = obj => Object.keys(obj).map(k => `${k} <b>${obj[k]}</b>`).join(" · ");
+  if(d.key === "tca") h += `<div class="tally">아세틸 CoA 1분자당 나오는 것: ${fmt(t.out)}</div>`;
+  if(d.key === "calvin"){
+    const ti = Object.assign({}, t.in); const co2 = ti["CO₂"]; delete ti["CO₂"];
+    h += `<div class="tally">CO₂ ${co2}분자 기준 쓰이는 것: ${fmt(ti)}${st.m === 2 ? " → 포도당 1분자" : ""}</div>`;
+  }
+  if(d.key === "glyco") d.nodes.filter(n => n.flow).forEach(n => {
+    const one = {}; n.rows.forEach(r => { const c = r.find(s => s.k === "n"); r.filter(s => s.k === "e").forEach(e => one[e.t] = c ? c.v : 1); });
+    h += `<div class="tally">${n.stage}: ${fmt(one)}</div>`;
+  });
+  document.getElementById("carbon").innerHTML = h;
+}
+
+/* --- 조작 --- */
+function buildTabs(){
+  document.getElementById("tabs").innerHTML = TABS.map(k => `<button data-t="${k}" class="${st.tab === k ? "on" : ""}">${DATA[k].tab}<small>${DATA[k].sub}</small></button>`).join("");
+  document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { if(busy) return; st.tab = b.dataset.t; saveSet(); refreshCtl(); newRound(); });
+  document.getElementById("diffChips").innerHTML = [[3,"3개"],[6,"6개"],[0,"전부"]].map(([v, l]) => `<button class="chip" data-d="${v}">${l}</button>`).join("");
+  document.querySelectorAll("#diffChips .chip").forEach(c => c.onclick = () => { if(busy) return; st.diff = +c.dataset.d; saveSet(); refreshCtl(); newRound(); });
+  document.getElementById("chSimple").onclick = () => { if(busy) return; st.simple = !st.simple; saveSet(); refreshCtl(); newRound(); };
+  document.querySelectorAll("#optMult .chip").forEach(c => c.onclick = () => { if(busy) return; st.m = +c.dataset.m; saveSet(); refreshCtl(); newRound(); });
+}
+function refreshCtl(){
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === st.tab));
+  document.querySelectorAll("#diffChips .chip").forEach(c => c.classList.toggle("on", +c.dataset.d === st.diff));
+  document.getElementById("chSimple").classList.toggle("on", st.simple);
+  document.getElementById("chSimple").textContent = st.simple ? "물질 이름 단순 보기 ✓" : "물질 이름 단순 보기";
+  document.getElementById("optSimple").classList.toggle("hide", !D().simple);
+  document.getElementById("optMult").classList.toggle("hide", !D().mult);
+  document.querySelectorAll("#optMult .chip").forEach(c => c.classList.toggle("on", +c.dataset.m === st.m));
+  renderCarbon();
+}
+function updMissInfo(){
+  const k = Object.keys(miss).filter(x => x.startsWith(st.tab + ":")).length;
+  document.getElementById("missInfo").textContent = k ? `지금 이 그림에서 자주 틀린 칸: ${k}개` : "";
+}
+svg.addEventListener("click", e => {
+  const g = e.target.closest(".slot.bl"); if(!g || busy || st.reveal) return;
+  R.sel = g.dataset.slot; render(); renderSheet();
+  if(!wide()) setTimeout(ensureVisible, 260);
+});
+document.getElementById("btnNew").onclick = () => { if(!busy) newRound(); };
+document.getElementById("btnReveal").onclick = () => {
+  if(busy) return;
+  st.reveal = !st.reveal; render();
+  if(!remaining().length) finish(); else renderSheet();
+};
+document.getElementById("btnClear").onclick = () => {
+  if(!confirm("틀린 칸 기록을 모두 지울까요?")) return;
+  miss = {}; CS.store.set("cycles_miss", miss); updMissInfo(); CS.toast("기록을 지웠어요");
+};
+document.addEventListener("keydown", e => {
+  const k = +e.key; if(!(k >= 1 && k <= 4)) return;
+  const c = sheet.querySelectorAll(".card")[k - 1]; if(c) c.click();
+});
+let rzT; window.addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if(R && (R.sel || !remaining().length)) openSheet(true); else openSheet(false); }, 150); });
+
+if(!DATA[st.tab]) st.tab = "tca";
+buildTabs(); refreshCtl(); updMissInfo();
+newRound();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => render());
+</script>
+</body>
+</html>

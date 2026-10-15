@@ -25,14 +25,18 @@
 #fig{display:block;width:100%;height:auto;background:#0b1222;border:1px solid var(--line);border-radius:12px}
 #fig text{font-family:inherit}
 #fig .basicOnly,#fig .advOnly{transition:opacity .2s}
-.figwrap:not(.adv) .advOnly{display:none}
-.figwrap.adv .basicOnly{display:none}
+.figwrap:not(.advOn) .advOnly{display:none}
+.figwrap.advOn .basicOnly{display:none}
 .figwrap.cyc .ncOnly{opacity:.18}
 .status{min-height:72px;font-size:16px;line-height:1.6;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;word-break:keep-all}
 .status b{color:#fde68a}
 .side .panel h2{font-size:15px}
-.ctrl .btn{flex:1 1 auto}
+.acts{margin-top:10px}
+.acts .row{margin-bottom:8px}
+.acts .btn{flex:1 1 40%}
+.acts .chip{font-size:15px;padding:10px 14px}
 .ctrl .row{margin-bottom:8px}
+@media (max-width:600px){.figbox{padding:8px}}
 .fa{border:2px solid var(--warn);border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.55;background:rgba(245,158,11,.08)}
 .fa .big{font-size:22px;font-weight:800;color:#fcd34d}
 .pc{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:15px;margin-top:6px}
@@ -50,7 +54,7 @@
 .cmp th.mi{color:#c4b5fd}.cmp th.ch{color:#86efac}
 .cmp td.k{font-weight:700;color:#e2e8f0;background:rgba(255,255,255,.03)}
 .cmp td.n{color:var(--muted)}
-.cmp col.cn{width:9%}.cmp col.ck{width:25%}
+.cmp col.cn{width:12%}.cmp col.ck{width:25%}
 @media (min-width:900px){.cmp{font-size:17px}.cmp thead th{font-size:16px}.cmp th,.cmp td{padding:9px 8px}}
 @media (min-width:1100px){.status{font-size:18px}}
 </style>
@@ -67,6 +71,11 @@
     <div class="panel figbox">
       <div class="figcap"><div id="figTitle"></div><span>노란 점 = 전자(e⁻) · 빨간 점 = H⁺</span></div>
       <div class="figwrap" id="figwrap"><svg id="fig" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="acts">
+        <div id="ctrlMito" class="row"><button class="btn" id="bNadh">NADH 전자 보내기</button><button class="btn" id="bFadh" style="background:#7c3aed">FADH₂ 전자 보내기</button></div>
+        <div id="ctrlChl" class="row hide"><button class="btn" id="bLight" style="background:#15803d">☀️ 빛 비추기</button><button class="chip" id="bCyc">순환 전자 흐름</button></div>
+        <div class="row"><button class="btn ghost" id="bAuto">▶ 연속 재생</button><button class="btn ghost" id="bReset">↺ 처음으로</button></div>
+      </div>
       <div class="status" id="status"></div>
       <div class="note" style="margin-top:6px">그림 속 H⁺·e⁻ 점의 개수는 실제 개수가 아니라 흐름을 보여 주는 표시예요.</div>
     </div>
@@ -74,14 +83,7 @@
     <div class="side">
       <div class="panel ctrl">
         <h2>조작</h2>
-        <div id="ctrlMito">
-          <div class="row"><button class="btn" id="bNadh">NADH 전자 보내기</button><button class="btn" id="bFadh" style="background:#7c3aed">FADH₂ 전자 보내기</button></div>
-        </div>
-        <div id="ctrlChl" class="hide">
-          <div class="row"><button class="btn" id="bLight" style="background:#15803d">☀️ 빛 비추기 (전자 보내기)</button></div>
-          <div class="row"><button class="chip" id="bCyc">순환 전자 흐름</button><span class="note" id="cycNote">꺼짐 = 비순환 전자 흐름</span></div>
-        </div>
-        <div class="row"><button class="btn ghost" id="bAuto">▶ 연속 재생</button><button class="btn ghost" id="bReset">↺ 처음으로</button></div>
+        <div class="note hide" id="cycWrap" style="margin-bottom:6px">순환 전자 흐름: <b id="cycNote">꺼짐</b></div>
         <div class="slider"><span>속도</span><input type="range" id="spd" min="0.5" max="2.5" step="0.25" value="1"><span class="v" id="spdV">1배</span></div>
         <div class="row"><button class="chip" id="bAdv">심화 보기</button><span class="note">교과서 범위를 넘을 수 있어요</span></div>
         <div class="legend"><span><i style="background:#facc15"></i>전자 e⁻</span><span><i style="background:#fb7185"></i>H⁺</span><span><i style="background:#22c55e"></i>ATP</span></div>
@@ -182,7 +184,7 @@ const GEO = {
   },
   chl: {
     top: "틸라코이드 내부", bot: "스트로마",
-    pool: [0.20, 0.80],
+    pool: [0.33, 0.80],
     prot: [
       {id:"PSII", x:.06,  w:.11,  y:195, h:155, fill:"#15803d", basic:"광계 Ⅱ", adv2:"P680", nc:true},
       {id:"b6f",  x:.30,  w:.085, y:200, h:140, fill:"#6d28d9", adv:"b₆f"},
@@ -250,11 +252,12 @@ function build(){
     <ellipse cx="${ax}" cy="${M2+62}" rx="${narrow?40:44}" ry="30" fill="#0d9488" stroke="#5eead4" stroke-width="1.5"/>
     <line x1="${ax}" y1="${M1-40}" x2="${ax}" y2="${M2+40}" stroke="#fb7185" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#ah)" opacity=".85"/>
     ${txt(ax, M2+62+FS*.35, "ATP", {fs:Math.round(FS*.8), fill:"#ecfeff"})}
-    ${txt(ax, 432, "ADP + P<tspan font-style='italic'>i</tspan>", {fs:Math.round(FS*.85), fill:"#cbd5e1"})}
-    ${txt(ax, 458, "→ <tspan fill='#4ade80'>ATP</tspan>", {fs:Math.round(FS*.95)})}
+    ${txt(narrow ? W-8 : ax, 432, "ADP + P<tspan font-style='italic'>i</tspan>", {fs:Math.round(FS*.85), fill:"#cbd5e1", anchor: narrow ? "end" : "middle"})}
+    ${txt(narrow ? W-8 : ax, 458, "→ <tspan fill='#4ade80'>ATP</tspan>", {fs:Math.round(FS*.95), anchor: narrow ? "end" : "middle"})}
     ${txt(ax, M1+ (M2-M1)/2 + 6, "Ⅴ", {fs:Math.round(FS*.9), fill:"#fde68a", cls:"advOnly"})}
   </g>`;
   const lx = X(.755);
+  h += `<rect x="${lx-FS*2.4}" y="${263-FS*1.0}" width="${FS*4.8}" height="${FS*2.25}" rx="8" fill="rgba(11,18,34,.85)" stroke="#2dd4bf" stroke-width="1"/>`;
   h += txt(lx, 263, "ATP", {fs:Math.round(FS*.82), fill:"#99f6e4", fw:700}) + txt(lx, 263 + FS*.95, "합성 효소", {fs:Math.round(FS*.82), fill:"#99f6e4", fw:700});
   // 단백질
   g.prot.forEach(p => {
@@ -287,10 +290,11 @@ function build(){
   } else {
     h += `<g class="ncOnly">${txt(10, 112, "H₂O →", {anchor:"start", fs:Math.round(FS*.9), fill:"#7dd3fc", fw:700})}
       ${txt(10, 112 + FS*1.15, "2H⁺ + ½O₂ + 2e⁻", {anchor:"start", fs:Math.round(FS*.8)})}</g>`;
-    h += `<g class="ncOnly">${txt(X(.75), 418, "NADP⁺ + H⁺", {fs:Math.round(FS*.9)})}
-      ${txt(X(.75), 444, "→ NADPH", {fs:Math.round(FS*.95), fill:"#fde68a"})}
-      <rect x="${X(.75)-FS*3.9}" y="458" width="${FS*7.8}" height="${FS*1.35}" rx="8" fill="rgba(245,158,11,.18)" stroke="#f59e0b"/>
-      ${txt(X(.75), 458 + FS*.98, "최종 전자 수용체 NADP⁺", {fs:Math.round(FS*.66), fill:"#fcd34d", fw:700})}</g>`;
+    const nx = X(narrow ? .66 : .75);
+    h += `<g class="ncOnly">${txt(nx, 418, "NADP⁺ + H⁺", {fs:Math.round(FS*.9)})}
+      ${txt(nx, 444, "→ NADPH", {fs:Math.round(FS*.95), fill:"#fde68a"})}
+      <rect x="${nx-FS*3.9}" y="458" width="${FS*7.8}" height="${FS*1.35}" rx="8" fill="rgba(245,158,11,.18)" stroke="#f59e0b"/>
+      ${txt(nx, 458 + FS*.98, "최종 전자 수용체 NADP⁺", {fs:Math.round(FS*.66), fill:"#fcd34d", fw:700})}</g>`;
     // 빛
     const ray = (x1, y1, x2, y2, cls) => {
       const n = 7, dx = (x2-x1)/n, dy = (y2-y1)/n, len = Math.hypot(x2-x1, y2-y1), nx = -(y2-y1)/len*7, ny = (x2-x1)/len*7;
@@ -499,7 +503,7 @@ function sendChl(){
       P(.555, yP, () => { flash(X(.555), yP); say("<b>광계 Ⅰ</b>이 빛을 받아 전자가 다시 들뜬다.", "<b>광계 Ⅰ</b>(반응 중심 P700)이 빛을 받아 전자가 다시 들뜬다."); }, 0.5),
       P(.665, M2+30, () => say("전자 전달계를 지나 NADP⁺ 쪽으로 간다.", "<b>페레독신(Fd)</b>이 전자를 받는다.")),
       P(.75, 331, () => say("NADP⁺가 전자와 H⁺를 받는다.", "<b>NADP⁺ 환원 효소</b>: NADP⁺ + H⁺ + 2e⁻ → NADPH (스트로마 쪽)")),
-      P(.75, 392, () => { pop(X(.75), 392, "NADPH", "#fde68a", 1); say("<b>최종 전자 수용체 NADP⁺</b>가 전자와 H⁺를 받아 <b>NADPH</b>가 되었다(스트로마). 쌓인 H⁺는 ATP 합성 효소로 흘러 ATP를 만든다."); }, 0)
+      P(narrow ? .68 : .75, 392, () => { pop(X(narrow ? .68 : .75), 392, "NADPH", "#fde68a", 1); say("<b>최종 전자 수용체 NADP⁺</b>가 전자와 H⁺를 받아 <b>NADPH</b>가 되었다(스트로마). 쌓인 H⁺는 ATP 합성 효소로 흘러 ATP를 만든다."); }, 0)
     ]);
   } else {
     pts = [
@@ -526,7 +530,7 @@ function setAuto(on){
   if(on) kick();
 }
 function applyAdv(){
-  figwrap.classList.toggle("adv", S.adv);
+  figwrap.classList.toggle("advOn", S.adv);
   $("bAdv").classList.toggle("on", S.adv);
   $("advBox").classList.toggle("hide", !S.adv);
   document.querySelectorAll(".advSide").forEach(e => e.classList.toggle("hide", !S.adv));
@@ -548,7 +552,8 @@ function applyTab(){
   $("faChl").classList.toggle("hide", S.cyc);
   $("faCyc").classList.toggle("hide", !S.cyc);
   $("bCyc").classList.toggle("on", S.cyc);
-  $("cycNote").textContent = S.cyc ? "켜짐 = 광계 Ⅰ만, ATP만" : "꺼짐 = 비순환 전자 흐름";
+  $("cycNote").textContent = S.cyc ? "켜짐 (광계 Ⅰ만, ATP만)" : "꺼짐 (비순환 전자 흐름)";
+  $("cycWrap").classList.toggle("hide", mito);
 }
 function reset(){
   setAuto(false);

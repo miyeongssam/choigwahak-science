@@ -343,6 +343,10 @@ function resize(){
   dpr = Math.min(window.devicePixelRatio || 1, 2.5);
   cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   scale = cv.width / W;
+  // 넓은 화면: 점 P 정보는 오른쪽 조작판 맨 위로
+  const pi = $("#pInfo"), side = document.querySelector(".side"), fc = document.querySelector(".figcol");
+  if(wide && pi.parentNode !== side) side.insertBefore(pi, side.firstChild);
+  if(!wide && pi.parentNode !== fc) fc.appendChild(pi);
   const ngw = w >= 700 ? 300 : 200;
   if(ngw !== gw || !off){
     gw = ngw; gh = Math.round(gw * ASP);
@@ -423,9 +427,12 @@ function drawLines(kind){
       if(top[0] > 0.4 && top[0] < W - 0.4){
         const q = Math.abs(c) / st.lam;
         const txt = (Math.abs(q - Math.round(q)) < 1e-6 ? Math.round(q) : IFX.fmt(q, 1)) + "λ";
-        ctx.save(); ctx.setLineDash([]);
         const tw = ctx.measureText(txt).width + 8 * dpr;
-        const ly = (kind === "des" ? 0.25 : 1.05) * scale;
+        const ly = kind === "des" ? 4 * dpr : 26 * dpr;
+        const lx = X(top[0]) - tw / 2;
+        if(labelRects.some(r => lx < r[0] + r[2] + 2 * dpr && r[0] < lx + tw + 2 * dpr && Math.abs(r[1] - ly) < 18 * dpr)) continue;
+        labelRects.push([lx, ly, tw]);
+        ctx.save(); ctx.setLineDash([]);
         ctx.fillStyle = "rgba(11,18,34,.8)"; ctx.fillRect(X(top[0]) - tw/2, ly - 2*dpr, tw, 18 * dpr);
         ctx.fillStyle = col; ctx.fillText(txt, X(top[0]), ly);
         ctx.restore();
@@ -532,7 +539,9 @@ function drawP(){
   ctx.fillStyle = "#fff"; ctx.fillText("P", tx, Y(P.y));
   ctx.restore();
 }
+let labelRects = [];
 function render(){
+  labelRects = [];
   drawField();
   if(st.circles) drawCircles();
   if(st.showC) drawLines("con");

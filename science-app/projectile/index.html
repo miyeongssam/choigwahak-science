@@ -330,7 +330,7 @@ function draw(){
   else drawOne(X, Y, sc, big, ox, oy);
   // 시간
   ctx.fillStyle = "#e2e8f0"; ctx.font = "600 " + (big ? 20 : 15) + "px sans-serif"; ctx.textAlign = "right";
-  ctx.fillText("t = " + tcur.toFixed(2) + " s", W - 10, mT - (big ? 10 : 8));
+  ctx.fillText("t = " + tcur.toFixed(2) + " s", W - 10, (big ? 26 : 20));
 }
 
 function drawOne(X, Y, sc, big, ox, oy){

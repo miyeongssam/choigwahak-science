@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>도플러 효과 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+.lay{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+.figbox{width:100%;display:flex;justify-content:center}
+.ctl h3{font-size:14px;color:var(--muted);margin:12px 0 6px;font-weight:600}
+.ctl h3:first-child{margin-top:0}
+.slider label{white-space:nowrap}
+.slider .v{min-width:110px}
+.obs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.oc{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;line-height:1.6;min-width:0}
+.oc .hd{font-weight:700;font-size:16px;margin-bottom:2px}
+.oc .fq{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.oc .fm{font-size:13px;color:var(--muted);word-break:break-all}
+.oc.a .hd{color:#7dd3fc}.oc.b .hd{color:#fda4af}
+.hi{color:#fcd34d;font-weight:700}.lo{color:#93c5fd;font-weight:700}
+.na{color:var(--no);font-weight:700;font-size:18px}
+.exp{font-size:15px;line-height:1.75}
+.exp p{margin:0 0 8px}
+#quizWrap{max-width:860px;margin:0 auto}
+.snd{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:420px){ .obs{grid-template-columns:1fr} }
+@media (min-width:1000px){
+  .wrap{max-width:1880px}
+  .lay{grid-template-columns:minmax(0,1fr) 440px;align-items:start}
+  .figcol{position:sticky;top:70px}
+  .exp{font-size:16px}
+  .oc .fq{font-size:28px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>도플러 효과<small>물리 · 움직이는 음원의 파면과 들리는 진동수</small></h1></header>
+<div class="wrap">
+  <div class="lay">
+    <div class="figcol">
+      <div class="figbox" id="figbox"><canvas id="cv" aria-label="음원과 파면"></canvas></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sm ghost" id="btnPlay">⏸ 멈춤</button>
+        <span class="note" id="figNote"></span>
+      </div>
+      <div class="panel" style="margin-top:10px">
+        <h2 id="obsTitle">관찰자가 듣는 소리 (v = 340 m/s)</h2>
+        <div class="obs" id="obsBox"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel ctl">
+        <h3>무엇이 움직이나요?</h3>
+        <div class="row"><button class="chip on" id="mSrc">음원이 움직임</button><button class="chip" id="mObs">관찰자가 움직임</button></div>
+        <div id="srcCtl">
+          <h3>음원 속도 vₛ</h3>
+          <div class="slider"><label for="svs">vₛ</label><input type="range" id="svs" min="0" max="0.9" step="0.05" value="0.3"><span class="v" id="vvs"></span></div>
+          <div class="row"><button class="chip" id="btnSuper">✈️ 음속 돌파 체험 (vₛ = 1.2v)</button></div>
+        </div>
+        <div id="obsCtl" class="hide">
+          <h3>관찰자 속도 v₀ (음원은 정지)</h3>
+          <div class="slider"><label for="sv0">v₀</label><input type="range" id="sv0" min="0" max="0.9" step="0.05" value="0.3"><span class="v" id="vv0"></span></div>
+        </div>
+        <h3>음원 진동수 f</h3>
+        <div class="slider"><label for="sf">f</label><input type="range" id="sf" min="400" max="1000" step="10" value="500"><span class="v" id="vf"></span></div>
+        <h3>🔊 소리 들어 보기 <span class="muted" style="font-weight:400">(작은 음량, 버튼 누를 때만)</span></h3>
+        <div class="snd">
+          <button class="btn sm ghost" id="sndF">원래 소리 f</button>
+          <button class="btn sm ghost" id="sndA">A가 듣는 소리</button>
+          <button class="btn sm ghost" id="sndB">B가 듣는 소리</button>
+          <button class="btn sm ghost" id="sndPass">A → B 차례로</button>
+        </div>
+      </div>
+
+      <div class="panel exp" id="expBox">
+        <h2>정리</h2>
+        <p>음원이 움직이면 파면의 중심이 계속 앞으로 옮겨 가요. 그래서 <b>앞쪽은 파면이 촘촘</b>(파장 짧음)하고 <b>뒤쪽은 성겨요</b>(파장 김).</p>
+        <p>소리의 속력 v는 공기가 정해서 그대로예요. 진동수 = 속력 ÷ 파장이므로</p>
+        <p>• 다가오는 음원: <b>f′ = f · v / (v − vₛ)</b>, 파장 λ′ = (v − vₛ)/f → <span class="hi">높은음</span><br>
+           • 멀어지는 음원: <b>f′ = f · v / (v + vₛ)</b>, 파장 λ′ = (v + vₛ)/f → <span class="lo">낮은음</span></p>
+        <p>관찰자가 움직이면 파장은 그대로이고, 관찰자가 파면을 만나는 횟수가 바뀌어요.<br>
+           • 다가가는 관찰자: <b>f′ = f (v + v₀) / v</b><br>
+           • 멀어지는 관찰자: <b>f′ = f (v − v₀) / v</b></p>
+        <div class="adv"><b>음속 돌파 (vₛ &gt; v)</b><br>음원이 자기가 낸 소리보다 빨리 나아가 파면이 원뿔 모양으로 겹쳐요(충격파, 마하 원뿔). 이때는 위의 도플러 식을 쓰지 않아요. 원뿔의 반각 θ는 sin θ = v / vₛ 예요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizWrap">
+    <div class="panel"><h2>확인 문제 (①~⑤, 무한 생성)</h2><div id="quiz"></div></div>
+  </div>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+/*LOGIC-START*/
+const DPX = (function(){
+  const V = 340;
+  const fmt = (x, k) => { const s = (+x).toFixed(k == null ? 1 : k); return s.indexOf(".") >= 0 ? s.replace(/\.?0+$/, "") : s; };
+  const approach = (f, vs) => f * V / (V - vs);
+  const recede = (f, vs) => f * V / (V + vs);
+  const obsToward = (f, v0) => f * (V + v0) / V;
+  const obsAway = (f, v0) => f * (V - v0) / V;
+  const lamFront = (f, vs) => (V - vs) / f;
+  const lamBack = (f, vs) => (V + vs) / f;
+
+  /* ===== 확인 문제 ===== */
+  const R = { int:(a,b)=>a+Math.floor(Math.random()*(b-a+1)), pick:a=>a[Math.floor(Math.random()*a.length)] };
+  function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  function choices(ans, ds){
+    const seen = new Set([String(ans)]), pool = [];
+    for(const d of ds){ const s = String(d); if(!seen.has(s)){ seen.add(s); pool.push(d); } if(pool.length >= 4) break; }
+    const all = shuffle([ans].concat(pool));
+    return { choices: all, answer: all.findIndex(x => String(x) === String(ans)) };
+  }
+  const hz = x => fmt(x, 1) + " Hz";
+  const mm = x => fmt(x, 3) + " m";
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  // 진동수 문제의 오답 후보(자주 하는 실수)
+  function hzDistractors(f, vs, ans){
+    const c = [approach(f, vs), recede(f, vs), obsToward(f, vs), obsAway(f, vs), f, ans + 50, ans - 50, ans * 1.2, ans * 0.8, ans + 100];
+    return c.map(hz);
+  }
+  function pickVsCase(dir){ // dir: "toward" | "away" → 깔끔한 숫자가 나오는 f
+    const k = R.int(1, 5), vs = 34 * k, den = dir === "toward" ? 10 - k : 10 + k;
+    const js = []; for(let j = 1; j < 200; j++){ const f = den * j; if(f >= 300 && f <= 1000 && f % 10 === 0) js.push(j); }
+    let j;
+    if(js.length) j = R.pick(js);
+    else { const all = []; for(let jj = 1; jj < 200; jj++){ const f = den * jj; if(f >= 300 && f <= 1000) all.push(jj); } j = R.pick(all); }
+    return { k, vs, f: den * j, fp: 10 * j, den };
+  }
+
+  const MAKERS = {
+    // ① 다가오는 음원 / ② 멀어지는 음원의 진동수
+    srcFreq(dir){
+      const c = pickVsCase(dir);
+      const ans = dir === "toward" ? approach(c.f, c.vs) : recede(c.f, c.vs);
+      const who = dir === "toward" ? "음원 앞쪽(음원이 다가오는 쪽)" : "음원 뒤쪽(음원이 멀어지는 쪽)";
+      return {
+        q: `진동수 <b>${c.f} Hz</b>인 소리를 내는 음원이 <b>${c.vs} m/s</b>의 속력으로 직선 운동한다. ${who}에 정지해 있는 관찰자가 듣는 소리의 진동수는? (소리의 속력 340 m/s)`,
+        ...choices(hz(ans), hzDistractors(c.f, c.vs, ans)),
+        exp: dir === "toward"
+          ? `다가오는 음원: f′ = f · v/(v − vₛ) = ${c.f} × 340/(340 − ${c.vs}) = ${c.f} × 340/${340 - c.vs} = <b>${hz(ans)}</b><br>원래(${c.f} Hz)보다 <span class="hi">높은음</span>이에요.`
+          : `멀어지는 음원: f′ = f · v/(v + vₛ) = ${c.f} × 340/(340 + ${c.vs}) = ${c.f} × 340/${340 + c.vs} = <b>${hz(ans)}</b><br>원래(${c.f} Hz)보다 <span class="lo">낮은음</span>이에요.`,
+        meta: { kind:"srcFreq", dir, f:c.f, vs:c.vs, ans }
+      };
+    },
+    // ③ 앞/뒤 파장
+    wave(){
+      const dir = Math.random() < 0.5 ? "front" : "back";
+      const k = R.int(1, 5), vs = 34 * k, f = R.pick([170, 340, 680]);
+      const ans = dir === "front" ? lamFront(f, vs) : lamBack(f, vs);
+      const ds = [lamFront(f, vs), lamBack(f, vs), V / f, vs / f, (V + 2 * vs) / f, (V - 2 * vs) / f, V / f / 2, (V + 3 * vs) / f].filter(x => x > 0.0005).map(mm);
+      return {
+        q: `진동수 <b>${f} Hz</b>인 소리를 내는 음원이 <b>${vs} m/s</b>로 움직인다. 음원의 <b>${dir === "front" ? "앞쪽" : "뒤쪽"}</b>으로 퍼져 나가는 소리의 파장은? (소리의 속력 340 m/s)`,
+        ...choices(mm(ans), ds),
+        exp: `한 주기(1/f) 동안 소리는 v/f만큼, 음원은 vₛ/f만큼 나아가요.<br>` +
+             (dir === "front" ? `앞쪽: λ′ = (v − vₛ)/f = (340 − ${vs})/${f} = <b>${mm(ans)}</b> (원래 ${mm(V / f)}보다 짧음)`
+                              : `뒤쪽: λ′ = (v + vₛ)/f = (340 + ${vs})/${f} = <b>${mm(ans)}</b> (원래 ${mm(V / f)}보다 김)`),
+        meta: { kind:"wave", dir, f, vs, ans }
+      };
+    },
+    // ④ 앞뒤 관찰자 비교
+    ratio(){
+      const k = R.pick([1, 2, 3, 4, 5, 6]), vs = 34 * k;
+      const a = 10 + k, b = 10 - k, g = gcd(a, b);
+      const ans = `${a / g} : ${b / g}`;
+      const g2 = gcd(10, b), g3 = gcd(10, a);
+      const ds = [`${b / g} : ${a / g}`, "1 : 1", `${10 / g2} : ${b / g2}`, `${a / g3} : ${10 / g3}`, `${a / g * 2} : ${b / g}`, `${a / g + 1} : ${b / g}`];
+      return {
+        q: `음원이 <b>${vs} m/s</b>로 움직이며 일정한 진동수의 소리를 낸다. 음원 앞쪽의 정지한 관찰자 A와 뒤쪽의 정지한 관찰자 B가 듣는 소리의 진동수 비 f<sub>A</sub> : f<sub>B</sub>는? (소리의 속력 340 m/s)`,
+        ...choices(ans, ds),
+        exp: `f<sub>A</sub> = f · v/(v − vₛ), f<sub>B</sub> = f · v/(v + vₛ)<br>f<sub>A</sub> : f<sub>B</sub> = (v + vₛ) : (v − vₛ) = ${340 + vs} : ${340 - vs} = <b>${ans}</b><br>또는 파장의 반비례: λ<sub>A</sub> : λ<sub>B</sub> = (v − vₛ) : (v + vₛ)`,
+        meta: { kind:"ratio", vs, ans, a, b }
+      };
+    },
+    // ⑤ 관찰자가 움직이는 경우
+    observer(){
+      const dir = Math.random() < 0.5 ? "toward" : "away";
+      const k = R.int(1, 5), v0 = 34 * k, f = R.int(30, 100) * 10;
+      const ans = dir === "toward" ? obsToward(f, v0) : obsAway(f, v0);
+      const ds = [obsToward(f, v0), obsAway(f, v0), approach(f, v0), recede(f, v0), f, ans + 50, ans - 50].map(hz);
+      return {
+        q: `정지한 음원이 진동수 <b>${f} Hz</b>인 소리를 낸다. 관찰자가 <b>${v0} m/s</b>의 속력으로 음원${dir === "toward" ? "을 향해 다가갈" : "에서 멀어질"} 때 듣는 소리의 진동수는? (소리의 속력 340 m/s)`,
+        ...choices(hz(ans), ds),
+        exp: `관찰자가 움직이면 파장(v/f = ${mm(V / f)})은 그대로이고, 관찰자에 대한 소리의 상대 속력이 ${dir === "toward" ? "v + v₀" : "v − v₀"}가 돼요.<br>` +
+             `f′ = f(${dir === "toward" ? "v + v₀" : "v − v₀"})/v = ${f} × (340 ${dir === "toward" ? "+" : "−"} ${v0})/340 = <b>${hz(ans)}</b>`,
+        meta: { kind:"observer", dir, f, v0, ans }
+      };
+    },
+    // ⑥ 음원의 속력 구하기
+    findVs(){
+      const c = pickVsCase("toward");
+      const ans = c.vs + " m/s";
+      const ds = [17, 34, 68, 102, 136, 170, 51, 85].filter(x => x !== c.vs).map(x => x + " m/s");
+      return {
+        q: `진동수 <b>${c.f} Hz</b>인 소리를 내는 음원이 정지한 관찰자를 향해 다가온다. 관찰자에게 <b>${c.fp} Hz</b>로 들렸다면 음원의 속력은? (소리의 속력 340 m/s)`,
+        ...choices(ans, shuffle(ds)),
+        exp: `f′ = f · v/(v − vₛ) → ${c.fp} = ${c.f} × 340/(340 − vₛ)<br>340 − vₛ = ${c.f} × 340 / ${c.fp} = ${340 - c.vs} → vₛ = <b>${c.vs} m/s</b>`,
+        meta: { kind:"findVs", f:c.f, fp:c.fp, vs:c.vs }
+      };
+    },
+    // ⑦ 개념: 높은음/낮은음, 변하지 않는 것
+    concept(){
+      if(Math.random() < 0.55){
+        const right = "다가올 때는 원래보다 높은음, 멀어질 때는 원래보다 낮은음";
+        return {
+          q: `사이렌을 울리는 구급차가 일정한 속력으로 길에 서 있는 사람 앞을 지나간다. 사람이 듣는 사이렌 소리에 대한 설명으로 옳은 것은?`,
+          ...choices(right, ["다가올 때는 원래보다 낮은음, 멀어질 때는 원래보다 높은음",
+                             "다가올 때와 멀어질 때 모두 원래와 같은 높이",
+                             "다가올 때는 점점 높아지다가, 멀어질 때는 원래 높이로 돌아온다",
+                             "다가올 때와 멀어질 때 모두 원래보다 높은음"]),
+          exp: `다가올 때는 앞쪽 파면이 촘촘(파장 짧음) → 진동수 큼 → <span class="hi">높은음</span><br>멀어질 때는 뒤쪽 파면이 성김(파장 김) → 진동수 작음 → <span class="lo">낮은음</span>`,
+          meta: { kind:"concept", right }
+        };
+      }
+      const right = "공기 중에서 소리가 퍼져 나가는 속력";
+      return {
+        q: `소리를 내는 음원이 공기 중에서 일정한 속력으로 움직일 때, 음원의 <b>앞쪽과 뒤쪽에서 같은 값</b>인 것은? (바람은 없다)`,
+        ...choices(right, ["소리의 파장", "정지한 관찰자가 듣는 소리의 진동수", "1초 동안 정지한 관찰자에게 도달하는 파면의 수", "이웃한 두 파면 사이의 거리"]),
+        exp: `소리의 속력은 매질(공기)이 정해서 앞뒤가 같아요. 파장(파면 사이 거리)은 앞쪽이 짧고 뒤쪽이 길며, 그래서 들리는 진동수(1초에 도달하는 파면 수)는 앞쪽이 커요.`,
+        meta: { kind:"concept", right }
+      };
+    }
+  };
+
+  function make(n){
+    const flat = ["srcT","srcT","srcT","srcA","srcA","srcA","wave","wave","ratio","observer","observer","findVs","concept"];
+    const out = [];
+    for(let i = 0; i < n; i++){
+      const t = R.pick(flat);
+      const q = t === "srcT" ? MAKERS.srcFreq("toward") : t === "srcA" ? MAKERS.srcFreq("away") : MAKERS[t]();
+      q.id = "dop_" + Date.now().toString(36) + "_" + i + "_" + Math.random().toString(36).slice(2, 6);
+      out.push(q);
+    }
+    return out;
+  }
+  return { V, fmt, approach, recede, obsToward, obsAway, lamFront, lamBack, make };
+})();
+/*LOGIC-END*/
+
+/* ===== 화면 ===== */
+const $ = s => document.querySelector(s);
+const cv = $("#cv"), ctx = cv.getContext("2d");
+const V = DPX.V, fmt = DPX.fmt;
+const st = {
+  mode: "src", ratio: CS.store.get("dop_r", 0.3), v0r: CS.store.get("dop_v0", 0.3), f: CS.store.get("dop_f", 500),
+  sup: false, playing: true
+};
+let dpr = 1, Wp = 0, Hp = 0, simT = 0, tStart = 0, lastT = 0;
+const flash = { A: 0, B: 0 }, lastIdx = { A: null, B: null };
+
+function resize(){
+  const box = $("#figbox");
+  const wide = innerWidth >= 1000;
+  let w = box.clientWidth;
+  const asp = w < 600 ? 0.72 : 0.56;
+  if(wide){ const maxH = innerHeight - 330; if(w * asp > maxH) w = Math.max(360, maxH / asp); }
+  const h = w * asp;
+  cv.style.width = w + "px"; cv.style.height = h + "px";
+  dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  Wp = cv.width; Hp = cv.height;
+}
+// 화면 속 크기: 소리의 속력 = 화면 폭의 12%/초, 파면 사이 시간 = 0.55 × (400/f) 초
+const cpx = () => 0.12 * Wp;
+const Tvis = () => 0.55 * 400 / st.f;
+const vsRatio = () => st.sup ? 1.2 : st.ratio;
+
+function geom(){
+  const midY = Hp * 0.5;
+  if(st.mode === "src"){
+    const r = vsRatio(), vpx = r * cpx();
+    const x0 = 0.2 * Wp, x1 = st.sup ? 0.78 * Wp : 0.7 * Wp;
+    if(vpx > 0 && x0 + vpx * (simT - tStart) > x1) tStart = simT;
+    const xs = t => vpx > 0 ? x0 + vpx * (t - tStart) : 0.45 * Wp;
+    return { midY, xs, A: 0.92 * Wp, B: 0.07 * Wp, vpx };
+  } else {
+    const vo = st.v0r * cpx();
+    const span = 0.3 * Wp;
+    if(vo > 0 && vo * (simT - tStart) > span) tStart = simT;
+    const dx = vo > 0 ? vo * (simT - tStart) : 0;
+    return { midY, xs: () => 0.5 * Wp, A: (vo > 0 ? 0.92 * Wp : 0.85 * Wp) - dx, B: (vo > 0 ? 0.38 * Wp : 0.15 * Wp) - dx, vpx: 0 };
+  }
+}
+
+function drawPerson(x, y, lb, col, fl){
+  const s = dpr;
+  ctx.save();
+  if(fl > 0){ ctx.beginPath(); ctx.arc(x, y - 6 * s, 20 * s, 0, Math.PI * 2); ctx.fillStyle = `rgba(253,224,71,${0.5 * fl})`; ctx.fill(); }
+  ctx.fillStyle = col; ctx.strokeStyle = "#0b1222"; ctx.lineWidth = 1.5 * s;
+  ctx.beginPath(); ctx.arc(x, y - 16 * s, 7 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 8 * s, y + 10 * s); ctx.lineTo(x, y - 8 * s); ctx.lineTo(x + 8 * s, y + 10 * s); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.font = `700 ${Math.round(15 * s)}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "top";
+  ctx.fillStyle = "#fff"; ctx.fillText(lb, x, y + 14 * s);
+  ctx.restore();
+}
+
+function render(){
+  const g = geom(), c = cpx(), T = Tvis();
+  ctx.fillStyle = "#0b1222"; ctx.fillRect(0, 0, Wp, Hp);
+  // 축
+  ctx.strokeStyle = "rgba(148,163,184,.25)"; ctx.lineWidth = 1 * dpr; ctx.setLineDash([4 * dpr, 6 * dpr]);
+  ctx.beginPath(); ctx.moveTo(0, g.midY); ctx.lineTo(Wp, g.midY); ctx.stroke(); ctx.setLineDash([]);
+  // 파면
+  const Rmax = 1.3 * Wp;
+  const nNow = Math.floor(simT / T), nMin = Math.floor((simT - Rmax / c) / T);
+  const obsX = { A: g.A, B: g.B };
+  const passed = { A: null, B: null };
+  ctx.lineWidth = 1.8 * dpr;
+  for(let n = nNow; n >= nMin; n--){
+    const te = n * T, r = c * (simT - te);
+    if(r < 0) continue;
+    const cx = g.xs(te);
+    const alpha = Math.max(0.12, 0.95 - r / Rmax * 0.8);
+    ctx.strokeStyle = `rgba(125,211,252,${alpha})`;
+    ctx.beginPath(); ctx.arc(cx, g.midY, Math.max(r, 0.5), 0, Math.PI * 2); ctx.stroke();
+    for(const k of ["A", "B"]){ if(passed[k] === null && Math.abs(obsX[k] - cx) <= r) passed[k] = n; }
+  }
+  for(const k of ["A", "B"]){
+    if(passed[k] !== null && lastIdx[k] !== null && passed[k] > lastIdx[k]) flash[k] = 1;
+    lastIdx[k] = passed[k];
+  }
+  // 마하 원뿔
+  const xsNow = g.xs(simT);
+  if(st.mode === "src" && st.sup){
+    const th = Math.asin(1 / 1.2), L = 1.6 * Wp;
+    ctx.save(); ctx.strokeStyle = "#f87171"; ctx.lineWidth = 3 * dpr; ctx.setLineDash([10 * dpr, 6 * dpr]);
+    ctx.beginPath();
+    ctx.moveTo(xsNow - L * Math.cos(th), g.midY - L * Math.sin(th)); ctx.lineTo(xsNow, g.midY); ctx.lineTo(xsNow - L * Math.cos(th), g.midY + L * Math.sin(th));
+    ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.font = `700 ${Math.round(15 * dpr)}px sans-serif`; ctx.fillStyle = "#fca5a5"; ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+    ctx.fillText("충격파(마하 원뿔)", xsNow - 12 * dpr, g.midY - Math.min(Hp * 0.36, 0.42 * Wp * Math.tan(th)) - 4 * dpr);
+    ctx.restore();
+  }
+  // 음원
+  ctx.save();
+  ctx.beginPath(); ctx.arc(xsNow, g.midY, 10 * dpr, 0, Math.PI * 2);
+  ctx.fillStyle = "#f97316"; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2 * dpr; ctx.stroke();
+  ctx.font = `700 ${Math.round(14 * dpr)}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+  ctx.fillStyle = "#fdba74"; ctx.fillText("음원", xsNow, g.midY - 14 * dpr);
+  if(g.vpx > 0){
+    const ax = xsNow + 14 * dpr, al = 34 * dpr;
+    ctx.strokeStyle = "#fdba74"; ctx.fillStyle = "#fdba74"; ctx.lineWidth = 3 * dpr;
+    ctx.beginPath(); ctx.moveTo(ax, g.midY + 20 * dpr); ctx.lineTo(ax + al, g.midY + 20 * dpr); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax + al + 8 * dpr, g.midY + 20 * dpr); ctx.lineTo(ax + al, g.midY + 15 * dpr); ctx.lineTo(ax + al, g.midY + 25 * dpr); ctx.fill();
+    ctx.textBaseline = "top"; ctx.fillText("vₛ", ax + al / 2, g.midY + 26 * dpr);
+  }
+  ctx.restore();
+  // 관찰자
+  drawPerson(g.A, g.midY, st.mode === "src" ? "A (앞)" : "A", "#7dd3fc", flash.A);
+  drawPerson(g.B, g.midY, st.mode === "src" ? "B (뒤)" : "B", "#fda4af", flash.B);
+  if(st.mode === "obs" && st.v0r > 0){
+    ctx.save(); ctx.fillStyle = "#e2e8f0"; ctx.font = `600 ${Math.round(13 * dpr)}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    ctx.fillText("← v₀ (다가감)", g.A, g.midY - 30 * dpr);
+    ctx.fillText("← v₀ (멀어짐)", g.B, g.midY - 30 * dpr);
+    ctx.restore();
+  }
+}
+
+function loop(t){
+  requestAnimationFrame(loop);
+  if(document.hidden){ lastT = 0; return; }
+  const dt = lastT ? Math.min(0.1, (t - lastT) / 1000) : 0;
+  lastT = t;
+  if(st.playing) simT += dt;
+  flash.A = Math.max(0, flash.A - dt * 6); flash.B = Math.max(0, flash.B - dt * 6);
+  render();
+}
+
+/* ===== 숫자 패널 ===== */
+function updateTexts(){
+  const f = st.f;
+  $("#vf").textContent = f + " Hz";
+  $("#vvs").textContent = st.sup ? "1.2v = 408 m/s" : `${fmt(st.ratio, 2)}v = ${fmt(st.ratio * V, 1)} m/s`;
+  $("#vv0").textContent = `${fmt(st.v0r, 2)}v = ${fmt(st.v0r * V, 1)} m/s`;
+  $("#svs").disabled = st.sup;
+  $("#btnSuper").classList.toggle("on", st.sup);
+  const lam0 = V / f;
+  let A, B, note;
+  const pitch = (fp) => Math.abs(fp - f) < 1e-9 ? `<span class="muted">원래와 같은 높이</span>` : fp > f ? `<span class="hi">원래보다 높은음 ↑</span>` : `<span class="lo">원래보다 낮은음 ↓</span>`;
+  if(st.mode === "src"){
+    const vs = st.ratio * V;
+    note = st.sup ? "음원이 소리보다 빠름 → 파면이 겹쳐 충격파" : (vs ? "앞쪽 파면 촘촘, 뒤쪽 파면 성김" : "음원 정지: 파면이 같은 간격의 동심원");
+    if(st.sup){
+      const na = `<div class="na">공식 적용 안 됨</div><div class="fm">vₛ = 1.2v &gt; v: 교과서의 도플러 식은 vₛ &lt; v일 때만 써요.</div>`;
+      A = `<div class="hd">A (앞)</div>${na}<div class="fm">음원이 자기 소리보다 먼저 도착하고, 그 뒤 충격파(쾅 소리)가 지나가요.</div>`;
+      B = `<div class="hd">B (뒤)</div>${na}`;
+    } else {
+      const fa = DPX.approach(f, vs), fb = DPX.recede(f, vs);
+      const la = DPX.lamFront(f, vs), lb = DPX.lamBack(f, vs);
+      A = `<div class="hd">A (앞) · 음원이 다가옴</div><div class="fq">${fmt(fa, 1)} Hz</div>${pitch(fa)}
+           <div class="fm">f′ = f·v/(v − vₛ) = ${f} × 340/(340 − ${fmt(vs, 1)}) </div>
+           <div>λ′ = (v − vₛ)/f = <b>${fmt(la, 3)} m</b></div>`;
+      B = `<div class="hd">B (뒤) · 음원이 멀어짐</div><div class="fq">${fmt(fb, 1)} Hz</div>${pitch(fb)}
+           <div class="fm">f′ = f·v/(v + vₛ) = ${f} × 340/(340 + ${fmt(vs, 1)})</div>
+           <div>λ′ = (v + vₛ)/f = <b>${fmt(lb, 3)} m</b></div>`;
+    }
+  } else {
+    const v0 = st.v0r * V;
+    const fa = DPX.obsToward(f, v0), fb = DPX.obsAway(f, v0);
+    note = "음원 정지: 파장은 그대로, 관찰자가 파면을 만나는 횟수가 달라짐";
+    A = `<div class="hd">A · 음원으로 다가감</div><div class="fq">${fmt(fa, 1)} Hz</div>${pitch(fa)}
+         <div class="fm">f′ = f(v + v₀)/v = ${f} × (340 + ${fmt(v0, 1)})/340</div><div>파장 λ = v/f = <b>${fmt(lam0, 3)} m</b> (그대로)</div>`;
+    B = `<div class="hd">B · 음원에서 멀어짐</div><div class="fq">${fmt(fb, 1)} Hz</div>${pitch(fb)}
+         <div class="fm">f′ = f(v − v₀)/v = ${f} × (340 − ${fmt(v0, 1)})/340</div><div>파장 λ = v/f = <b>${fmt(lam0, 3)} m</b> (그대로)</div>`;
+  }
+  $("#obsBox").innerHTML = `<div class="oc a">${A}</div><div class="oc b">${B}</div>`;
+  $("#obsTitle").textContent = `관찰자가 듣는 소리 (v = 340 m/s, 원래 f = ${f} Hz, λ = ${fmt(lam0, 3)} m)`;
+  $("#figNote").textContent = note + " · 화면은 아주 느리게 보여 줘요";
+  const dis = st.mode === "src" && st.sup;
+  ["#sndA", "#sndB", "#sndPass"].forEach(id => $(id).disabled = dis);
+}
+function heard(){
+  const f = st.f;
+  if(st.mode === "src"){ const vs = st.ratio * V; return { A: DPX.approach(f, vs), B: DPX.recede(f, vs) }; }
+  const v0 = st.v0r * V; return { A: DPX.obsToward(f, v0), B: DPX.obsAway(f, v0) };
+}
+
+/* ===== 소리 (Web Audio, 버튼 누를 때만) ===== */
+let AC = null;
+function tone(freq, start, dur){
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = "sine"; o.frequency.value = freq;
+  const t0 = AC.currentTime + start;
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(0.06, t0 + 0.03);
+  g.gain.setValueAtTime(0.06, t0 + dur - 0.06);
+  g.gain.linearRampToValueAtTime(0, t0 + dur);
+  o.connect(g).connect(AC.destination);
+  o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function play(list){
+  try{
+    if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if(AC.state === "suspended") AC.resume();
+    let s = 0; list.forEach(([fq, d]) => { tone(fq, s, d); s += d + 0.08; });
+  }catch(e){ CS.toast("이 브라우저에서는 소리를 낼 수 없어요"); }
+}
+$("#sndF").onclick = () => play([[st.f, 0.7]]);
+$("#sndA").onclick = () => play([[heard().A, 0.7]]);
+$("#sndB").onclick = () => play([[heard().B, 0.7]]);
+$("#sndPass").onclick = () => { const h = heard(); play([[h.A, 0.8], [h.B, 0.8]]); CS.toast(`A ${fmt(h.A,1)} Hz → B ${fmt(h.B,1)} Hz`); };
+
+/* ===== 조작 ===== */
+$("#svs").value = st.ratio; $("#sv0").value = st.v0r; $("#sf").value = st.f;
+$("#svs").addEventListener("input", e => { st.ratio = +e.target.value; CS.store.set("dop_r", st.ratio); tStart = simT; updateTexts(); });
+$("#sv0").addEventListener("input", e => { st.v0r = +e.target.value; CS.store.set("dop_v0", st.v0r); tStart = simT; updateTexts(); });
+$("#sf").addEventListener("input", e => { st.f = +e.target.value; CS.store.set("dop_f", st.f); updateTexts(); });
+$("#btnSuper").onclick = () => { st.sup = !st.sup; tStart = simT; updateTexts(); };
+function setMode(m){
+  st.mode = m; tStart = simT;
+  $("#mSrc").classList.toggle("on", m === "src"); $("#mObs").classList.toggle("on", m === "obs");
+  $("#srcCtl").classList.toggle("hide", m !== "src"); $("#obsCtl").classList.toggle("hide", m !== "obs");
+  updateTexts();
+}
+$("#mSrc").onclick = () => setMode("src");
+$("#mObs").onclick = () => setMode("obs");
+$("#btnPlay").onclick = () => { st.playing = !st.playing; $("#btnPlay").textContent = st.playing ? "⏸ 멈춤" : "▶ 재생"; };
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
+document.addEventListener("visibilitychange", () => { lastT = 0; });
+
+resize(); updateTexts();
+simT = 6;  // 처음부터 파면이 화면에 차 있도록
+tStart = simT;
+requestAnimationFrame(loop);
+
+const quiz = CS.QuizRound($("#quiz"), { make: DPX.make, count: 10 });
+quiz.start();
+</script>
+</body>
+</html>
