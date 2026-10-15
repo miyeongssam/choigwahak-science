@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>이온식 만들기 퍼즐 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+:root{ --cat:#f87171; --cat-bg:rgba(248,113,113,.14); --an:#60a5fa; --an-bg:rgba(96,165,250,.14); }
+sub,sup{font-size:.62em;line-height:0}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs .btn{flex:1;font-size:16px}
+.lay{display:grid;gap:12px;grid-template-areas:"pick" "stage"}
+.lay .pick{grid-area:pick}.lay .stage{grid-area:stage}
+@media (min-width:1000px){
+  .wrap{max-width:1600px}
+  .lay{grid-template-columns:1.5fr 1fr;grid-template-areas:"stage pick";align-items:start}
+}
+.ions{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+.ionb{background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:6px 4px;
+  cursor:pointer;font-family:inherit;text-align:center;line-height:1.25}
+.ionb b{display:block;font-size:19px}
+.ionb small{display:block;font-size:11px;color:var(--muted);word-break:keep-all}
+.ionb.cat.on{border-color:var(--cat);background:var(--cat-bg)}
+.ionb.an.on{border-color:var(--an);background:var(--an-bg)}
+.pick h2 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+.srow{display:flex;align-items:center;gap:10px;margin:6px 0 4px;flex-wrap:wrap}
+.srow .lbl{font-size:15px;font-weight:600}
+.cnt{display:flex;align-items:center;gap:6px;margin-left:auto}
+.cnt button{width:44px;height:44px;border-radius:10px;font-size:24px;font-weight:700;border:1px solid var(--line);
+  background:var(--card2);color:var(--text);cursor:pointer;font-family:inherit}
+.cnt span{min-width:44px;text-align:center;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.tray{display:flex;flex-wrap:wrap;gap:8px;min-height:84px;padding:10px;border-radius:12px;background:#0b1222;border:1px solid var(--line)}
+.card{border-radius:12px;padding:8px 10px 6px;text-align:center;min-width:72px;animation:pop .18s ease-out}
+.card .sym{font-size:24px;font-weight:700;white-space:nowrap}
+.card .chg{display:flex;justify-content:center;gap:3px;margin-top:4px}
+.card .chg i{width:18px;height:18px;border-radius:50%;font-style:normal;font-size:15px;font-weight:800;line-height:18px;color:#0b1222}
+.card.cat{background:var(--cat-bg);border:2px solid var(--cat)} .card.cat .chg i{background:var(--cat)}
+.card.an{background:var(--an-bg);border:2px solid var(--an)} .card.an .chg i{background:var(--an)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
+.bars{margin-top:14px}
+.bar{display:grid;grid-template-columns:96px 1fr 44px;align-items:center;gap:8px;margin:6px 0;font-size:15px}
+.bar .tr{height:26px;background:var(--card2);border-radius:8px;overflow:hidden;position:relative}
+.bar .fl{height:100%;border-radius:8px;transition:width .25s}
+.bar .v{font-weight:800;font-size:20px;text-align:right;font-variant-numeric:tabular-nums}
+.bar .tk{position:absolute;top:0;bottom:0;width:1px;background:rgba(15,23,42,.55)}
+.status{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--card2);font-size:16px;line-height:1.6;word-break:keep-all}
+.status.ok{background:rgba(34,197,94,.12);border:1px solid var(--ok)}
+.done-t{font-size:26px;font-weight:800;color:var(--ok)}
+.fml{font-size:44px;font-weight:800;margin:4px 0;color:#fff}
+.cname{font-size:24px;font-weight:700;color:#fde68a}
+.empty{color:var(--muted);font-size:15px;padding:10px}
+@media (min-width:1000px){
+  .card{min-width:96px;padding:10px 14px 8px}
+  .card .sym{font-size:34px}
+  .card .chg i{width:22px;height:22px;line-height:22px;font-size:18px}
+  .tray{min-height:120px}
+  .fml{font-size:72px}
+  .cname{font-size:36px}
+  .done-t{font-size:34px}
+  .bar{font-size:18px;grid-template-columns:120px 1fr 56px}
+  .bar .tr{height:34px}
+  .bar .v{font-size:26px}
+  .srow .lbl{font-size:18px}
+  .status{font-size:19px}
+}
+/* 문제 모드 */
+.qtypes{margin-bottom:12px}
+#quizBox .qz-q .bigf{font-size:30px;font-weight:800;color:#fff}
+#quizBox .qz-ch button{font-size:20px}
+@media (min-width:900px){
+  #quizBox{max-width:900px;margin:0 auto}
+  #quizBox .qz-q{font-size:26px}
+  #quizBox .qz-q .bigf{font-size:48px}
+  #quizBox .qz-ch button{font-size:26px}
+}
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>이온식 만들기 퍼즐<small>화학 · 양이온과 음이온의 전하 합을 0으로</small></h1></header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="btn" id="tabMake">🧩 만들기</button>
+    <button class="btn ghost" id="tabQuiz">✏️ 문제</button>
+  </div>
+
+  <section id="makeView">
+    <div class="lay">
+      <div class="panel stage">
+        <div class="srow"><span class="lbl" id="catLbl" style="color:var(--cat)">양이온</span>
+          <div class="cnt"><button id="catM" aria-label="양이온 빼기">−</button><span id="catN">1</span><button id="catP" aria-label="양이온 더하기">+</button></div></div>
+        <div class="tray" id="catTray"></div>
+        <div class="srow" style="margin-top:12px"><span class="lbl" id="anLbl" style="color:var(--an)">음이온</span>
+          <div class="cnt"><button id="anM" aria-label="음이온 빼기">−</button><span id="anN">1</span><button id="anP" aria-label="음이온 더하기">+</button></div></div>
+        <div class="tray" id="anTray"></div>
+        <div class="bars">
+          <div class="bar"><span>(+) 전하 합</span><div class="tr"><div class="fl" id="plusF" style="background:var(--cat)"></div></div><span class="v" id="plusV" style="color:var(--cat)">0</span></div>
+          <div class="bar"><span>(−) 전하 합</span><div class="tr"><div class="fl" id="minusF" style="background:var(--an)"></div></div><span class="v" id="minusV" style="color:var(--an)">0</span></div>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+      <div class="panel pick">
+        <h2><span class="dot" style="background:var(--cat)"></span>양이온 고르기</h2>
+        <div class="ions" id="catList"></div>
+        <h2 style="margin-top:14px"><span class="dot" style="background:var(--an)"></span>음이온 고르기</h2>
+        <div class="ions" id="anList"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn ghost sm" id="rndBtn">🎲 아무거나 골라 주기</button>
+          <button class="btn ghost sm" id="hintBtn">💡 힌트</button>
+        </div>
+        <p class="note" style="margin-bottom:0">화합물 이름 = 음이온 이름(‘이온’ 빼기) + 양이온 이름(‘이온’ 빼기)<br>화학식 = 양이온 먼저, 개수는 아래 첨자, 1은 생략, 다원자 이온이 2개 이상이면 ( ) 로 묶기</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="quizView" class="hide">
+    <div class="panel qtypes">
+      <h2>문제 종류 (눌러서 켜고 끄기)</h2>
+      <div class="row" id="qtypeChips"></div>
+    </div>
+    <div id="quizBox"></div>
+  </section>
+</div>
+<script src="../common/common.js"></script>
+<script>
+"use strict";
+/*CORE-START*/
+const SUBD = "₀₁₂₃₄₅₆₇₈₉", SUPD = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+const sub = n => String(n).split("").map(d => SUBD[+d]).join("");
+const charge = (q, sign) => (q > 1 ? SUPD[q] : "") + (sign > 0 ? "⁺" : "⁻");
+// 양이온 (H⁺은 산 이름 규칙이 달라 퍼즐에서 제외)
+const CATIONS = [
+  {id:"Na",  s:"Na",  q:1, name:"나트륨 이온"},
+  {id:"K",   s:"K",   q:1, name:"칼륨 이온"},
+  {id:"Ag",  s:"Ag",  q:1, name:"은 이온"},
+  {id:"NH4", s:"NH₄", q:1, name:"암모늄 이온", poly:true},
+  {id:"Mg",  s:"Mg",  q:2, name:"마그네슘 이온"},
+  {id:"Ca",  s:"Ca",  q:2, name:"칼슘 이온"},
+  {id:"Ba",  s:"Ba",  q:2, name:"바륨 이온"},
+  {id:"Cu",  s:"Cu",  q:2, name:"구리(Ⅱ) 이온"},
+  {id:"Zn",  s:"Zn",  q:2, name:"아연 이온"},
+  {id:"Fe2", s:"Fe",  q:2, name:"철(Ⅱ) 이온"},
+  {id:"Fe3", s:"Fe",  q:3, name:"철(Ⅲ) 이온"},
+  {id:"Al",  s:"Al",  q:3, name:"알루미늄 이온"}
+];
+const ANIONS = [
+  {id:"F",   s:"F",   q:1, name:"플루오린화 이온"},
+  {id:"Cl",  s:"Cl",  q:1, name:"염화 이온"},
+  {id:"Br",  s:"Br",  q:1, name:"브로민화 이온"},
+  {id:"I",   s:"I",   q:1, name:"아이오딘화 이온"},
+  {id:"OH",  s:"OH",  q:1, name:"수산화 이온", poly:true},
+  {id:"NO3", s:"NO₃", q:1, name:"질산 이온", poly:true},
+  {id:"O",   s:"O",   q:2, name:"산화 이온"},
+  {id:"S",   s:"S",   q:2, name:"황화 이온"},
+  {id:"SO4", s:"SO₄", q:2, name:"황산 이온", poly:true},
+  {id:"CO3", s:"CO₃", q:2, name:"탄산 이온", poly:true},
+  {id:"PO4", s:"PO₄", q:3, name:"인산 이온", poly:true}
+];
+// 전하 맞추기는 되지만 실제로는 안정한 화합물로 거의 존재하지 않는 조합 → 문제에서 제외
+const RARE = new Set(["Ag|OH","NH4|O","NH4|OH","NH4|S","Cu|I","Fe3|I","Fe3|S","Fe3|CO3","Al|CO3"]);
+const catText = c => c.s + charge(c.q, 1);
+const anText  = a => a.s + charge(a.q, -1);
+const baseName = ion => ion.name.replace(/ 이온$/, "");
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+// 가장 간단한 정수비 [양이온 수, 음이온 수] — 최소공배수 이용
+function ratio(c, a){ const l = c.q * a.q / gcd(c.q, a.q); return [l / c.q, l / a.q]; }
+function part(ion, n, paren){
+  if(paren === undefined) paren = true;
+  if(n === 1) return ion.s;
+  return (ion.poly && paren ? "(" + ion.s + ")" : ion.s) + sub(n);
+}
+function formula(c, a){ const r = ratio(c, a); return part(c, r[0]) + part(a, r[1]); }
+function compoundName(c, a){ return baseName(a) + " " + baseName(c); }
+// 흔한 실수로 만든 틀린 화학식 (우선순위 순)
+function wrongFormulas(c, a){
+  const r = ratio(c, a), m = r[0], n = r[1], ok = formula(c, a), out = [];
+  const add = f => { if(f !== ok && out.indexOf(f) < 0) out.push(f); };
+  add(part(c, m, false) + part(a, n, false));   // 괄호 누락
+  add(part(c, n) + part(a, m));                 // 개수 비 뒤집기
+  add(part(c, c.q) + part(a, a.q));             // 자기 전하를 그대로 개수로
+  add(part(c, a.q) + part(a, c.q));             // 엇갈려 쓰고 약분 안 함
+  add(part(a, n) + part(c, m));                 // 음이온을 먼저 씀
+  add(part(c, 2 * m) + part(a, 2 * n));         // 약분 안 함
+  add(part(c, 1) + part(a, 1));                 // 1 : 1
+  add(part(c, n, false) + part(a, m, false));
+  add(part(c, m) + part(a, n + 1));
+  add(part(c, m + 1) + part(a, n));
+  return out;
+}
+const CONFUSE_AN = {"황산":["황화","아황산"],"황화":["황산"],"산화":["수산화","과산화"],"수산화":["산화","수소화"],
+  "탄산":["탄화","탄산수소"],"인산":["인화"],"질산":["질화","아질산"],"염화":["염소","염산"],
+  "플루오린화":["플루오린"],"브로민화":["브로민"],"아이오딘화":["아이오딘"]};
+const CONFUSE_CAT = {"철(Ⅱ)":["철(Ⅲ)","철"],"철(Ⅲ)":["철(Ⅱ)","철"],"구리(Ⅱ)":["구리(Ⅰ)","구리"],"암모늄":["암모니아"]};
+function wrongNames(c, a){
+  const an = baseName(a), ca = baseName(c), ok = compoundName(c, a), out = [];
+  const add = s => { if(s !== ok && out.indexOf(s) < 0) out.push(s); };
+  add(ca + " " + an);                                         // 이름 순서 바꾸기
+  (CONFUSE_AN[an] || []).forEach(x => add(x + " " + ca));       // 비슷한 음이온 이름
+  (CONFUSE_CAT[ca] || []).forEach(x => add(an + " " + x));
+  (CONFUSE_AN[an] || []).forEach(x => add(ca + " " + x));
+  ANIONS.forEach(x => add(baseName(x) + " " + ca));               // 다른 음이온 이름 (모자랄 때)
+  return out;
+}
+const ALL_PAIRS = [];
+CATIONS.forEach(c => ANIONS.forEach(a => ALL_PAIRS.push({c, a, key: c.id + "|" + a.id})));
+const QUIZ_PAIRS = ALL_PAIRS.filter(p => !RARE.has(p.key));
+/*CORE-END*/
+
+// 유니코드 첨자 → HTML (<sub>, <sup>)
+function H(s){
+  return CS.esc(s)
+    .replace(/[₀-₉]+/g, m => "<sub>" + m.split("").map(ch => SUBD.indexOf(ch)).join("") + "</sub>")
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, m => "<sup>" + m.split("").map(ch => ch === "⁺" ? "+" : ch === "⁻" ? "−" : SUPD.indexOf(ch)).join("") + "</sup>");
+}
+const $ = id => document.getElementById(id);
+
+/* ===== 만들기 ===== */
+const st = CS.store.get("ionp_state", null) || {};
+let cat = CATIONS.find(x => x.id === st.c) || CATIONS[5];
+let an  = ANIONS.find(x => x.id === st.a) || ANIONS[4];
+let nC = 1, nA = 1;
+const MAXN = 8;
+
+function ionBtns(list, el, kind){
+  el.innerHTML = list.map(x => `<button class="ionb ${kind}" data-id="${x.id}"><b>${H(kind === "cat" ? catText(x) : anText(x))}</b><small>${x.name}</small></button>`).join("");
+  el.querySelectorAll(".ionb").forEach(b => b.onclick = () => {
+    if(kind === "cat") cat = list.find(x => x.id === b.dataset.id); else an = list.find(x => x.id === b.dataset.id);
+    nC = 1; nA = 1; CS.store.set("ionp_state", {c:cat.id, a:an.id}); render();
+  });
+}
+function cardHTML(ion, kind){
+  const dots = Array.from({length: ion.q}, () => `<i>${kind === "cat" ? "+" : "−"}</i>`).join("");
+  return `<div class="card ${kind}"><div class="sym">${H(kind === "cat" ? catText(ion) : anText(ion))}</div><div class="chg">${dots}</div></div>`;
+}
+function render(){
+  document.querySelectorAll("#catList .ionb").forEach(b => b.classList.toggle("on", b.dataset.id === cat.id));
+  document.querySelectorAll("#anList .ionb").forEach(b => b.classList.toggle("on", b.dataset.id === an.id));
+  $("catLbl").innerHTML = `양이온 ${H(catText(cat))} <span class="muted" style="font-weight:500">× ${nC}</span>`;
+  $("anLbl").innerHTML  = `음이온 ${H(anText(an))} <span class="muted" style="font-weight:500">× ${nA}</span>`;
+  $("catN").textContent = nC; $("anN").textContent = nA;
+  $("catTray").innerHTML = Array.from({length:nC}, () => cardHTML(cat, "cat")).join("");
+  $("anTray").innerHTML  = Array.from({length:nA}, () => cardHTML(an, "an")).join("");
+  const plus = cat.q * nC, minus = an.q * nA, mx = Math.max(plus, minus, 6);
+  $("plusV").textContent = "+" + plus; $("minusV").textContent = "−" + minus;
+  $("plusF").style.width = (plus / mx * 100) + "%"; $("minusF").style.width = (minus / mx * 100) + "%";
+  // 눈금 (1 전하마다)
+  document.querySelectorAll(".bar .tr").forEach(tr => {
+    tr.querySelectorAll(".tk").forEach(t => t.remove());
+    for(let k = 1; k < mx; k++){ const t = document.createElement("div"); t.className = "tk"; t.style.left = (k / mx * 100) + "%"; tr.appendChild(t); }
+  });
+  const s = $("status"), r = ratio(cat, an);
+  if(plus === minus){
+    s.className = "status ok";
+    const simple = (nC === r[0] && nA === r[1]);
+    let h = `<div class="done-t">완성! 전하 합 = (+${plus}) + (−${minus}) = 0</div>`;
+    if(!simple) h += `<div style="margin:6px 0">전하는 맞았어요. 하지만 화학식은 <b>가장 간단한 정수비</b>로 써요: ${nC} : ${nA} → <b>${r[0]} : ${r[1]}</b></div>`;
+    h += `<div class="fml">${H(formula(cat, an))}</div><div class="cname">${compoundName(cat, an)}</div>`;
+    h += `<div class="note" style="margin-top:6px">${H(catText(cat))} : ${H(anText(an))} = ${r[0]} : ${r[1]} &nbsp;·&nbsp; 이름은 ‘${baseName(an)}’ + ‘${baseName(cat)}’</div>`;
+    if(RARE.has(cat.id + "|" + an.id)) h += `<div class="adv" style="margin-top:8px"><b>참고</b> 이 조합은 전하 맞추기는 되지만, 실제로는 안정한 화합물로 거의 만들어지지 않아요. (전하 연습용)</div>`;
+    s.innerHTML = h;
+  } else {
+    s.className = "status";
+    const d = plus - minus;
+    s.innerHTML = d > 0
+      ? `(+) 전하가 <b style="color:var(--cat)">${d}</b> 더 많아요. 음이온을 더 놓거나 양이온을 빼 보세요.`
+      : `(−) 전하가 <b style="color:var(--an)">${-d}</b> 더 많아요. 양이온을 더 놓거나 음이온을 빼 보세요.`;
+  }
+  $("catM").disabled = nC <= 1; $("anM").disabled = nA <= 1; $("catP").disabled = nC >= MAXN; $("anP").disabled = nA >= MAXN;
+}
+ionBtns(CATIONS, $("catList"), "cat");
+ionBtns(ANIONS, $("anList"), "an");
+$("catM").onclick = () => { if(nC > 1){ nC--; render(); } };
+$("catP").onclick = () => { if(nC < MAXN){ nC++; render(); } };
+$("anM").onclick  = () => { if(nA > 1){ nA--; render(); } };
+$("anP").onclick  = () => { if(nA < MAXN){ nA++; render(); } };
+$("rndBtn").onclick = () => { const p = CS.pick(QUIZ_PAIRS); cat = p.c; an = p.a; nC = 1; nA = 1; CS.store.set("ionp_state", {c:cat.id, a:an.id}); render(); };
+$("hintBtn").onclick = () => {
+  const l = cat.q * an.q / gcd(cat.q, an.q);
+  CS.toast(`${cat.q}와 ${an.q}의 최소공배수 = ${l} → 양이온 ${l / cat.q}개, 음이온 ${l / an.q}개`);
+};
+render();
+
+/* ===== 문제 ===== */
+const QTYPES = [
+  {id:"n2f", label:"이름 → 화학식"},
+  {id:"f2n", label:"화학식 → 이름"},
+  {id:"ratio", label:"이온 수 비"},
+  {id:"count", label:"이온 개수"},
+  {id:"ion", label:"이온 이름·기호"}
+];
+let qOn = CS.store.get("ionp_qtypes", QTYPES.map(t => t.id)).filter(id => QTYPES.some(t => t.id === id));
+if(!qOn.length) qOn = QTYPES.map(t => t.id);
+
+function exp(c, a){
+  const r = ratio(c, a);
+  return `${H(catText(c))} ${r[0]}개 → (+${c.q * r[0]}), ${H(anText(a))} ${r[1]}개 → (−${a.q * r[1]}) 이므로 전하 합 0.<br>
+    화학식 <b>${H(formula(c, a))}</b> · 이름 <b>${compoundName(c, a)}</b>`;
+}
+function mc(answer, wrong, n){ const r = CS.makeChoices(answer, wrong, n || 5); return r; }
+function makeQ(type){
+  const p = CS.pick(QUIZ_PAIRS), c = p.c, a = p.a, r = ratio(c, a);
+  if(type === "n2f"){
+    const ch = mc(H(formula(c, a)), wrongFormulas(c, a).map(H));
+    return {id:"n2f|" + p.key, q:`<span class="bigf">${compoundName(c, a)}</span>의 화학식은?`, choices:ch.choices, answer:ch.answer, exp:exp(c, a)};
+  }
+  if(type === "f2n"){
+    const ch = mc(compoundName(c, a), wrongNames(c, a));
+    return {id:"f2n|" + p.key, q:`<span class="bigf">${H(formula(c, a))}</span>의 이름은?`, choices:ch.choices, answer:ch.answer, exp:exp(c, a)};
+  }
+  if(type === "ratio"){
+    // 1:1 이 아닌 조합을 더 자주
+    let pp = p; for(let k = 0; k < 4 && ratio(pp.c, pp.a)[0] === ratio(pp.c, pp.a)[1]; k++) pp = CS.pick(QUIZ_PAIRS);
+    const C = pp.c, A = pp.a, R = ratio(C, A), f = (x, y) => x + " : " + y;
+    const wr = CS.shuffle([f(R[1], R[0]), f(C.q, A.q), f(1, 1), f(1, 2), f(2, 1), f(1, 3), f(3, 1), f(2, 3), f(3, 2)]);
+    const ch = mc(f(R[0], R[1]), [f(R[1], R[0]), f(C.q, A.q)].concat(wr));
+    return {id:"ratio|" + pp.key, q:`<span class="bigf">${H(catText(C))}</span> 와 <span class="bigf">${H(anText(A))}</span> 가 결합할 때, 이온 수 비 (양이온 : 음이온)는?`,
+      choices:ch.choices, answer:ch.answer, exp:exp(C, A)};
+  }
+  if(type === "count"){
+    let pp = p; for(let k = 0; k < 4 && ratio(pp.c, pp.a)[0] + ratio(pp.c, pp.a)[1] < 3; k++) pp = CS.pick(QUIZ_PAIRS);
+    const C = pp.c, A = pp.a, R = ratio(C, A), kind = CS.pick(["cat", "an", "all"]);
+    const ans = kind === "cat" ? R[0] : kind === "an" ? R[1] : R[0] + R[1];
+    const what = kind === "cat" ? `양이온(${H(catText(C))})` : kind === "an" ? `음이온(${H(anText(A))})` : "이온(양이온 + 음이온)";
+    const nums = [1,2,3,4,5,6].filter(x => x !== ans);
+    const ch = mc(ans + "개", CS.shuffle(nums).map(x => x + "개"), 4);
+    // 보기를 숫자 순서로
+    const sorted = ch.choices.slice().sort((x, y) => parseInt(x) - parseInt(y));
+    return {id:"count|" + kind + "|" + pp.key, q:`화합물 <span class="bigf">${H(formula(C, A))}</span> 1개(화학식 단위)에 들어 있는 ${what}의 수는?`,
+      choices:sorted, answer:sorted.indexOf(ans + "개"), exp:exp(C, A)};
+  }
+  // ion: 이온 이름 ↔ 기호
+  const isCat = Math.random() < 0.5, list = isCat ? CATIONS : ANIONS, ion = CS.pick(list);
+  const txt = isCat ? catText : anText, sign = isCat ? 1 : -1;
+  if(Math.random() < 0.5){
+    const others = CS.shuffle(list.filter(x => x !== ion)).map(x => x.name);
+    const near = list.filter(x => x !== ion && (x.s === ion.s || x.name[0] === ion.name[0])).map(x => x.name);
+    const ch = mc(ion.name, near.concat(others));
+    return {id:"ionN|" + ion.id, q:`<span class="bigf">${H(txt(ion))}</span>의 이름은?`, choices:ch.choices, answer:ch.answer,
+      exp:`${H(txt(ion))} = ${ion.name}`};
+  }
+  const wrongs = [ion.s + charge(ion.q + 1 > 3 ? 1 : ion.q + 1, sign), ion.s + charge(ion.q, -sign)];
+  if(ion.q > 1) wrongs.push(ion.s + charge(ion.q - 1, sign));
+  CS.shuffle(list.filter(x => x !== ion)).forEach(x => wrongs.push(txt(x)));
+  const ch = mc(H(txt(ion)), wrongs.filter(w => w !== txt(ion)).map(H));
+  return {id:"ionS|" + ion.id, q:`<span class="bigf">${ion.name}</span>을(를) 나타내는 기호는?`, choices:ch.choices, answer:ch.answer,
+    exp:`${ion.name} = ${H(txt(ion))}`};
+}
+function makeSet(n){
+  const out = [], ids = new Set();
+  let guard = 0;
+  while(out.length < n && guard++ < 500){
+    const q = makeQ(CS.pick(qOn));
+    if(ids.has(q.id)) continue;
+    ids.add(q.id); out.push(q);
+  }
+  return out;
+}
+let quiz = null;
+function drawChips(){
+  $("qtypeChips").innerHTML = QTYPES.map(t => `<button class="chip ${qOn.includes(t.id) ? "on" : ""}" data-id="${t.id}">${t.label}</button>`).join("");
+  $("qtypeChips").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    const id = b.dataset.id;
+    if(qOn.includes(id)){ if(qOn.length === 1){ CS.toast("하나 이상은 골라야 해요"); return; } qOn = qOn.filter(x => x !== id); }
+    else qOn.push(id);
+    CS.store.set("ionp_qtypes", qOn); drawChips(); quiz.start();
+  });
+}
+function setTab(t){
+  $("tabMake").className = "btn" + (t === "make" ? "" : " ghost");
+  $("tabQuiz").className = "btn" + (t === "quiz" ? "" : " ghost");
+  $("makeView").classList.toggle("hide", t !== "make");
+  $("quizView").classList.toggle("hide", t !== "quiz");
+  if(t === "quiz" && !quiz){ quiz = CS.QuizRound($("quizBox"), {make:makeSet, count:10}); drawChips(); quiz.start(); }
+  CS.store.set("ionp_tab", t);
+}
+$("tabMake").onclick = () => setTab("make");
+$("tabQuiz").onclick = () => setTab("quiz");
+setTab(CS.store.get("ionp_tab", "make"));
+</script>
+</body>
+</html>
