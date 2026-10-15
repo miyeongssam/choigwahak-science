@@ -16,7 +16,7 @@
 .fit{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
 .fit .it{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:center}
 .fit .it .k{font-size:13px;color:var(--muted)}
-.fit .it .v{font-size:19px;font-weight:700;color:#fde68a;font-variant-numeric:tabular-nums;word-break:break-all}
+.fit .it .v{font-size:17px;white-space:nowrap;font-weight:700;color:#fde68a;font-variant-numeric:tabular-nums;word-break:break-all}
 .eq{font-size:17px;margin-top:10px;text-align:center;font-weight:600}
 .ana{margin-top:10px;font-size:15px;line-height:1.7}
 .ana b{color:#fde68a}
@@ -96,7 +96,7 @@ table.data .tv{font-size:12px;color:var(--muted);padding:0 4px 4px;text-align:le
       <div class="panel">
         <h2>측정값</h2>
         <table class="data">
-          <thead><tr><th></th><th>x 입력값</th><th>y 입력값</th><th></th></tr></thead>
+          <thead><tr><th></th><th id="hx">x 입력값</th><th id="hy">y 입력값</th><th></th></tr></thead>
           <tbody id="tb"></tbody>
         </table>
         <div class="row" style="margin-top:8px">
@@ -196,8 +196,9 @@ function range(vals){
   let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
   if(hi - lo === 0){ hi = lo + 1; }
   const st = niceStep(hi - lo, 5);
-  lo = Math.floor(lo / st - 1e-9) * st; hi = Math.ceil(hi / st + 1e-9) * st;
-  if(hi === Math.max(...vals)) hi += st;  // 끝 점이 테두리에 붙지 않게
+  lo = Math.floor(lo / st + 1e-9) * st; hi = Math.ceil(hi / st - 1e-9) * st;
+  if(hi - Math.max(...vals) < st * 0.05) hi += st;
+  if(lo < 0 && Math.min(...vals) - lo < st * 0.05) lo -= st;  // 끝 점이 테두리에 붙지 않게
   return { lo: lo, hi: hi, st };
 }
 const tick = (v, st) => { const d = Math.max(0, -Math.floor(Math.log10(st) + 1e-9)); return v.toFixed(d); };
@@ -306,12 +307,13 @@ function controls(){
   $("lx").value = S.lx; $("ly").value = S.ly; $("tx").value = S.tx; $("ty").value = S.ty; $("anaSel").value = S.ana;
   document.querySelectorAll("[data-fit]").forEach(b => b.classList.toggle("on", b.dataset.fit === S.fit));
 }
-function refresh(){ controls(); table(); info(); draw(); }
+function heads(){ $("hx").textContent = "x 입력값" + (S.tx !== "id" ? " → " + TR[S.tx].x : ""); $("hy").textContent = "y 입력값" + (S.ty !== "id" ? " → " + TR[S.ty].y : ""); }
+function refresh(){ heads(); controls(); table(); info(); draw(); }
 
 $("lx").oninput = e => { S.lx = e.target.value; save(); draw(); };
 $("ly").oninput = e => { S.ly = e.target.value; save(); draw(); };
-$("tx").onchange = e => { S.tx = e.target.value; save(); info(); draw(); };
-$("ty").onchange = e => { S.ty = e.target.value; save(); info(); draw(); };
+$("tx").onchange = e => { S.tx = e.target.value; save(); heads(); info(); draw(); };
+$("ty").onchange = e => { S.ty = e.target.value; save(); heads(); info(); draw(); };
 $("anaSel").onchange = e => { S.ana = e.target.value; save(); info(); };
 document.querySelectorAll("[data-fit]").forEach(b => b.onclick = () => { S.fit = b.dataset.fit; save(); refresh(); });
 $("bAdd").onclick = addRow;

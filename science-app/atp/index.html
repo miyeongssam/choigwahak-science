@@ -26,8 +26,8 @@
 .gauge{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .tile{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px;text-align:center}
 .tile .k{font-size:13px;color:var(--muted)}
-.tile .val{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.25}
-.tile .val small{font-size:14px;font-weight:600;color:var(--muted);margin-left:2px}
+.tile .val{font-size:24px;white-space:nowrap;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.25}
+.tile .val small{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
 .tile.h .val{color:#fca5a5}.tile.a .val{color:#fdba74}.tile.r .val{color:#93c5fd}
 .diff{grid-column:1/-1;text-align:left}
 .bar{height:16px;background:#0b1222;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:6px 0 4px}
@@ -183,8 +183,8 @@ function geom(){
   g.etcTop = [g.ex + 24, g.mT - 22]; g.etcBot = [g.ex + 24, g.mB + 22];
   // 입자를 두지 않을 구역
   g.exTop = [[g.ex - 90, 0, g.ex + 70, g.mT], [g.sx - g.R - 10, g.mT - 50, g.aX + 30, g.mT], [VW / 2 - 170, 0, VW / 2 + 170, 64]];
-  g.exBot = [[g.sx - 112, g.mB, g.aX + 30, g.headY + 80], [g.ex - 75, g.mB, g.ex + 75, g.mB + 130],
-             [VW / 2 - 190, VH - 56, VW / 2 + 190, VH], [g.sx - 250, g.headY - 40, g.sx - 100, g.headY + 40]];
+  g.exBot = [[g.sx - 112, g.mB, g.sx + 140, g.headY + 100], [g.ex - 75, g.mB, g.ex + 75, g.mB + 130],
+             [VW / 2 - 190, VH - 56, VW / 2 + 190, VH], [g.sx - 260, g.headY - 40, g.sx - 100, g.headY + 62]];
   return g;
 }
 function resize(){
@@ -230,9 +230,7 @@ const mod = (a, n) => ((a % n) + n) % n;
 
 function takeDot(arr, tx, ty){
   if(!arr.length) return null;
-  const sorted = arr.map((d, i) => [Math.hypot(d.x - tx, d.y - ty), i]).sort((a, b) => a[0] - b[0]);
-  const pick = sorted[Math.floor(Math.random() * Math.min(4, sorted.length))][1];
-  return arr.splice(pick, 1)[0];
+  return arr.splice(Math.floor(Math.random() * arr.length), 1)[0];
 }
 function addFlight(pts, dur, kind, onArrive){ S.flights.push({ pts, dur, t: 0, kind, onArrive }); }
 
@@ -375,8 +373,8 @@ function drawSide(){
 
   // ATP 방출(F₁ 머리에서 낮은 쪽 구역으로)
   S.pops.forEach(p => {
-    const x0 = g.sx + (p.site - 1) * 40, y0 = g.headY + 10, e = ease(Math.min(1, p.t * 1.3));
-    const x = x0 + p.dir * 70 * e - (p.site - 1) * 10 * e, y = y0 + 80 * e;
+    const x0 = g.sx + (p.site - 1) * 30, y0 = g.headY + 30, e = ease(Math.min(1, p.t * 1.3));
+    const x = x0 + (60 + 25 * p.site) * e, y = y0 + (45 + 15 * p.dir) * e;
     c.globalAlpha = 1 - Math.max(0, (p.t - .6) / .4);
     pill(c, "ATP", x, y, 20, "#1c1917", "#fb923c"); c.globalAlpha = 1;
   });
@@ -404,8 +402,8 @@ function drawETC(c, g, M, t){
   S.elec.forEach(e => {
     const x = x1 + w / 2 + (x2 + w / 2 - x1 - w / 2) * e.t, yy = (g.mT + g.mB) / 2 + Math.sin(e.t * PI) * -14;
     c.fillStyle = "#fde047"; c.beginPath(); c.arc(x, yy, 6, 0, TAU); c.fill();
-    txt(c, "e⁻", x, yy - 14, 14, "#fde047", "center", "700");
   });
+  if(S.elec.length) txt(c, "e⁻", (x1 + x2 + w) / 2, g.mT + 20, 16, "#fde047", "center", "800");
   const on = S.pumpOn && !S.paused;
   if(mode === "chl"){
     if(on){
@@ -472,13 +470,13 @@ function drawSynthaseSide(c, g, M, t){
     c.beginPath(); c.ellipse(sx + dx, hy + 4, 30, 42, 0, 0, TAU); c.fill();
     c.strokeStyle = "rgba(255,255,255,.25)"; c.lineWidth = 2; c.stroke();
   });
-  txt(c, "ADP + Pi → ATP", sx, hy + 64, 18, "#fed7aa", "center", "700");
+  txt(c, "ADP + Pi → ATP", sx - 98, hy + 48, 18, "#fed7aa", "right", "700");
   // 이름
   txt(c, "ATP 합성 효소", sx - 98, hy - 6, 21, "#f8fafc", "right", "800");
   txt(c, adv ? "F₁ 머리" : "(머리)", sx - 98, hy + 20, 17, "#cbd5e1", "right", "600");
   txt(c, "H⁺ 통로", g.aX + 20, g.mT - 30, 16, "#fecaca", "left", "700");
   if(adv){
-    pill(c, "F₀ · c 고리 " + n + "조각", sx - 8, g.mT - 34, 16, "#bae6fd", "rgba(12,74,110,.9)");
+    pill(c, "F₀ · c 고리 " + n + "조각", sx - 24, g.mT - 34, 16, "#bae6fd", "rgba(12,74,110,.9)");
   }
 }
 
@@ -545,7 +543,7 @@ function drawTop(){
   txt(c, "축", fx, fy + 1, 14, "#0f172a", "center", "800");
   // 튀어나가는 ATP
   S.pops.forEach(p => {
-    const a = A0 + p.site * 2 * PI / 3, e = ease(Math.min(1, p.t * 1.3)), rr0 = d + 20 + 55 * e;
+    const a = A0 + p.site * 2 * PI / 3, e = ease(Math.min(1, p.t * 1.3)), rr0 = d + 14 + 26 * e;
     c.globalAlpha = 1 - Math.max(0, (p.t - .6) / .4);
     pill(c, "ATP", fx + rr0 * Math.sin(a), fy + rr0 * Math.cos(a), 18, "#1c1917", "#fb923c"); c.globalAlpha = 1;
   });

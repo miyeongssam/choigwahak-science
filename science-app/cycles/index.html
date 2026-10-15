@@ -473,7 +473,7 @@ function ensureVisible(){
   else if(r.top < top) window.scrollBy({top:r.top - top - 20, behavior:"smooth"});
 }
 function choose(id, cardEl){
-  if(busy) return;
+  if(busy || !R.b[id] || R.b[id].ok !== null) return;
   const b = R.b[id], val = cardEl.textContent;
   // 같은 무리(group) 안의 조효소 칸은 순서가 바뀌어도 정답 처리
   if(val !== b.ans && b.k === "e"){
@@ -500,6 +500,7 @@ function choose(id, cardEl){
   setTimeout(() => {
     fly.remove(); busy = false;
     b.chosen = val; b.ok = ok;
+    sheet.querySelectorAll(".card").forEach(c => c.disabled = true);
     const k = mkey(id);
     miss[k] = ok ? Math.max(0, (miss[k] || 0) - 1) : Math.min(6, (miss[k] || 0) + 1);
     if(!miss[k]) delete miss[k];

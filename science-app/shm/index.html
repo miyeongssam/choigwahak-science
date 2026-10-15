@@ -461,7 +461,7 @@ function spDraw(){
       arrow(ctx, cx + 8, yTop + bh, cx + 8, yTop + bh + Fg * sc, "#cbd5e1", 4);
       txt(ctx, "중력 mg", cx + 14, yTop + bh + Fg * sc * 0.6, "#cbd5e1", 13, "left");
       arrow(ctx, ax, bc, ax, bc + Fn * sc, "#fb923c", 4);
-      txt(ctx, "합력 −kx", ax + 6, bc + Fn * sc + (Fn >= 0 ? 12 : -12), "#fb923c", 13, "left");
+      txt(ctx, narrow ? "합력" : "합력 −kx", ax + 6, bc + Fn * sc + (Fn >= 0 ? 12 : -12), "#fb923c", 13, "left");
     }
     txt(ctx, "x = " + sgn(x) + " m (아래 +)", 10, H - 30, "#5eead4", 14, "left");
     txt(ctx, "t = " + SP.t.toFixed(2) + " s", 10, H - 12, "#94a3b8", 13, "left");
@@ -697,7 +697,7 @@ function pdDraw(){
     ctx.fillStyle = "#e2e8f0"; ctx.beginPath(); ctx.arc(px, top, 4, 0, TAU); ctx.fill();
     const lab = n === 1 ? "" : (i === 0 ? "A  " : "B  ");
     txt(ctx, `${lab}L = ${p.L.toFixed(2)} m, m = ${p.m.toFixed(1)} kg`, px, H - 46, "#e2e8f0", n === 1 ? 15 : 13, "center");
-    const swings = p.cross.length;
+    const Tm = pendMeas(p) || pendT(p), swings = Math.floor(p.t / Tm + 1e-9);
     txt(ctx, `T = ${pendT(p).toFixed(2)} s · 왕복 ${swings}번`, px, H - 24, "#fcd34d", n === 1 ? 15 : 13, "center");
     txt(ctx, "θ = " + (p.th * 180 / Math.PI).toFixed(1) + "°", px + 10, top + 16, "#94a3b8", 13, "left");
   });
