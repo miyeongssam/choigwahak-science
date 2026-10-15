@@ -182,31 +182,31 @@ const DATA = (function(){
   };
 
   /* 2) TCA 회로 */
-  const T = ell(210, 318, 132, 172);
+  const T = ell(210, 330, 132, 190);
   const tca = {
-    key:"tca", tab:"TCA 회로", sub:"미토콘드리아 기질", vb:[420,590], simple:true,
-    title:{x:210, y:318, t:"TCA 회로"},
+    key:"tca", tab:"TCA 회로", sub:"미토콘드리아 기질", vb:[420,612], simple:true,
+    title:{x:204, y:332, t:"TCA 회로"},
     shapes:[
-      {t:"loop", cx:210, cy:318, rx:132, ry:172, arrows:[0, 66, 118, 180, 242, 295]},
-      {t:"line", x1:210, y1:90, x2:210, y2:142, ar:1},
-      {t:"line", p1:T(66), x2:280, y2:263, ar:1, cls:"thin"},
-      {t:"line", p1:T(118), x2:303, y2:394, ar:1, cls:"thin"},
-      {t:"line", p1:T(180), x2:210, y2:513, ar:1, cls:"thin"},
+      {t:"loop", cx:210, cy:330, rx:132, ry:190, arrows:[0, 66, 118, 180, 242, 295]},
+      {t:"line", x1:210, y1:90, x2:210, y2:138, ar:1},
+      {t:"line", p1:T(66), x2:273, y2:266, ar:1, cls:"thin"},
+      {t:"line", p1:T(118), x2:303, y2:410, ar:1, cls:"thin"},
+      {t:"line", p1:T(180), x2:210, y2:533, ar:1, cls:"thin"},
       {t:"line", p1:T(295), x2:116, y2:252, ar:1, cls:"thin"}
     ],
     nodes:[
       {x:210, y:50, box:1, rows:[[S("t_acc","name","아세틸 CoA")],[S("t_acc_c","c","2C")]]},
       {x:122, y:184, box:1, rows:[[S("oaa","name","옥살아세트산")],[S("oaa_c","c","4C")]]},
       {x:298, y:184, box:1, rows:[[S("cit","name","시트르산")],[S("cit_c","c","6C")]]},
-      {x:342, y:318, box:1, rows:[[S("akg","name","α-케토글루타르산",{simple:"5탄소 화합물"})],[S("akg_c","c","5C",{hideSimple:1})]]},
-      {x:288, y:458, box:1, rows:[[S("suc","name","숙신산",{simple:"4탄소 화합물"})],[S("suc_c","c","4C",{hideSimple:1})]]},
-      {x:132, y:458, box:1, rows:[[S("fum","name","푸마르산",{simple:"4탄소 화합물"})],[S("fum_c","c","4C",{hideSimple:1})]]},
-      {x:78, y:318, box:1, rows:[[S("mal","name","말산",{simple:"4탄소 화합물"})],[S("mal_c","c","4C",{hideSimple:1})]]},
-      {x:246, y:263, flow:"out", group:1, rows:[[S("t1_co2","e","CO₂")],[S("t1_nadh","e","NADH")]]},
-      {x:238, y:392, flow:"out", group:1, rows:[[S("t2_co2","e","CO₂"), S("t2_nadh","e","NADH")],[S("t2_atp","e","ATP")]]},
-      {x:210, y:530, flow:"out", rows:[[S("t3_fadh","e","FADH₂")]]},
+      {x:342, y:335, box:1, rows:[[S("akg","name","α-케토글루타르산",{simple:"5탄소 화합물"})],[S("akg_c","c","5C",{hideSimple:1})]]},
+      {x:288, y:486, box:1, rows:[[S("suc","name","숙신산",{simple:"4탄소 화합물"})],[S("suc_c","c","4C",{hideSimple:1})]]},
+      {x:132, y:486, box:1, rows:[[S("fum","name","푸마르산",{simple:"4탄소 화합물"})],[S("fum_c","c","4C",{hideSimple:1})]]},
+      {x:78, y:330, box:1, rows:[[S("mal","name","말산",{simple:"4탄소 화합물"})],[S("mal_c","c","4C",{hideSimple:1})]]},
+      {x:238, y:262, flow:"out", group:1, rows:[[S("t1_co2","e","CO₂")],[S("t1_nadh","e","NADH")]]},
+      {x:236, y:410, flow:"out", group:1, rows:[[S("t2_co2","e","CO₂"), S("t2_nadh","e","NADH")],[S("t2_atp","e","ATP")]]},
+      {x:210, y:550, flow:"out", rows:[[S("t3_fadh","e","FADH₂")]]},
       {x:150, y:252, flow:"out", rows:[[S("t4_nadh","e","NADH")]]},
-      {x:210, y:572, rows:[[L("장소:"), S("pl_tca","place","미토콘드리아 기질")]]}
+      {x:210, y:592, rows:[[L("장소:"), S("pl_tca","place","미토콘드리아 기질")]]}
     ],
     checks(V, tally){ return [
       {txt:`아세틸 CoA ${V("t_acc_c")}C + 옥살아세트산 ${V("oaa_c")}C = 시트르산 ${V("cit_c")}C`, l:V("t_acc_c")+V("oaa_c"), r:V("cit_c")},
@@ -312,7 +312,7 @@ function newRound(ids){
     const n = st.diff === 0 ? all.length : Math.min(st.diff, all.length);
     const cand = all.slice(); pick = [];
     while(pick.length < n && cand.length){
-      const w = cand.map(s => 1 + 2.5 * Math.min(miss[mkey(s.id)] || 0, 4));
+      const w = cand.map(s => 1 + 1.5 * Math.min(miss[mkey(s.id)] || 0, 4));
       let r = Math.random() * w.reduce((a,b) => a+b, 0), k = 0;
       while(k < cand.length - 1 && (r -= w[k]) > 0) k++;
       pick.push(cand.splice(k, 1)[0]);
@@ -393,8 +393,10 @@ function render(){
     const rows = nd.rows.map(r => r.filter(s => s.k === "lab" || CYC.visible(d, s, o))).filter(r => r.length);
     const meas = rows.map(r => r.map(s => {
       const txt = CYC.text(d, s, o), isLab = s.k === "lab";
-      const w = isLab ? tw(txt, FS.lab, 600) : Math.max(tw(txt, FS[s.k]), (R && R.b[s.id]) ? (s.k === "name" ? 46 : 20) : 0) + PADX*2;
-      return {s, txt, w, h:isLab ? 22 : PH, isLab};
+      let fs = isLab ? FS.lab : FS[s.k], tw0 = tw(txt, fs, isLab ? 600 : 700);
+      if(!isLab && tw0 > 124){ fs = fs * 124 / tw0; tw0 = 124; }   // 긴 이름은 글자를 조금 줄임
+      const w = isLab ? tw0 : Math.max(tw0, (R && R.b[s.id]) ? (s.k === "name" ? 46 : 20) : 0) + PADX*2;
+      return {s, txt, w, fs, h:isLab ? 22 : PH, isLab};
     }));
     const rw = meas.map(r => r.reduce((a, m) => a + m.w, 0) + GAP*(r.length - 1));
     const rh = meas.map(r => Math.max(...r.map(m => m.h)));
@@ -433,7 +435,7 @@ function slotSvg(m, x, yc){
   }
   const y0 = yc - PH/2;
   return `<g class="${cls}" data-slot="${s.id}"><g class="sk"><rect class="pill" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${m.w.toFixed(1)}" height="${PH}" rx="9"/>` +
-    `<text class="${qm ? "qm" : ""}" x="${(x + m.w/2).toFixed(1)}" y="${(yc + 1).toFixed(1)}" font-size="${qm ? 19 : FS[s.k]}" text-anchor="middle" dominant-baseline="central">${CS.esc(txt)}</text></g>` +
+    `<text class="${qm ? "qm" : ""}" x="${(x + m.w/2).toFixed(1)}" y="${(yc + 1).toFixed(1)}" font-size="${qm ? 19 : (txt === m.txt ? m.fs : FS[s.k]).toFixed(1)}" text-anchor="middle" dominant-baseline="central">${CS.esc(txt)}</text></g>` +
     (b && b.ok === null ? `<rect class="hit" x="${(x - 3).toFixed(1)}" y="${(y0 - 8).toFixed(1)}" width="${(m.w + 6).toFixed(1)}" height="${PH + 16}"/>` : "") + `</g>`;
 }
 function renderStat(){
