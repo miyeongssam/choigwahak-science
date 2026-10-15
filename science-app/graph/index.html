@@ -259,14 +259,15 @@ function draw(){
   }
 }
 function eqText(f){
-  if(S.fit === "org") return "y = " + sig3(f.a) + " x";
-  return "y = " + sig3(f.a) + " x " + (f.b < 0 ? "− " + sig3(-f.b) : "+ " + sig3(f.b));
+  const A = sig3(f.a).replace("-", "−");
+  if(S.fit === "org") return "y = " + A + " x";
+  return "y = " + A + " x " + (f.b < 0 ? "− " + sig3(-f.b) : "+ " + sig3(f.b));
 }
 
 function info(){
   const { P, bad } = points(), f = lsq(P.map(p => p.x), P.map(p => p.y), S.fit);
-  $("va").textContent = f ? sig3(f.a) : "–";
-  $("vb").textContent = f ? (S.fit === "org" ? "0 (고정)" : sig3(f.b)) : "–";
+  $("va").textContent = f ? sig3(f.a).replace("-", "−") : "–";
+  $("vb").textContent = f ? (S.fit === "org" ? "0 (고정)" : sig3(f.b).replace("-", "−")) : "–";
   $("vr").textContent = f ? sig3(f.r2) : "–";
   $("eq").textContent = f ? eqText(f) : "";
   let w = "";
@@ -278,7 +279,7 @@ function info(){
     const th = 4 * Math.PI * Math.PI / 20;
     a += `<div style="margin-top:8px">단진동 주기 T = 2π√(m/k) → <b>T² = (4π²/k)·m</b> — m–T² 그래프는 원점을 지나는 직선이고 기울기 = 4π²/k.</div>`;
     if(f && f.a > 0) a += `<div>용수철 상수 <b>k = 4π²/기울기 = 4π²/${sig3(f.a)} = ${sig3(4 * Math.PI * Math.PI / f.a)} N/m</b></div>`;
-    a += `<div class="muted">비교: k = 20 N/m 이면 이론 기울기 4π²/20 = ${sig3(th)} s²/kg${f && f.a > 0 ? ` (측정 기울기와 차이 ${sig3(Math.abs(f.a - th) / th * 100)}%)` : ""}</div>`;
+    a += `<div class="muted">비교: k = 20 N/m 이면 이론 기울기 4π²/20 = ${sig3(th)} s²/kg${f && f.a > 0 ? ` (측정 기울기와 차이 ${(Math.abs(f.a - th) / th * 100).toFixed(1)}%)` : ""}</div>`;
   } else if(S.ana === "ohm"){
     a += `<div style="margin-top:8px">옴의 법칙 V = IR → <b>I = (1/R)·V</b> — V–I 그래프의 기울기 = 1/R.</div>`;
     if(f && f.a > 0) a += `<div>저항 <b>R = 1/기울기 = 1/${sig3(f.a)} = ${sig3(1 / f.a)} Ω</b></div>`;
@@ -337,7 +338,7 @@ $("bPng").onclick = () => {
   try { url = cv.toDataURL("image/png"); } catch(e){ CS.toast("저장할 수 없어요"); return; }
   const a = document.createElement("a");
   const d = new Date(), pad = n => String(n).padStart(2, "0");
-  a.href = url; a.download = `그래프_${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.png`;
+  a.href = url; a.download = `graph_${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.png`;
   document.body.appendChild(a); a.click(); a.remove();
   $("pngBox").innerHTML = `<div class="note" style="margin-top:8px">다운로드가 안 되면 아래 그림을 길게 눌러 저장하세요.</div><img alt="저장할 그래프" src="${url}">`;
 };

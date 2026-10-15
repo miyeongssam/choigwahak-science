@@ -391,7 +391,7 @@ function updateTexts(){
     note = st.sup ? "음원이 소리보다 빠름 → 파면이 겹쳐 충격파" : (vs ? "앞쪽 파면 촘촘, 뒤쪽 파면 성김" : "음원 정지: 파면이 같은 간격의 동심원");
     if(st.sup){
       const na = `<div class="na">공식 적용 안 됨</div><div class="fm">vₛ = 1.2v &gt; v: 교과서의 도플러 식은 vₛ &lt; v일 때만 써요.</div>`;
-      A = `<div class="hd">A (앞)</div>${na}<div class="fm">음원이 자기 소리보다 먼저 도착하고, 그 뒤 충격파(쾅 소리)가 지나가요.</div>`;
+      A = `<div class="hd">A (앞)</div>${na}<div class="fm">음원이 다가오는 동안 소리가 먼저 오지 못해요. 원뿔(충격파)이 A를 지나는 순간 '쾅' 하는 큰 소리가 들려요.</div>`;
       B = `<div class="hd">B (뒤)</div>${na}`;
     } else {
       const fa = DPX.approach(f, vs), fb = DPX.recede(f, vs);
