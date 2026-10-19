@@ -228,6 +228,7 @@
       <button class="k" id="t3m1" aria-label="중성 만들기">🎯</button>
       <button class="k" id="t3m2" aria-label="온도 높게">🌡️</button>
       <button class="k hide" id="t3go">▶</button>
+      <button class="k" id="t3back" aria-label="다시">⟲</button>
       <span class="stars" id="t3st"></span>
     </div>
   </section>
@@ -999,6 +1000,8 @@ $("#t3m0").onclick = () => { S3.mode = 0; t3Reset(); t3UI(); };
 $("#t3m1").onclick = () => { S3.mode = 1; t3Green(); };
 $("#t3m2").onclick = () => { S3.mode = 2; t3Hot(); };
 $("#t3go").onclick = () => t3Hot();
+// 섞은 뒤 처음 상태(섞기 전 두 비커)로 되돌리기
+$("#t3back").onclick = () => { if(S3.mode === 2) t3Hot(); else { t3Reset(); t3UI(); } };
 function hotCards(){
   const R = rectOf($("#t3hotS")), k = S3.hot.combos.length, vert = R.h > R.w * .9, gap = 8, out = [];
   for(let i = 0; i < k; i++){
