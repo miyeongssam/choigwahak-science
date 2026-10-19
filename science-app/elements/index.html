@@ -30,6 +30,8 @@ sub,sup{font-size:.62em;line-height:0}
 .cg.d3{grid-template-columns:1fr 1fr 1fr}
 .cg .chip{font-size:14px;padding:8px 6px;border-radius:12px;text-align:center;line-height:1.25;word-break:keep-all}
 .cg .chip small{font-size:11px;opacity:.75;margin-left:3px}
+#unitChips .chip{padding:5px 4px;line-height:1.2}
+#unitChips .chip small{margin:0;font-size:11.5px}
 .cg .chip.wide{grid-column:1 / -1}
 .cg .chip.mixall{border-style:dashed}
 .cg .chip.mixall.on{border-style:solid}
@@ -233,8 +235,9 @@ const T1 = new Set(["OH⁻","O²⁻","Mg²⁺","Cu²⁺","S²⁻","Na⁺","Cl⁻
   "O₂ + 4e⁻ → 2O²⁻","2H₂O + 2e⁻ → H₂ + 2OH⁻"]);
 const T1_ONLY = new Set(["Li⁺","F⁻","F₂","Br₂","I₂","N₂","HF","Na₂O","NaF","MgF₂","C₁₂H₂₂O₁₁","C₂H₅OH","GaN","AlGaAs","InGaN",
   "O₂ + 4e⁻ → 2O²⁻","2H₂O + 2e⁻ → H₂ + 2OH⁻"]);
-[].concat(IONS, COMPOUNDS, IONIZE, REACTIONS).forEach(it => { const k = it.s || it.l || it.eq; it.u = T1.has(k) ? (T1_ONLY.has(k) ? ["t1"] : ["t1","t2"]) : ["t2"]; });
-const UNITS = [{id:"both", label:"두 교재 모두"},{id:"t1", label:"통합과학1 원소·결합"},{id:"t2", label:"통합과학2 산화·환원·중화"}];
+IONIZE.forEach(it => { it.u = ["t2"]; });   // 이온화식은 통합과학2(중화 반응) 범위
+[].concat(IONS, COMPOUNDS, REACTIONS).forEach(it => { const k = it.s || it.eq; it.u = T1.has(k) ? (T1_ONLY.has(k) ? ["t1"] : ["t1","t2"]) : ["t2"]; });
+const UNITS = [{id:"both", label:"두 교재 모두"},{id:"t1", label:"통합과학1<br><small>원소·결합</small>"},{id:"t2", label:"통합과학2<br><small>산화·환원·중화</small>"}];
 
 const CATS = [
   {id:"r20", label:"원소 기호 1~20번", n:20},

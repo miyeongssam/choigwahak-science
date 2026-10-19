@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,75 +11,111 @@
 <title>이온식 만들기 퍼즐 · 최과학 과학</title>
 <link rel="stylesheet" href="../common/common.css">
 <style>
-:root{ --cat:#f87171; --cat-bg:rgba(248,113,113,.14); --an:#60a5fa; --an-bg:rgba(96,165,250,.14); }
+:root{ --cat:#f4a6a6; --cat-bg:rgba(244,166,166,.13); --an:#9db8ff; --an-bg:rgba(157,184,255,.13); }
+/* ===== 한 화면 레이아웃 (스크롤 없음) ===== */
+html,body{height:100%}
+body{height:100vh;height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.top{flex:none;padding-top:calc(env(safe-area-inset-top) + 6px);padding-bottom:6px}
+.wrap{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;padding:8px 12px calc(8px + env(safe-area-inset-bottom))}
+.wrap>section{flex:1;min-height:0;display:flex;flex-direction:column}
+.panel{margin-bottom:0;padding:8px 10px}
 sub,sup{font-size:.62em;line-height:0}
-.tabs{display:flex;gap:8px;margin-bottom:12px}
-.tabs .btn{flex:1;font-size:16px}
-.lay{display:grid;gap:12px;grid-template-areas:"pick" "stage"}
-.lay .pick{grid-area:pick}.lay .stage{grid-area:stage}
-@media (min-width:1000px){
-  .wrap{max-width:1600px}
-  .lay{grid-template-columns:1.5fr 1fr;grid-template-areas:"stage pick";align-items:start}
-}
-.ions{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
-.ionb{background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:6px 4px;
-  cursor:pointer;font-family:inherit;text-align:center;line-height:1.25}
-.ionb b{display:block;font-size:19px}
-.ionb small{display:block;font-size:11px;color:var(--muted);word-break:keep-all}
-.ionb.cat.on{border-color:var(--cat);background:var(--cat-bg)}
-.ionb.an.on{border-color:var(--an);background:var(--an-bg)}
-.pick h2 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.tabs{flex:none;display:flex;gap:6px;margin-bottom:8px;position:relative}
+.tabs .btn{flex:1;font-size:15px;padding:9px 6px}
+.tabs .btn.ic{flex:none;padding:9px 11px}
+.lay{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+.lay .pick{flex:none;order:0}.lay .stage{flex:1;min-height:0;order:1;display:flex;flex-direction:column}
 
-.srow{display:flex;align-items:center;gap:10px;margin:6px 0 4px;flex-wrap:wrap}
-.srow .lbl{font-size:15px;font-weight:600}
-.cnt{display:flex;align-items:center;gap:6px;margin-left:auto}
-.cnt button{width:44px;height:44px;border-radius:10px;font-size:24px;font-weight:700;border:1px solid var(--line);
-  background:var(--card2);color:var(--text);cursor:pointer;font-family:inherit}
-.cnt span{min-width:44px;text-align:center;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
-.tray{display:flex;flex-wrap:wrap;gap:8px;min-height:84px;padding:10px;border-radius:12px;background:#0b1222;border:1px solid var(--line)}
-.card{border-radius:12px;padding:8px 10px 6px;text-align:center;min-width:72px;animation:pop .18s ease-out}
-.card .sym{font-size:24px;font-weight:700;white-space:nowrap}
-.card .chg{display:flex;justify-content:center;gap:3px;margin-top:4px}
-.card .chg i{width:18px;height:18px;border-radius:50%;font-style:normal;font-size:15px;font-weight:800;line-height:18px;color:#0b1222}
+/* 이온 칩: 기호만 */
+.plbl{font-size:12px;font-weight:700;margin:0 0 3px}
+.ions{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.ions+.plbl{margin-top:6px}
+.ionb{background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--text);height:31px;padding:0 2px;
+  cursor:pointer;font-family:inherit;text-align:center;font-size:16px;font-weight:700;white-space:nowrap;min-width:0}
+.ionb.cat{color:#f7d0d0}.ionb.an{color:#d3defd}
+.ionb.cat.on{border-color:var(--cat);background:var(--cat-bg);box-shadow:inset 0 0 0 1px var(--cat)}
+.ionb.an.on{border-color:var(--an);background:var(--an-bg);box-shadow:inset 0 0 0 1px var(--an)}
+
+/* 조립 영역 */
+.srow{flex:none;display:flex;align-items:center;gap:8px;margin:0 0 3px}
+.srow .lbl{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cnt{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
+.cnt button{width:40px;height:29px;border-radius:9px;font-size:21px;font-weight:700;border:1px solid var(--line);
+  background:var(--card2);color:var(--text);cursor:pointer;font-family:inherit;line-height:1;padding:0}
+.cnt span{min-width:26px;text-align:center;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.tray{flex:none;display:flex;flex-wrap:nowrap;gap:4px;height:46px;padding:3px 4px;border-radius:11px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-bottom:6px;--cs:22px}
+.card{flex:0 1 64px;min-width:0;border-radius:9px;padding:3px 2px;text-align:center;animation:pop .18s ease-out;display:flex;flex-direction:column;justify-content:center}
+.card .sym{font-size:var(--cs);font-weight:700;white-space:nowrap;line-height:1.15;overflow:hidden}
+.card .chg{display:flex;justify-content:center;gap:2px;margin-top:2px}
+.card .chg i{width:13px;height:13px;border-radius:50%;font-style:normal;font-size:11px;font-weight:800;line-height:13px;color:#000}
 .card.cat{background:var(--cat-bg);border:2px solid var(--cat)} .card.cat .chg i{background:var(--cat)}
 .card.an{background:var(--an-bg);border:2px solid var(--an)} .card.an .chg i{background:var(--an)}
 @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 
-.bars{margin-top:14px}
-.bar{display:grid;grid-template-columns:96px 1fr 44px;align-items:center;gap:8px;margin:6px 0;font-size:15px}
-.bar .tr{height:26px;background:var(--card2);border-radius:8px;overflow:hidden;position:relative}
-.bar .fl{height:100%;border-radius:8px;transition:width .25s}
-.bar .v{font-weight:800;font-size:20px;text-align:right;font-variant-numeric:tabular-nums}
-.bar .tk{position:absolute;top:0;bottom:0;width:1px;background:rgba(15,23,42,.55)}
-.status{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--card2);font-size:16px;line-height:1.6;word-break:keep-all}
-.status.ok{background:rgba(34,197,94,.12);border:1px solid var(--ok)}
-.done-t{font-size:26px;font-weight:800;color:var(--ok)}
-.fml{font-size:44px;font-weight:800;margin:4px 0;color:#fff}
-.cname{font-size:24px;font-weight:700;color:#fde68a}
-.empty{color:var(--muted);font-size:15px;padding:10px}
+.bars{flex:none;margin-top:2px}
+.bar{display:grid;grid-template-columns:70px 1fr 30px;align-items:center;gap:6px;margin:1px 0;font-size:12px}
+.bar .tr{height:11px;background:var(--card2);border-radius:6px;overflow:hidden;position:relative}
+.bar .fl{height:100%;border-radius:6px;transition:width .25s}
+.bar .v{font-weight:800;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+.bar .tk{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.55)}
+.status{flex:1;min-height:0;overflow:hidden;margin-top:4px;padding:5px 9px;border-radius:11px;background:var(--card2);
+  font-size:calc(15px * var(--sk,1));line-height:1.45;word-break:keep-all;--sk:1}
+.status.ok{background:rgba(134,217,160,.1);border:1px solid var(--ok)}
+.done-t{font-size:calc(15px * var(--sk));font-weight:800;color:var(--ok)}
+.fline{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin:1px 0}
+.fml{font-size:calc(32px * var(--sk));font-weight:800;color:#fff;line-height:1.2}
+.cname{font-size:calc(21px * var(--sk));font-weight:700;color:var(--warn)}
+.snote{font-size:calc(12.5px * var(--sk));color:var(--muted);line-height:1.45}
+.swarn{font-size:calc(13px * var(--sk));color:var(--warn);line-height:1.45}
 @media (min-width:1000px){
-  .card{min-width:96px;padding:10px 14px 8px}
-  .card .sym{font-size:34px}
-  .card .chg i{width:22px;height:22px;line-height:22px;font-size:18px}
-  .tray{min-height:120px}
-  .fml{font-size:72px}
-  .cname{font-size:36px}
-  .done-t{font-size:34px}
+  .wrap{max-width:1600px;padding:14px 20px}
+  .lay{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}
+  .lay .pick{order:1;align-self:start}.lay .stage{order:0}
+  .panel{padding:14px 16px}
+  .plbl{font-size:16px;margin-bottom:6px}
+  .ions{grid-template-columns:repeat(4,1fr);gap:8px}
+  .ions+.plbl{margin-top:14px}
+  .ionb{height:58px;font-size:26px;border-radius:12px}
+  .tabs .btn{font-size:18px;padding:11px}
+  .srow .lbl{font-size:22px}
+  .cnt button{width:52px;height:46px;font-size:28px}
+  .cnt span{font-size:26px;min-width:40px}
+  .tray{height:118px;padding:8px;gap:8px;margin-bottom:12px}
+  .card{flex:0 1 150px;border-radius:12px}
+  .status{display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .card .chg i{width:20px;height:20px;line-height:20px;font-size:16px}
   .bar{font-size:18px;grid-template-columns:120px 1fr 56px}
-  .bar .tr{height:34px}
+  .bar .tr{height:30px}
   .bar .v{font-size:26px}
-  .srow .lbl{font-size:18px}
-  .status{font-size:19px}
+  .status{font-size:calc(20px * var(--sk));padding:12px 16px}
+  .done-t{font-size:calc(30px * var(--sk))}
+  .fml{font-size:calc(104px * var(--sk))}
+  .cname{font-size:calc(56px * var(--sk))}
+  .snote{font-size:calc(20px * var(--sk))}
+  .swarn{font-size:calc(18px * var(--sk))}
 }
 /* 문제 모드 */
-.qtypes{margin-bottom:12px}
-#quizBox .qz-q .bigf{font-size:30px;font-weight:800;color:#fff}
-#quizBox .qz-ch button{font-size:20px}
+.qtypes{position:absolute;top:44px;right:0;left:0;z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.7);border-color:var(--accent2)}
+.qtypes h2{margin-bottom:8px}
+#quizBox{flex:1;min-height:0;display:flex;flex-direction:column;--qk:1}
+#quizBox .qz-meta{flex:none;margin-bottom:4px}
+#quizBox .qz-prog{flex:none;margin-bottom:6px}
+#quizBox .qz-card{flex:none;padding:calc(12px * var(--qk)) 12px}
+#quizBox .qz-q{font-size:calc(16px * var(--qk));line-height:1.5;margin-bottom:calc(10px * var(--qk))}
+#quizBox .qz-q .bigf{font-size:calc(24px * var(--qk));font-weight:800;color:#fff}
+#quizBox .qz-ch{gap:calc(6px * var(--qk))}
+#quizBox .qz-ch button{font-size:calc(18px * var(--qk));padding:calc(8px * var(--qk)) 12px;line-height:1.35;align-items:center}
+#quizBox .qz-exp{margin-top:calc(8px * var(--qk));padding-top:calc(8px * var(--qk));font-size:calc(14px * var(--qk));line-height:1.5}
+#quizBox .qz-exp .res{font-size:calc(15px * var(--qk));margin-bottom:2px}
+#quizBox #qzNext{margin-top:calc(8px * var(--qk))!important;padding:calc(11px * var(--qk))}
 @media (min-width:900px){
-  #quizBox{max-width:900px;margin:0 auto}
-  #quizBox .qz-q{font-size:26px}
-  #quizBox .qz-q .bigf{font-size:48px}
-  #quizBox .qz-ch button{font-size:26px}
+  #quizBox{max-width:1000px;width:100%;margin:0 auto}
+  #quizBox .qz-q{font-size:calc(26px * var(--qk))}
+  #quizBox .qz-q .bigf{font-size:calc(46px * var(--qk))}
+  #quizBox .qz-ch button{font-size:calc(26px * var(--qk));padding:calc(12px * var(--qk)) 16px}
+  #quizBox .qz-exp{font-size:calc(19px * var(--qk))}
+  #quizBox .qz-exp .res{font-size:calc(20px * var(--qk))}
+  .qtypes{left:auto;width:560px}
 }
 </style>
 </head>
@@ -89,15 +125,29 @@ sub,sup{font-size:.62em;line-height:0}
   <div class="tabs">
     <button class="btn" id="tabMake">🧩 만들기</button>
     <button class="btn ghost" id="tabQuiz">✏️ 문제</button>
+    <button class="btn ghost ic" id="rndBtn" title="아무거나 골라 주기" aria-label="아무거나 골라 주기">🎲</button>
+    <button class="btn ghost ic" id="hintBtn" title="힌트" aria-label="힌트">💡</button>
+    <button class="btn ghost ic hide" id="qtBtn" aria-label="문제 종류 고르기">종류 ▾</button>
+    <div class="panel qtypes hide" id="qtPanel">
+      <h2>문제 종류 (눌러서 켜고 끄기)</h2>
+      <div class="row" id="qtypeChips"></div>
+      <div style="text-align:right;margin-top:10px"><button class="btn sm" id="qtClose">닫기</button></div>
+    </div>
   </div>
 
   <section id="makeView">
     <div class="lay">
+      <div class="panel pick">
+        <div class="plbl" style="color:var(--cat)">양이온 고르기</div>
+        <div class="ions" id="catList"></div>
+        <div class="plbl" style="color:var(--an)">음이온 고르기</div>
+        <div class="ions" id="anList"></div>
+      </div>
       <div class="panel stage">
         <div class="srow"><span class="lbl" id="catLbl" style="color:var(--cat)">양이온</span>
           <div class="cnt"><button id="catM" aria-label="양이온 빼기">−</button><span id="catN">1</span><button id="catP" aria-label="양이온 더하기">+</button></div></div>
         <div class="tray" id="catTray"></div>
-        <div class="srow" style="margin-top:12px"><span class="lbl" id="anLbl" style="color:var(--an)">음이온</span>
+        <div class="srow"><span class="lbl" id="anLbl" style="color:var(--an)">음이온</span>
           <div class="cnt"><button id="anM" aria-label="음이온 빼기">−</button><span id="anN">1</span><button id="anP" aria-label="음이온 더하기">+</button></div></div>
         <div class="tray" id="anTray"></div>
         <div class="bars">
@@ -106,25 +156,10 @@ sub,sup{font-size:.62em;line-height:0}
         </div>
         <div class="status" id="status"></div>
       </div>
-      <div class="panel pick">
-        <h2><span class="dot" style="background:var(--cat)"></span>양이온 고르기</h2>
-        <div class="ions" id="catList"></div>
-        <h2 style="margin-top:14px"><span class="dot" style="background:var(--an)"></span>음이온 고르기</h2>
-        <div class="ions" id="anList"></div>
-        <div class="row" style="margin-top:12px">
-          <button class="btn ghost sm" id="rndBtn">🎲 아무거나 골라 주기</button>
-          <button class="btn ghost sm" id="hintBtn">💡 힌트</button>
-        </div>
-        <p class="note" style="margin-bottom:0">화합물 이름 = 음이온 이름(‘이온’ 빼기) + 양이온 이름(‘이온’ 빼기)<br>화학식 = 양이온 먼저, 개수는 아래 첨자, 1은 생략, 다원자 이온이 2개 이상이면 ( ) 로 묶기</p>
-      </div>
     </div>
   </section>
 
   <section id="quizView" class="hide">
-    <div class="panel qtypes">
-      <h2>문제 종류 (눌러서 켜고 끄기)</h2>
-      <div class="row" id="qtypeChips"></div>
-    </div>
     <div id="quizBox"></div>
   </section>
 </div>
@@ -229,7 +264,7 @@ let nC = 1, nA = 1;
 const MAXN = 8;
 
 function ionBtns(list, el, kind){
-  el.innerHTML = list.map(x => `<button class="ionb ${kind}" data-id="${x.id}"><b>${H(kind === "cat" ? catText(x) : anText(x))}</b><small>${x.name}</small></button>`).join("");
+  el.innerHTML = list.map(x => `<button class="ionb ${kind}" data-id="${x.id}" title="${x.name}" aria-label="${x.name}">${H(kind === "cat" ? catText(x) : anText(x))}</button>`).join("");
   el.querySelectorAll(".ionb").forEach(b => b.onclick = () => {
     if(kind === "cat") cat = list.find(x => x.id === b.dataset.id); else an = list.find(x => x.id === b.dataset.id);
     nC = 1; nA = 1; CS.store.set("ionp_state", {c:cat.id, a:an.id}); render();
@@ -244,6 +279,18 @@ function fillTray(tray, ion, kind, n){
   if(tray.dataset.ion !== ion.id){ tray.innerHTML = ""; tray.dataset.ion = ion.id; }
   while(tray.children.length > n) tray.lastElementChild.remove();
   while(tray.children.length < n) tray.insertAdjacentHTML("beforeend", cardHTML(ion, kind));
+  // 카드가 많아지면 글자를 작게 (한 줄에 다 들어가게)
+  const big = window.innerWidth >= 1000, len = ion.s.replace(/[₀-₉]/g, "").length;
+  const base = big ? (n <= 4 ? 40 : n <= 6 ? 30 : 24) : (n <= 3 ? 22 : n <= 5 ? 17 : n <= 6 ? 15 : 13);
+  let fs = Math.round(base * (len >= 3 ? 0.85 : 1));
+  tray.style.setProperty("--cs", fs + "px");
+  const sym = tray.querySelector(".sym");
+  while(sym && fs > 9 && sym.scrollWidth > sym.clientWidth){ fs--; tray.style.setProperty("--cs", fs + "px"); }
+}
+// 상태 글이 넘치면 글자를 줄여 한 화면에 맞추기
+function fitStatus(){
+  const s = $("status"); let k = 1; s.style.setProperty("--sk", k);
+  while(k > 0.55 && s.scrollHeight > s.clientHeight + 1){ k -= 0.06; s.style.setProperty("--sk", k.toFixed(2)); }
 }
 function render(){
   document.querySelectorAll("#catList .ionb").forEach(b => b.classList.toggle("on", b.dataset.id === cat.id));
@@ -265,11 +312,11 @@ function render(){
   if(plus === minus){
     s.className = "status ok";
     const simple = (nC === r[0] && nA === r[1]);
-    let h = `<div class="done-t">완성! 전하 합 = (+${plus}) + (−${minus}) = 0</div>`;
-    if(!simple) h += `<div style="margin:6px 0">전하는 맞았어요. 하지만 화학식은 <b>가장 간단한 정수비</b>로 써요: ${nC} : ${nA} → <b>${r[0]} : ${r[1]}</b></div>`;
-    h += `<div class="fml">${H(formula(cat, an))}</div><div class="cname">${compoundName(cat, an)}</div>`;
-    h += `<div class="note" style="margin-top:6px">${H(catText(cat))} : ${H(anText(an))} = ${r[0]} : ${r[1]} &nbsp;·&nbsp; 이름은 ‘${baseName(an)}’ + ‘${baseName(cat)}’</div>`;
-    if(RARE.has(cat.id + "|" + an.id)) h += `<div class="adv" style="margin-top:8px"><b>참고</b> 이 조합은 전하 맞추기는 되지만, 실제로는 안정한 화합물로 거의 만들어지지 않아요. (전하 연습용)</div>`;
+    let h = `<div class="done-t">✓ 완성! 전하 합 = (+${plus}) + (−${minus}) = 0</div>`;
+    if(!simple) h += `<div class="swarn">화학식은 <b>가장 간단한 정수비</b>로: ${nC} : ${nA} → <b>${r[0]} : ${r[1]}</b></div>`;
+    h += `<div class="fline"><span class="fml">${H(formula(cat, an))}</span><span class="cname">${compoundName(cat, an)}</span></div>`;
+    h += `<div class="snote">${H(catText(cat))} : ${H(anText(an))} = ${r[0]} : ${r[1]} · 이름은 ‘${baseName(an)}’ + ‘${baseName(cat)}’</div>`;
+    if(RARE.has(cat.id + "|" + an.id)) h += `<div class="swarn">참고: 실제로는 거의 만들어지지 않는 조합 (전하 연습용)</div>`;
     s.innerHTML = h;
   } else {
     s.className = "status";
@@ -277,7 +324,9 @@ function render(){
     s.innerHTML = d > 0
       ? `(+) 전하가 <b style="color:var(--cat)">${d}</b> 더 많아요. 음이온을 더 놓거나 양이온을 빼 보세요.`
       : `(−) 전하가 <b style="color:var(--an)">${-d}</b> 더 많아요. 양이온을 더 놓거나 음이온을 빼 보세요.`;
+    s.innerHTML += `<div class="snote" style="margin-top:4px">화합물 이름 = 음이온 이름 + 양이온 이름 (‘이온’ 빼기) · 화학식은 양이온 먼저, 개수는 아래 첨자</div>`;
   }
+  fitStatus();
   $("catM").disabled = nC <= 1; $("anM").disabled = nA <= 1; $("catP").disabled = nC >= MAXN; $("anP").disabled = nA >= MAXN;
 }
 ionBtns(CATIONS, $("catList"), "cat");
@@ -382,10 +431,25 @@ function setTab(t){
   $("tabMake").className = "btn" + (t === "make" ? "" : " ghost");
   $("tabQuiz").className = "btn" + (t === "quiz" ? "" : " ghost");
   $("makeView").classList.toggle("hide", t !== "make");
+  ["rndBtn","hintBtn"].forEach(id => $(id).classList.toggle("hide", t !== "make"));
+  $("qtBtn").classList.toggle("hide", t !== "quiz");
+  if(t !== "quiz") $("qtPanel").classList.add("hide");
   $("quizView").classList.toggle("hide", t !== "quiz");
   if(t === "quiz" && !quiz){ quiz = CS.QuizRound($("quizBox"), {make:makeSet, count:10}); drawChips(); quiz.start(); }
   CS.store.set("ionp_tab", t);
 }
+$("qtBtn").onclick = () => $("qtPanel").classList.toggle("hide");
+$("qtClose").onclick = () => $("qtPanel").classList.add("hide");
+// 문제 화면이 화면 높이를 넘으면 글자를 조금씩 줄이기
+function fitQuiz(){
+  const qb = $("quizBox"); if($("quizView").classList.contains("hide")) return;
+  let k = 1; qb.style.setProperty("--qk", k);
+  const over = () => document.documentElement.scrollHeight > window.innerHeight || qb.scrollHeight > qb.clientHeight + 1;
+  while(k > 0.62 && over()){ k -= 0.04; qb.style.setProperty("--qk", k.toFixed(2)); }
+}
+let fq = 0;
+new MutationObserver(() => { if(!fq) fq = requestAnimationFrame(() => { fq = 0; fitQuiz(); }); }).observe($("quizBox"), {childList:true, subtree:true});
+window.addEventListener("resize", () => { fitQuiz(); render(); });
 $("tabMake").onclick = () => setTab("make");
 $("tabQuiz").onclick = () => setTab("quiz");
 setTab(CS.store.get("ionp_tab", "make"));
