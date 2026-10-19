@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -232,7 +232,7 @@ const DEF = { mode: "horiz", g: 9.8, h: 20, v0h: 10, v0a: 20, th: 45, v0c: 20, d
 const S = Object.assign({}, DEF, CS.store.get("proj_v1", {}));
 const save = () => CS.store.set("proj_v1", S);
 const ANG = [15, 30, 45, 60, 75], ACOL = ["#38bdf8", "#a78bfa", "#facc15", "#f472b6", "#4ade80"];
-const C = { ball: "#f97316", xs: "#22d3ee", ys: "#f472b6", ff: "#a3e635", v: "#fde047", grid: "#1e293b", axis: "#64748b", txt: "#94a3b8" };
+const C = { ball: "#f97316", xs: "#22d3ee", ys: "#f472b6", ff: "#a3e635", v: "#fde047", grid: "#1c1c1f", axis: "#64748b", txt: "#94a3b8" };
 const rad = d => d * Math.PI / 180;
 const f2 = x => (Math.round(x * 100) / 100).toFixed(2).replace(/\.?0+$/, "");
 const fx = (x, d) => x.toFixed(d);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,7 +30,7 @@
 .tile .val small{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
 .tile.h .val{color:#fca5a5}.tile.a .val{color:#fdba74}.tile.r .val{color:#93c5fd}
 .diff{grid-column:1/-1;text-align:left}
-.bar{height:16px;background:#0b1222;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:6px 0 4px}
+.bar{height:16px;background:#0b0b0d;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:6px 0 4px}
 .bar>div{height:100%;width:0;background:linear-gradient(90deg,#f87171,#ef4444);transition:width .15s}
 .diff .row{justify-content:space-between;font-size:14px}
 .calc{grid-column:1/-1;font-size:15px;line-height:1.6;margin:0}
@@ -380,9 +380,9 @@ function drawSide(){
   const ml = g.ex + 70, mr = g.sx - g.R - 12;
   c.font = "700 21px " + FONT;
   const memName = M.mem;
-  if(c.measureText(memName).width < mr - ml - 8) pill(c, memName, (ml + mr) / 2, (g.mT + g.mB) / 2, 21, "#f8fafc", "rgba(15,23,42,.75)");
-  else { const ps = memName.split(" "); pill(c, ps[0], (ml + mr) / 2, (g.mT + g.mB) / 2 - 13, 19, "#f8fafc", "rgba(15,23,42,.75)");
-         pill(c, ps.slice(1).join(" ") || "", (ml + mr) / 2, (g.mT + g.mB) / 2 + 15, 19, "#f8fafc", "rgba(15,23,42,.75)"); }
+  if(c.measureText(memName).width < mr - ml - 8) pill(c, memName, (ml + mr) / 2, (g.mT + g.mB) / 2, 21, "#f8fafc", "rgba(10,10,12,.75)");
+  else { const ps = memName.split(" "); pill(c, ps[0], (ml + mr) / 2, (g.mT + g.mB) / 2 - 13, 19, "#f8fafc", "rgba(10,10,12,.75)");
+         pill(c, ps.slice(1).join(" ") || "", (ml + mr) / 2, (g.mT + g.mB) / 2 + 15, 19, "#f8fafc", "rgba(10,10,12,.75)"); }
 
   drawETC(c, g, M, t);
   drawSynthaseSide(c, g, M, t);
@@ -403,9 +403,9 @@ function drawSide(){
 
   // 구역 이름(크게)
   const topState = lvl(S.Ltop - S.Lbot), botState = lvl(S.Lbot - S.Ltop);
-  pill(c, M.top, VW / 2, 30, 30, "#fff", "rgba(15,23,42,.8)");
+  pill(c, M.top, VW / 2, 30, 30, "#fff", "rgba(10,10,12,.8)");
   txt(c, "H⁺ " + S.Ltop + "개 · " + topState, VW / 2, 60, 18, "#fecaca", "center", "600");
-  pill(c, M.bot, VW / 2, VH - 38, 30, "#fff", "rgba(15,23,42,.8)");
+  pill(c, M.bot, VW / 2, VH - 38, 30, "#fff", "rgba(10,10,12,.8)");
   txt(c, "H⁺ " + S.Lbot + "개 · " + botState, VW / 2, VH - 10, 18, "#fecaca", "center", "600");
 }
 function lvl(d){ return d >= 4 ? "농도 높음" : d <= -4 ? "농도 낮음" : "농도 거의 같음"; }
@@ -531,7 +531,7 @@ function drawTop(){
   // 축
   c.fillStyle = "#cbd5e1"; c.beginPath(); c.arc(cx, cy, 20, 0, TAU); c.fill();
   const sa = S.ringV;
-  c.fillStyle = "#334155"; c.beginPath(); c.arc(cx + 11 * Math.sin(sa), cy + 11 * Math.cos(sa), 5, 0, TAU); c.fill();
+  c.fillStyle = "#2a2a2e"; c.beginPath(); c.arc(cx + 11 * Math.sin(sa), cy + 11 * Math.cos(sa), 5, 0, TAU); c.fill();
   // a (H⁺ 통로, 고정)
   c.fillStyle = "#475569"; rr(c, cx + r2 + 4, cy - 40, 24, 70, 7); c.fill();
   // 들어옴/나감 위치
@@ -567,7 +567,7 @@ function drawTop(){
   c.fillStyle = "#cbd5e1"; c.beginPath(); c.arc(fx, fy, 18, 0, TAU); c.fill();
   c.beginPath(); c.moveTo(fx + 30 * Math.sin(ga), fy + 30 * Math.cos(ga));
   c.lineTo(fx + 15 * Math.sin(ga + 1.1), fy + 15 * Math.cos(ga + 1.1)); c.lineTo(fx + 15 * Math.sin(ga - 1.1), fy + 15 * Math.cos(ga - 1.1)); c.fill();
-  txt(c, "축", fx, fy + 1, 14, "#0f172a", "center", "800");
+  txt(c, "축", fx, fy + 1, 14, "#0b0b0d", "center", "800");
   // 튀어나가는 ATP
   S.pops.forEach(p => {
     const a = A0 + p.site * 2 * PI / 3, e = ease(Math.min(1, p.t * 1.3)), rr0 = d + 14 + 26 * e;

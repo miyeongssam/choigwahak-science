@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -56,7 +56,7 @@
 .steps span.on{background:var(--accent2);border-color:var(--accent);color:#fff}
 .steps span.done{border-color:var(--ok);color:var(--ok)}
 .pf-title{font-size:20px;font-weight:800;margin:4px 0 8px;color:#fff;word-break:keep-all}
-.pf-eq{background:#0b1222;border:1px solid var(--line);border-radius:14px;padding:16px 12px;font-size:26px;line-height:2.1;text-align:center;overflow-x:auto}
+.pf-eq{background:#0b0b0d;border:1px solid var(--line);border-radius:14px;padding:16px 12px;font-size:26px;line-height:2.1;text-align:center;overflow-x:auto}
 .pf-eq .ln{display:block}
 .pf-eq .arw{color:var(--muted);font-size:.8em}
 .pf-note{margin-top:10px;font-size:16px;line-height:1.7;word-break:keep-all}
@@ -285,7 +285,7 @@ function txt(ctx, s, x, y, col, size, align, base){
   ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle"; ctx.fillText(s, x, y);
 }
 function block(ctx, x, y, w, h, label){
-  const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, "#64748b"); g.addColorStop(1, "#334155");
+  const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, "#64748b"); g.addColorStop(1, "#2a2a2e");
   ctx.fillStyle = g; ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, 6) : ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();
   if(label) txt(ctx, label, x + w / 2, y + h / 2, "#fff", Math.max(12, Math.min(18, w * 0.32)), "center");
@@ -431,7 +431,7 @@ function spDraw(){
     // d 치수
     const dx = lx1 + 8;
     if(yEq - yNat > 6){ arrow(ctx, dx, yNat, dx, yEq, "#a3e635", 2); arrow(ctx, dx, yEq, dx, yNat, "#a3e635", 2); }
-    if(clipped){ const ym = (yNat + yEq) / 2; ctx.fillStyle = "#0b1222"; ctx.fillRect(dx - 8, ym - 6, 16, 12); txt(ctx, "≈", dx, ym, "#a3e635", 16, "center"); }
+    if(clipped){ const ym = (yNat + yEq) / 2; ctx.fillStyle = "#0b0b0d"; ctx.fillRect(dx - 8, ym - 6, 16, 12); txt(ctx, "≈", dx, ym, "#a3e635", 16, "center"); }
     const ym2 = (yNat + yEq) / 2;
     txt(ctx, "d = mg/k", dx - 8, ym2 - 9, "#a3e635", 13, "right");
     txt(ctx, "= " + (d >= 1 ? d.toFixed(2) + " m" : (d * 100).toFixed(1) + " cm"), dx - 8, ym2 + 9, "#a3e635", 13, "right");
@@ -499,7 +499,7 @@ function grDraw(){
   txt(ctx, "t →", RX, H - 10, "#94a3b8", 12, "right");
   keys.forEach((k, i) => {
     const I = info[k], y0 = 6 + i * sh, ym = y0 + (sh - 12) / 2, amp = (sh - 16) / 2;
-    ctx.strokeStyle = "#334155"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(LX, ym); ctx.lineTo(RX, ym); ctx.stroke();
+    ctx.strokeStyle = "#2a2a2e"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(LX, ym); ctx.lineTo(RX, ym); ctx.stroke();
     txt(ctx, I.lab, 10, ym - 8, I.col, mob ? 17 : 20, "left");
     txt(ctx, "±" + (I.mx >= 100 ? I.mx.toFixed(0) : I.mx >= 10 ? I.mx.toFixed(1) : I.mx.toFixed(2)), 6, ym + 12, "#94a3b8", 10.5, "left");
     txt(ctx, I.unit, 6, ym + 25, "#64748b", 10, "left");
@@ -595,7 +595,7 @@ function pfDraw(){
   if(showC){
     // 원, 점, 그림자
     ctx.strokeStyle = "#475569"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
-    ctx.strokeStyle = "#334155"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx - R - 14, cy); ctx.lineTo(cx + R + 14, cy); ctx.stroke();
+    ctx.strokeStyle = "#2a2a2e"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx - R - 14, cy); ctx.lineTo(cx + R + 14, cy); ctx.stroke();
     const qx = cx + R * cosv, qy = cy - R * sinv;
     ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(qx, qy); ctx.stroke();
     // 각도 호

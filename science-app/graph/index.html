@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -207,7 +207,7 @@ let lastFit = null;
 function draw(){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   // PNG 저장을 위해 배경까지 직접 칠함
-  ctx.fillStyle = "#0b1222"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#0b0b0d"; ctx.fillRect(0, 0, W, H);
   const big = W >= 900, fs = big ? 16 : 12;
   const { P } = points(), fit = lastFit = lsq(P.map(p => p.x), P.map(p => p.y), S.fit);
   const mL = big ? 86 : 58, mB = big ? 62 : 48, mT = big ? 54 : 44, mR = big ? 28 : 16;
@@ -218,12 +218,12 @@ function draw(){
   // 격자 + 눈금
   ctx.fillStyle = "#94a3b8";
   for(let v = rx.lo; v <= rx.hi + rx.st * 1e-6; v += rx.st){
-    ctx.strokeStyle = Math.abs(v) < rx.st * 1e-6 ? "#64748b" : "#1e293b";
+    ctx.strokeStyle = Math.abs(v) < rx.st * 1e-6 ? "#64748b" : "#1c1c1f";
     ctx.beginPath(); ctx.moveTo(X(v), mT); ctx.lineTo(X(v), H - mB); ctx.stroke();
     ctx.textAlign = "center"; ctx.fillText(tick(v, rx.st), X(v), H - mB + fs + 6);
   }
   for(let v = ry.lo; v <= ry.hi + ry.st * 1e-6; v += ry.st){
-    ctx.strokeStyle = Math.abs(v) < ry.st * 1e-6 ? "#64748b" : "#1e293b";
+    ctx.strokeStyle = Math.abs(v) < ry.st * 1e-6 ? "#64748b" : "#1c1c1f";
     ctx.beginPath(); ctx.moveTo(mL, Y(v)); ctx.lineTo(W - mR, Y(v)); ctx.stroke();
     ctx.textAlign = "right"; ctx.fillText(tick(v, ry.st), mL - 8, Y(v) + fs * 0.35);
   }
@@ -251,7 +251,7 @@ function draw(){
     const w = Math.max(ctx.measureText(t1).width, ctx.measureText(t2).width) + 16, lh = big ? 24 : 18;
     // 추세선과 덜 겹치는 쪽(기울기 +면 오른쪽 아래, −면 오른쪽 위)
     const bx = W - mR - w - 6, by = fit.a >= 0 ? H - mB - lh * 2 - 14 : mT + 6;
-    ctx.fillStyle = "rgba(15,23,42,.88)"; ctx.fillRect(bx, by, w, lh * 2 + 8);
+    ctx.fillStyle = "rgba(10,10,12,.88)"; ctx.fillRect(bx, by, w, lh * 2 + 8);
     ctx.fillStyle = "#fdba74"; ctx.fillText(t1, bx + 8, by + lh);
     ctx.fillStyle = "#e2e8f0"; ctx.font = (big ? 16 : 12) + "px sans-serif"; ctx.fillText(t2, bx + 8, by + lh * 2);
   } else {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -295,7 +295,7 @@ function drawPerson(x, y, lb, col, fl){
   const s = dpr;
   ctx.save();
   if(fl > 0){ ctx.beginPath(); ctx.arc(x, y - 6 * s, 20 * s, 0, Math.PI * 2); ctx.fillStyle = `rgba(253,224,71,${0.5 * fl})`; ctx.fill(); }
-  ctx.fillStyle = col; ctx.strokeStyle = "#0b1222"; ctx.lineWidth = 1.5 * s;
+  ctx.fillStyle = col; ctx.strokeStyle = "#0b0b0d"; ctx.lineWidth = 1.5 * s;
   ctx.beginPath(); ctx.arc(x, y - 16 * s, 7 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x - 8 * s, y + 10 * s); ctx.lineTo(x, y - 8 * s); ctx.lineTo(x + 8 * s, y + 10 * s); ctx.closePath(); ctx.fill(); ctx.stroke();
   ctx.font = `700 ${Math.round(15 * s)}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "top";
@@ -305,7 +305,7 @@ function drawPerson(x, y, lb, col, fl){
 
 function render(){
   const g = geom(), c = cpx(), T = Tvis();
-  ctx.fillStyle = "#0b1222"; ctx.fillRect(0, 0, Wp, Hp);
+  ctx.fillStyle = "#0b0b0d"; ctx.fillRect(0, 0, Wp, Hp);
   // 축
   ctx.strokeStyle = "rgba(148,163,184,.25)"; ctx.lineWidth = 1 * dpr; ctx.setLineDash([4 * dpr, 6 * dpr]);
   ctx.beginPath(); ctx.moveTo(0, g.midY); ctx.lineTo(Wp, g.midY); ctx.stroke(); ctx.setLineDash([]);

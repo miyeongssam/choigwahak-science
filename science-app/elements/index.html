@@ -330,7 +330,7 @@ function fakeFormulas(f){
   const put = (toks, qq) => { const s = fmtF(toks, qq); if(s !== f) out.add(s); };
   T.forEach((t, i) => {
     if(t.n >= 2 && t.n <= 4){ let a = cl(); a[i].n = t.n - 1; put(a, q); a = cl(); a[i].n = t.n + 1; put(a, q); }
-    if(t.n === 1 && T.length >= 2 && T.length <= 3){ const a = cl(); a[i].n = 2; put(a, q); }
+    if(t.n === 1 && T.length === 2){ const a = cl(); a[i].n = 2; put(a, q); }
     if(t.g && t.n > 1){ // Ca(OH)₂ → CaOH₂
       const a = cl(), inner = a[i].g; inner[inner.length - 1].n *= t.n; a.splice(i, 1, ...inner); put(a, q);
     }
@@ -374,6 +374,10 @@ function formulaCands(ans){
     ex.forEach(e => { if(ea.has(e)) v += 3; });
     if(Math.sign(qOf(x)) === Math.sign(qa)) v += 2;
     if(fakes.has(x)) v += 2;
+    if(ex.size === ea.size && [...ex].every(e => ea.has(e))) v += 3;   // 같은 원소로만 이루어짐 (O₂·O₃)
+    const bare = s => /^[A-Z][a-z]?$/.test(s);
+    if(bare(x) && bare(ans)) v += 5;          // 원소(금속)끼리
+    if(v <= 2) v -= 6;                        // 공통점 없는 것은 뒤로
     return {x, v: v + Math.random() * 3};
   });
 }
@@ -424,8 +428,11 @@ function makeQ(item, o){
     if(dir === "s2n"){
       return finish(q, item.n, topK(reals.map(c => ({x:c.x.n, v:c.v})), 3, [item.n]));
     }
-    const fakes = fakeFormulas(item.s).map(x => ({x, v: 7 + Math.random() * 5}));
-    const ws = topK(reals.map(c => ({x:c.x.s, v:c.v})).concat(fakes), 3, [item.s]);
+    // 실수 꼴 1~2개(전하 실수 우선) + 범위 안의 비슷한 실제 물질
+    const body = f => fmtT(parseF(f).toks);
+    const fakes = fakeFormulas(item.s).map(x => ({x, v: (body(x) === body(item.s) ? 9 : 6) + Math.random() * 4}));
+    const f1 = topK(fakes, Math.min(fakes.length, Math.random() < 0.5 ? 1 : 2), [item.s]);
+    const ws = f1.concat(topK(reals.map(c => ({x:c.x.s, v:c.v})), 3 - f1.length, [item.s].concat(f1)));
     return finish(q, item.s, ws);
   }
   if(item.cat === "ionz"){

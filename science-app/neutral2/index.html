@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>중화 반응 2 · 최과학 과학</title>
+<link rel="stylesheet" href="../common/common.css">
+<style>
+  /* ── 한 화면 고정: 스크롤 없음 ── */
+  html,body{height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
+  body{min-height:0;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  .top{position:relative;flex:0 0 auto;padding:calc(env(safe-area-inset-top) + 3px) 8px 3px;gap:8px}
+  .top .back{padding:4px 10px;font-size:14px;border-radius:9px}
+  .top h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top h1 small{display:inline;font-size:11px;margin-left:6px}
+  @media (max-width:430px){ .top h1 small{display:none} }
+  .tb{width:34px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--line);color:var(--text);
+    font-size:16px;font-weight:800;cursor:pointer;padding:0;font-family:inherit;line-height:1}
+  #app.wrap{max-width:none;margin:0;padding:0;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%}
+  #stage{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+  #cv{position:absolute;left:0;top:0;width:100%;height:100%;border:0;border-radius:0;background:transparent;pointer-events:none;z-index:2}
+  .tab{position:absolute;inset:0;display:flex;flex-direction:column;gap:6px;padding:6px 8px;z-index:1;font-size:15px}
+  .slot{flex:1 1 0;min-height:0;min-width:0;position:relative}
+  .bar{display:flex;gap:6px;align-items:center;flex:0 0 auto;min-width:0}
+  /* 아래 탭 */
+  #tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:3px 6px calc(env(safe-area-inset-bottom) + 3px);
+    border-top:1px solid var(--line);background:#0b1222}
+  #tabs button{display:flex;flex-direction:column;align-items:center;gap:0;background:none;border:0;color:var(--muted);
+    font-family:inherit;font-size:12px;font-weight:600;padding:3px 0 2px;border-radius:10px;cursor:pointer}
+  #tabs button svg{width:28px;height:28px}
+  #tabs button.on{color:#fff;background:var(--card2)}
+  /* 버튼 */
+  .k{background:var(--card2);border:2px solid var(--line);color:var(--text);border-radius:13px;font-family:inherit;font-weight:800;
+    font-size:17px;cursor:pointer;padding:0 10px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:46px;line-height:1}
+  .k:active{transform:scale(.96)}
+  .k.on{border-color:#facc15;background:#3b3413}
+  .k:disabled{opacity:.35}
+  .k svg{width:24px;height:24px}
+  .grow{flex:1 1 0;min-width:0}
+  .stars{margin-left:auto;font-weight:800;font-size:16px;white-space:nowrap;color:#fde68a}
+  /* 이온 동그라미(HTML) */
+  .io{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;border:2px solid rgba(0,0,0,.4);
+    flex:0 0 auto;line-height:1;letter-spacing:-.02em;white-space:nowrap;box-sizing:border-box}
+  .mol{display:inline-flex;align-items:center;flex:0 0 auto}
+  .mol .io + .io{margin-left:-.28em}
+  .ic{width:1.2em;height:1.2em;vertical-align:middle;flex:0 0 auto}
+  /* 피드백 */
+  @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+  .shake{animation:shk .4s}
+  .bad{border-color:#ef4444!important;background:rgba(239,68,68,.25)!important}
+  .good{border-color:#22c55e!important;background:rgba(34,197,94,.28)!important;box-shadow:0 0 18px rgba(34,197,94,.6)}
+  @keyframes pul{0%,100%{box-shadow:0 0 0 0 rgba(250,204,21,.7)}50%{box-shadow:0 0 0 6px rgba(250,204,21,0)}}
+  .now{animation:pul 1.1s infinite;border-color:#facc15!important}
+  @keyframes tap{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-40%) scale(.85);opacity:1}}
+  .hint{position:absolute;left:50%;top:55%;font-size:42px;pointer-events:none;animation:tap 1.2s infinite;z-index:3}
+
+  /* ── 탭1 쪼개기 ── */
+  .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;flex:0 0 auto}
+  .card{height:42px;border-radius:11px;border:2px solid var(--line);background:var(--card2);color:var(--text);font-family:inherit;
+    font-weight:800;font-size:14px;cursor:pointer;padding:0 2px;white-space:nowrap;letter-spacing:-.02em}
+  .card.a{border-bottom:4px solid #ef4444}
+  .card.b{border-bottom:4px solid #3b82f6}
+  .card.on{border-color:#facc15;background:#3b3413}
+  .mid{display:flex;gap:6px;flex:1 1 0;min-height:0}
+  .cnt{display:flex;flex-direction:column;justify-content:center;gap:8px;flex:0 0 auto;min-width:96px}
+  .cr{display:flex;align-items:center;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:5px 8px;font-size:15px}
+  .cr b{font-size:24px;font-variant-numeric:tabular-nums;min-width:1.6em;text-align:right}
+  .cr.arrow{background:none;border:0;justify-content:center;padding:0;color:var(--muted);font-size:18px}
+  #t1q{flex:0 0 72px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex:0 0 auto}
+  .tile{height:58px;border-radius:14px;border:2px solid var(--line);background:var(--card2);color:#fff;font-family:inherit;
+    font-weight:800;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;padding:2px;line-height:1;min-width:0}
+  .tile:active{transform:scale(.97)}
+
+  /* ── 탭2 농도·부피 ── */
+  .ask{justify-content:center;font-size:30px;font-weight:900;height:44px}
+  .mult{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:0 0 auto;visibility:hidden;min-height:50px}
+  .mult.show{visibility:visible}
+  .mr{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:14px;font-weight:700;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px 4px;min-width:0}
+  .mr .l{display:flex;align-items:center;gap:3px;flex-wrap:nowrap;white-space:nowrap}
+  .mr .x{color:var(--muted);font-weight:600}
+  .mr b{font-size:16px}
+  .btn3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;flex:0 0 auto}
+  .btn3 .k{height:52px;font-size:22px}
+
+  /* ── 탭3 섞기 ── */
+  .t3main{display:flex;flex-direction:column;gap:6px;flex:1 1 0;min-height:0}
+  .t3top{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;flex:1 1 0;min-height:0}
+  .side{display:flex;flex-direction:column;gap:4px;min-height:0;min-width:0}
+  .side.lock .ctl{opacity:.35;pointer-events:none}
+  .ctl{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}
+  .stp{display:grid;grid-template-columns:40px 1fr 40px;gap:4px;align-items:center}
+  .stp .k{height:36px;min-width:0;padding:0;font-size:22px;border-radius:10px}
+  .stp .v{display:flex;align-items:center;justify-content:center;gap:4px;font-weight:800;font-size:18px;white-space:nowrap;min-width:0}
+  .card.big{height:36px;width:100%;font-size:16px}
+  .midc{display:flex;align-items:center;justify-content:center}
+  #mixBtn{width:64px;height:64px;border-radius:50%;border:3px solid #facc15;background:#3b3413;color:#fff;cursor:pointer;padding:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:inherit;font-size:11px;font-weight:800;gap:0}
+  #mixBtn svg{width:36px;height:36px}
+  #mixBtn:active{transform:scale(.94)}
+  #t3mS{flex:1.15 1 0}
+
+  /* ── 탭4 게임 ── */
+  .hud{height:40px}
+  .tbar{flex:1 1 0;height:14px;background:var(--card2);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .tbar>div{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#facc15)}
+  .sc{font-weight:900;font-size:20px;min-width:54px;text-align:right;white-space:nowrap}
+  .cb{font-weight:900;font-size:16px;color:#fb923c;min-width:44px;white-space:nowrap}
+  .t4tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}
+  .t4tiles.c3{grid-template-columns:1fr 1fr 1fr}
+  .t4tiles .tile{height:66px;font-size:26px}
+  .t4tiles.c3 .tile{height:76px}
+  .sw{width:46px;height:46px;border-radius:10px 10px 16px 16px;border:3px solid #cbd5e1;border-top:0}
+  .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    background:rgba(15,23,42,.92);z-index:4;text-align:center}
+  .ov .bigs{font-size:64px;font-weight:900;line-height:1}
+  .ov .k{height:58px;font-size:22px;padding:0 22px}
+  .ov .row2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .play{width:120px;height:120px;border-radius:50%;border:4px solid #22c55e;background:#123524;color:#fff;font-size:54px;cursor:pointer;padding:0 0 0 10px}
+
+  /* 말풍선 */
+  #bubble{position:fixed;right:8px;top:calc(env(safe-area-inset-top) + 42px);max-width:min(320px,90vw);background:#fffbeb;color:#1f2937;
+    border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.55;z-index:30;box-shadow:0 8px 30px rgba(0,0,0,.5);font-weight:600}
+  #bubble:before{content:"";position:absolute;right:52px;top:-8px;border:8px solid transparent;border-top:0;border-bottom-color:#fffbeb}
+
+  /* 가로로 넓은 화면(칠판) */
+  @media (min-aspect-ratio:5/4) and (min-width:700px){
+    .t3main{flex-direction:row}
+    .t3top{flex:1.2 1 0}
+    .t4body{flex-direction:row!important}
+    .t4body .t4tiles{width:38%;align-content:center}
+    .t4body .t4tiles .tile{height:auto;min-height:110px}
+  }
+  @media (min-width:1000px) and (min-height:700px){
+    .top{padding-top:calc(env(safe-area-inset-top) + 6px);padding-bottom:6px}
+    .top h1{font-size:22px} .top h1 small{font-size:14px}
+    .top .back{font-size:17px;padding:7px 14px}
+    .tb{width:44px;height:40px;font-size:20px}
+    #tabs button{font-size:17px} #tabs button svg{width:40px;height:40px}
+    .tab{gap:12px;padding:12px 20px;font-size:20px}
+    .card{height:64px;font-size:24px} .card.big{height:52px;font-size:22px}
+    .k{height:64px;font-size:24px;min-width:64px} .k svg{width:34px;height:34px}
+    .cnt{min-width:170px;gap:14px} .cr{font-size:22px;padding:8px 14px} .cr b{font-size:40px}
+    #t1q{flex-basis:130px}
+    .tile{height:92px;font-size:40px} .t4tiles .tile{font-size:42px}
+    .ask{height:70px;font-size:48px}
+    .mult{min-height:90px} .mr{font-size:22px} .mr b{font-size:26px}
+    .btn3 .k{height:76px;font-size:32px}
+    .stp{grid-template-columns:60px 1fr 60px} .stp .k{height:52px;font-size:30px} .stp .v{font-size:28px}
+    #mixBtn{width:110px;height:110px;font-size:17px} #mixBtn svg{width:60px;height:60px}
+    .hud{height:60px} .tbar{height:22px} .sc{font-size:32px;min-width:90px} .cb{font-size:26px}
+    .stars{font-size:26px}
+    .sw{width:80px;height:80px}
+    #bubble{font-size:20px;top:64px;max-width:460px}
+  }
+</style>
+</head>
+<body>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>중화 반응 2<small>통합과학 · 이온 개수 놀이</small></h1>
+  <div class="tools"><button class="tb" id="bHelp" aria-label="도움말">?</button><button class="tb" id="bSnd" aria-label="소리">🔊</button></div></header>
+<div class="wrap" id="app">
+<main id="stage">
+  <canvas id="cv"></canvas>
+
+  <!-- 1 쪼개기 -->
+  <section class="tab" id="t1">
+    <div class="cards" id="t1cards"></div>
+    <div class="slot hide" id="t1q"></div>
+    <div class="mid">
+      <div class="slot" id="t1beak"><div class="hint" id="t1hint">👆</div></div>
+      <div class="cnt" id="t1cnt"></div>
+    </div>
+    <div class="tiles hide" id="t1tiles"></div>
+    <div class="bar">
+      <button class="k" id="t1x10">×10</button>
+      <button class="k" id="t1clr" aria-label="비우기">⟲</button>
+      <button class="k" id="t1ch" aria-label="도전">🎯</button>
+      <span class="stars" id="t1st"></span>
+    </div>
+  </section>
+
+  <!-- 2 농도·부피 -->
+  <section class="tab hide" id="t2">
+    <div class="bar ask" id="t2ask"></div>
+    <div class="slot" id="t2beak"></div>
+    <div class="mult" id="t2mult"><div class="mr" id="t2mA"></div><div class="mr" id="t2mB"></div></div>
+    <div class="btn3" id="t2btn">
+      <button class="k" data-v="0">(가)</button><button class="k" data-v="1">=</button><button class="k" data-v="2">(나)</button>
+    </div>
+    <div class="bar hide" id="t2next"><span class="stars" id="t2st" style="margin:0"></span><button class="k grow" id="t2go">▶</button></div>
+  </section>
+
+  <!-- 3 섞기 -->
+  <section class="tab hide" id="t3">
+    <div class="t3main" id="t3free">
+      <div class="t3top">
+        <div class="side" id="t3A">
+          <div class="slot" id="t3aS"></div>
+          <div class="ctl">
+            <button class="card big a" id="t3aM"></button>
+            <div class="stp"><button class="k" data-s="a" data-f="c" data-d="-1">−</button><span class="v" id="t3aC"></span><button class="k" data-s="a" data-f="c" data-d="1">+</button></div>
+            <div class="stp"><button class="k" data-s="a" data-f="p" data-d="-1">−</button><span class="v" id="t3aP"></span><button class="k" data-s="a" data-f="p" data-d="1">+</button></div>
+          </div>
+        </div>
+        <div class="midc"><button id="mixBtn" aria-label="섞기"></button></div>
+        <div class="side" id="t3B">
+          <div class="slot" id="t3bS"></div>
+          <div class="ctl">
+            <button class="card big b" id="t3bM"></button>
+            <div class="stp"><button class="k" data-s="b" data-f="c" data-d="-1">−</button><span class="v" id="t3bC"></span><button class="k" data-s="b" data-f="c" data-d="1">+</button></div>
+            <div class="stp"><button class="k" data-s="b" data-f="p" data-d="-1">−</button><span class="v" id="t3bP"></span><button class="k" data-s="b" data-f="p" data-d="1">+</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="slot" id="t3mS"></div>
+    </div>
+    <div class="slot hide" id="t3hotS"></div>
+    <div class="bar">
+      <button class="k on" id="t3m0" aria-label="자유">🧪</button>
+      <button class="k" id="t3m1" aria-label="중성 만들기">🎯</button>
+      <button class="k" id="t3m2" aria-label="온도 높게">🌡️</button>
+      <button class="k hide" id="t3go">▶</button>
+      <span class="stars" id="t3st"></span>
+    </div>
+  </section>
+
+  <!-- 4 게임 -->
+  <section class="tab hide" id="t4">
+    <div class="bar hud"><span class="cb" id="t4cb"></span><div class="tbar"><div id="t4tb"></div></div><span class="sc" id="t4sc">0</span></div>
+    <div class="t4body" style="display:flex;flex-direction:column;gap:8px;flex:1 1 0;min-height:0">
+      <div class="slot" id="t4fig"></div>
+      <div class="t4tiles" id="t4tiles"></div>
+    </div>
+    <div class="ov" id="t4start"><button class="play" id="t4play" aria-label="시작">▶</button><div class="bigs" style="font-size:40px">🏆 <span id="t4best0">0</span></div><div style="font-size:28px;font-weight:900;color:var(--muted)">60″</div></div>
+    <div class="ov hide" id="t4end"></div>
+  </section>
+</main>
+<nav id="tabs">
+  <button data-t="1"><svg viewBox="0 0 32 32"><circle cx="8" cy="11" r="5.5" fill="#ef4444" stroke="#000" stroke-opacity=".4"/><circle cx="8" cy="23" r="5.5" fill="#ef4444" stroke="#000" stroke-opacity=".4"/><circle cx="24" cy="17" r="6.5" fill="#facc15" stroke="#000" stroke-opacity=".4"/><path d="M15 9l2.5 2M15 25l2.5-2M14.5 17h3" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/></svg>쪼개기</button>
+  <button data-t="2"><svg viewBox="0 0 32 32" fill="none" stroke="#cbd5e1" stroke-width="2"><path d="M3 8v20h11V8"/><path d="M18 18v10h11V18"/><rect x="4" y="15" width="9" height="12" fill="#facc15" fill-opacity=".55" stroke="none"/><rect x="19" y="21" width="9" height="6" fill="#facc15" fill-opacity=".55" stroke="none"/><path d="M4 21h9M19 24h9" stroke-dasharray="2 2"/></svg>부피</button>
+  <button data-t="3"><svg viewBox="0 0 32 32" fill="none" stroke="#cbd5e1" stroke-width="2"><path d="M12 3h8M13 3v9L5 26a2 2 0 0 0 2 3h18a2 2 0 0 0 2-3l-8-14V3"/><path d="M8.5 21h15L26 26a1.5 1.5 0 0 1-1.3 2H7.3A1.5 1.5 0 0 1 6 26z" fill="#22c55e" stroke="none"/></svg>섞기</button>
+  <button data-t="4"><svg viewBox="0 0 32 32"><rect x="2" y="9" width="28" height="16" rx="8" fill="#334155" stroke="#cbd5e1" stroke-width="2"/><path d="M9 13v8M5 17h8" stroke="#e2e8f0" stroke-width="2.4" stroke-linecap="round"/><circle cx="21" cy="15" r="2.2" fill="#ef4444"/><circle cx="25" cy="19" r="2.2" fill="#3b82f6"/></svg>게임</button>
+</nav>
+</div>
+<div id="bubble" class="hide"></div>
+<script src="../common/common.js"></script>
+<script>"use strict";
+// ==CORE== (정답 계산 · 문제 만들기 — 검사 스크립트가 이 부분만 떼어 node에서 실행)
+let RND = Math.random;
+const ri = (a, b) => a + Math.floor(RND() * (b - a + 1));
+const pk = a => a[Math.floor(RND() * a.length)];
+const shuf = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(RND() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const ION = {
+  H:  {s:"H⁺",    q:1,  c:"#ef4444", t:"#fff"},
+  OH: {s:"OH⁻",   q:-1, c:"#3b82f6", t:"#fff"},
+  Na: {s:"Na⁺",   q:1,  c:"#a855f7", t:"#fff"},
+  K:  {s:"K⁺",    q:1,  c:"#d946ef", t:"#fff"},
+  Ca: {s:"Ca²⁺",  q:2,  c:"#7c3aed", t:"#fff"},
+  Cl: {s:"Cl⁻",   q:-1, c:"#22c55e", t:"#052e16"},
+  NO3:{s:"NO₃⁻",  q:-1, c:"#a3e635", t:"#1a2e05"},
+  SO4:{s:"SO₄²⁻", q:-2, c:"#facc15", t:"#422006"},
+  W:  {s:"H₂O",   q:0,  c:"#7dd3fc", t:"#0c4a6e"}
+};
+// 화학식 단위 1개가 물에 녹으면 나오는 이온 (완전히 이온화한다고 가정)
+const MOL = {
+  HCl:   {f:"HCl",     k:"a", io:[["H",1],["Cl",1]]},
+  HNO3:  {f:"HNO₃",    k:"a", io:[["H",1],["NO3",1]]},
+  H2SO4: {f:"H₂SO₄",   k:"a", io:[["H",2],["SO4",1]]},
+  NaOH:  {f:"NaOH",    k:"b", io:[["Na",1],["OH",1]]},
+  KOH:   {f:"KOH",     k:"b", io:[["K",1],["OH",1]]},
+  CaOH2: {f:"Ca(OH)₂", k:"b", io:[["Ca",1],["OH",2]]}
+};
+const ACIDS = ["HCl","HNO3","H2SO4"], BASES = ["NaOH","KOH","CaOH2"], ALLM = ACIDS.concat(BASES);
+const MAXI = 30, MAXC = 5, MAXP = 4;         // 이온 한 종류 최대 30개, 칸 1~5, 1칸당 분자 1~4
+const coefOf = (m, sp) => { const e = MOL[m].io.find(x => x[0] === sp); return e ? e[1] : 0; };
+const valOf = m => coefOf(m, MOL[m].k === "a" ? "H" : "OH");                 // 가수
+const partner = m => MOL[m].io.find(x => x[0] !== "H" && x[0] !== "OH")[0];  // 구경꾼 이온
+const keyIon = m => MOL[m].k === "a" ? "H" : "OH";
+function ionsOf(m, n){ const o = {}; MOL[m].io.forEach(([sp, k]) => o[sp] = k * n); return o; }
+const solN = s => s.c * s.p;                    // 분자 수 = 칸 수 × 1칸당 분자 수
+const solIons = s => ionsOf(s.m, solN(s));      // 이온 수 = 칸 × 1칸당 분자 × 가수
+const solOk = s => s.c >= 1 && s.c <= MAXC && s.p >= 1 && s.p <= MAXP && MOL[s.m].io.every(([sp, k]) => k * s.c * s.p <= MAXI);
+const isPrecip = (a, b) => a === "H2SO4" && b === "CaOH2";   // CaSO₄ 앙금 → 섞기·게임에서 제외
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while(b){ [a, b] = [b, a % b]; } return a; };
+const simp = arr => { const g = arr.reduce((s, x) => gcd(s, x), 0) || 1; return arr.map(x => x / g); };
+const rstr = a => a.join(" : ");
+const charge = o => Object.keys(o).reduce((s, k) => s + ION[k].q * o[k], 0);
+const fmt = x => Number.isInteger(x) ? String(x) : String(Math.round(x * 10) / 10);
+
+/* 정답 계산 함수(하나뿐): 산 용액 a + 염기 용액 b (각각 {m, c:칸 수, p:1칸당 분자 수}) */
+function mix(a, b){
+  const ia = solIons(a), ib = solIons(b), H = ia.H, OH = ib.OH, water = Math.min(H, OH);
+  const an = partner(a.m), cat = partner(b.m);
+  const rem = {H:H - water, [an]:ia[an], [cat]:ib[cat], OH:OH - water};
+  const order = ["H", an, cat, "OH"].filter(k => rem[k] > 0);
+  const cnt = order.map(k => rem[k]);
+  return { ia, ib, H, OH, water, an, cat, rem, order, cnt, ratio:simp(cnt), cells:a.c + b.c,
+    nature: rem.H > 0 ? "A" : rem.OH > 0 ? "B" : "N",
+    qBefore: charge(ia) + charge(ib), qAfter: charge(rem) };
+}
+function randSol(kind, m){
+  for(let g = 0; g < 1000; g++){ const s = {m: m || pk(kind === "a" ? ACIDS : BASES), c:ri(1, MAXC), p:ri(1, MAXP)}; if(solOk(s)) return s; }
+}
+function randPair(want){
+  for(let g = 0; g < 20000; g++){
+    const a = randSol("a"), b = randSol("b");
+    if(isPrecip(a.m, b.m)) continue;
+    const r = mix(a, b);
+    if(want && r.nature !== want) continue;
+    return {a, b, r};
+  }
+}
+function numTiles(ans, cands, n){
+  n = n || 4;
+  const out = [ans], seen = new Set([fmt(ans)]);
+  for(const c of cands){ if(!(c > 0)) continue; const f = fmt(c); if(seen.has(f)) continue; seen.add(f); out.push(c); if(out.length === n) break; }
+  for(let x = ans + 1; out.length < n; x++){ if(!seen.has(fmt(x))){ seen.add(fmt(x)); out.push(x); } }
+  const sh = shuf(out);
+  return {tiles: sh.map(fmt), ans: sh.indexOf(ans)};
+}
+// 분자 n개 → 이온 sp 개수, 실수하기 쉬운 오답(가수 빠뜨림·두 번 곱함·나눔)
+function ionTiles(m, sp, n){
+  const k = coefOf(m, sp), other = MOL[m].io.find(x => x[0] !== sp)[1], ans = k * n;
+  let c;
+  if(k === 2) c = [n].concat(shuf([3 * n, n / 2, 4 * n, n + 2, 2 * n + 2]));
+  else if(other === 2) c = [2 * n].concat(shuf([n / 2, 3 * n, n + 1, n + 2]));
+  else c = [2 * n].concat(shuf([n / 2, n + 1, n - 1, 3 * n]));
+  return numTiles(ans, c);
+}
+function genSplit(){
+  const m = pk(ALLM), mx = Math.floor(MAXI / Math.max(...MOL[m].io.map(x => x[1])));
+  const n = ri(2, Math.min(15, mx));
+  return { m, n, steps: MOL[m].io.map(([sp, k]) => Object.assign({sp, val:k * n}, ionTiles(m, sp, n))) };
+}
+function genCompare(){
+  const r0 = RND(), want = r0 < 0.3 ? "eq" : r0 < 0.65 ? "trap" : "any";
+  const kind = RND() < 0.5 ? "a" : "b", sp = kind === "a" ? "H" : "OH", diffVal = RND() < 0.5;
+  for(let g = 0; g < 50000; g++){
+    const A = randSol(kind), B = randSol(kind);
+    if(A.m === B.m && A.c === B.c && A.p === B.p) continue;
+    const nA = solIons(A)[sp], nB = solIons(B)[sp];
+    if(want === "eq"){ if(nA !== nB) continue; }
+    else {
+      if(nA === nB) continue;
+      if(want === "trap"){ if(A.c === B.c) continue; const big = A.c > B.c ? nA : nB, small = A.c > B.c ? nB : nA; if(big >= small) continue; }
+      else if(diffVal && valOf(A.m) === valOf(B.m)) continue;
+    }
+    return {type:"cmp", A, B, sp, nA, nB, want, tiles:["A","=","B"], ans: nA > nB ? 0 : nA === nB ? 1 : 2};
+  }
+}
+const GTYPES = ["mi","cmp","col","rem","wat","rat"];
+function genGame(type){
+  type = type || pk(GTYPES);
+  if(type === "mi"){
+    const m = pk(ALLM), mx = Math.floor(MAXI / Math.max(...MOL[m].io.map(x => x[1]))), n = ri(2, Math.min(15, mx));
+    const sp = RND() < 0.65 ? keyIon(m) : pk(MOL[m].io.map(x => x[0]));
+    const t = ionTiles(m, sp, n);
+    return {type, m, n, sp, val:coefOf(m, sp) * n, tiles:t.tiles, ans:t.ans};
+  }
+  if(type === "cmp") return genCompare();
+  if(type === "col"){
+    const P = randPair(pk(["A","N","B"]));
+    return {type, a:P.a, b:P.b, r:P.r, tiles:["A","N","B"], ans:["A","N","B"].indexOf(P.r.nature)};
+  }
+  if(type === "rem"){
+    const P = randPair(pk(["A","N","B"])), an = P.r.an, cat = P.r.cat;
+    const sets = shuf([["H", an, cat], [an, cat], [an, cat, "OH"], ["H", an, cat, "OH"]].map(x => x.join(",")));
+    return {type, a:P.a, b:P.b, r:P.r, tiles:sets, ans:sets.indexOf(P.r.order.join(","))};
+  }
+  if(type === "wat"){
+    const P = randPair(pk(["A","N","B"])), r = P.r;
+    const t = numTiles(r.water, shuf([r.H, r.OH, r.H + r.OH, 2 * r.water, Math.abs(r.H - r.OH), r.water + 2, r.water - 1]));
+    return {type, a:P.a, b:P.b, r, tiles:t.tiles, ans:t.ans};
+  }
+  if(type === "rat"){
+    const P = randPair(RND() < 0.8 ? pk(["A","B"]) : "N"), r = P.r, ans = r.ratio;
+    const seen = new Set([rstr(ans)]), out = [];
+    const add = arr => { if(out.length >= 3 || arr.some(x => !(x > 0) || !Number.isInteger(x))) return; const s = rstr(simp(arr)); if(!seen.has(s)){ seen.add(s); out.push(s); } };
+    add(r.order.map(k => k === "H" ? r.H : k === "OH" ? r.OH : r.rem[k]));      // 반응 전 개수 그대로
+    const perm = a => a.length <= 1 ? [a] : a.flatMap((x, i) => perm(a.slice(0, i).concat(a.slice(i + 1))).map(p => [x].concat(p)));
+    shuf(perm(ans)).forEach(add);
+    for(let g = 0; out.length < 3 && g < 300; g++) add(ans.map(x => Math.max(1, x + ri(-1, 2))));
+    for(let g = 0; out.length < 3 && g < 3000; g++) add(ans.map(() => ri(1, 6)));
+    const tiles = shuf([rstr(ans)].concat(out));
+    return {type, a:P.a, b:P.b, r, tiles, ans:tiles.indexOf(rstr(ans))};
+  }
+}
+// 섞기 도전: 산은 고정, 염기를 맞춰 중성 만들기
+function genGreen(){
+  for(let g = 0; g < 5000; g++){
+    const a = randSol("a"), bm = pk(BASES.filter(b => !isPrecip(a.m, b))), H = solIons(a).H, sols = [];
+    for(let c = 1; c <= MAXC; c++) for(let p = 1; p <= MAXP; p++){ const s = {m:bm, c, p}; if(solOk(s) && solIons(s).OH === H) sols.push(s); }
+    if(!sols.length) continue;
+    for(let h = 0; h < 200; h++){ const b = randSol("b", bm); if(mix(a, b).nature !== "N") return {a, b, sols}; }
+  }
+}
+// 섞기 도전2: 전체 부피(칸 수 합)가 같은 조합 중 물이 가장 많이 생기는 것
+function genHot(){
+  for(let g = 0; g < 50000; g++){
+    const T = ri(3, 6), k = RND() < 0.5 ? 2 : 3, same = RND() < 0.5;
+    const am = pk(ACIDS), bm = pk(BASES.filter(b => !isPrecip(am, b)));
+    const combos = [], keys = new Set();
+    for(let i = 0; i < k * 30 && combos.length < k; i++){
+      const m1 = same ? am : pk(ACIDS), m2 = same ? bm : pk(BASES.filter(b => !isPrecip(m1, b)));
+      const c = ri(1, T - 1), a = {m:m1, c, p:ri(1, MAXP)}, b = {m:m2, c:T - c, p:ri(1, MAXP)};
+      if(!solOk(a) || !solOk(b) || isPrecip(a.m, b.m)) continue;
+      const key = JSON.stringify([a, b]); if(keys.has(key)) continue; keys.add(key);
+      combos.push({a, b, w:mix(a, b).water});
+    }
+    if(combos.length < k) continue;
+    const ws = combos.map(x => x.w), mx = Math.max(...ws);
+    if(ws.filter(w => w === mx).length !== 1) continue;
+    return {T, combos, ans:ws.indexOf(mx)};
+  }
+}
+// ==/CORE==
+
+/* ───────────── 화면 ───────────── */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const T = () => performance.now() / 1000;
+const BTB = {A:"#facc15", N:"#22c55e", B:"#3b82f6", X:"#64748b"};
+const FONT = '-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans CJK KR",sans-serif';
+const stage = $("#stage"), cv = $("#cv"), ctx = cv.getContext("2d");
+let CW = 0, CH = 0, DPR = 1, SR = {left:0, top:0};
+const N2 = window.N2 = {timeScale:1, core:{mix, genGame, genSplit, genCompare, genGreen, genHot, solIons, MOL, ION}};
+let tab = 1, soundOn = CS.store.get("n2_snd", true);
+
+/* 소리 · 진동 */
+let AC = null;
+function snd(kind){
+  if(!soundOn) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const seq = {ok:[[660,.07],[990,.12]], bad:[[160,.2]], pop:[[700,.035]], win:[[523,.09],[659,.09],[784,.09],[1047,.2]], tick:[[440,.03]]}[kind];
+    let t = AC.currentTime + .01;
+    seq.forEach(([f, d]) => { const o = AC.createOscillator(), g = AC.createGain();
+      o.type = kind === "bad" ? "square" : "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(kind === "pop" ? .07 : .12, t); g.gain.exponentialRampToValueAtTime(.0008, t + d);
+      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + .02); t += d; });
+  }catch(e){}
+}
+const vib = ms => { try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} };
+function flash(el, cls){ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), 600); }
+function goodFx(el){ snd("ok"); if(el) flash(el, "good"); }
+function badFx(el){ snd("bad"); vib(120); if(el){ el.classList.add("bad"); flash(el, "shake"); setTimeout(() => el.classList.remove("bad"), 600); } }
+
+/* HTML 그림 조각 */
+function ionH(sp, s){
+  const I = ION[sp], len = [...I.s].length, fs = Math.min(.5, 1.32 / Math.max(len, 2)) * s;
+  return `<span class="io" style="width:${(s / fs).toFixed(3)}em;height:${(s / fs).toFixed(3)}em;font-size:${fs.toFixed(3)}em;background:${I.c};color:${I.t}">${I.s}</span>`;
+}
+function molH(m, s){
+  const io = MOL[m].io, list = [];
+  if(io.some(x => x[1] === 2)){ const two = io.find(x => x[1] === 2)[0], one = io.find(x => x[1] === 1)[0]; list.push(two, one, two); }
+  else io.forEach(x => list.push(x[0]));
+  return `<span class="mol">${list.map(sp => ionH(sp, s)).join("")}</span>`;
+}
+const cellIco = `<svg class="ic" viewBox="0 0 20 24"><path d="M3 2v20h14V2" fill="none" stroke="#cbd5e1" stroke-width="2.2"/><rect x="4" y="9" width="12" height="12" fill="#94a3b8" fill-opacity=".45"/><path d="M4 15h12" stroke="#e2e8f0" stroke-width="1.6" stroke-dasharray="2 2"/></svg>`;
+const dropIco = `<svg class="ic" viewBox="0 0 20 24"><path d="M10 2Q18 12 17 15A7 7 0 0 1 3 15Q2 12 10 2z" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.5"/></svg>`;
+const mixIco = `<svg viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h9M9 8l4 4-4 4"/><path d="M21 5h10M23 5v10l-8 16a2 2 0 0 0 2 3h18a2 2 0 0 0 2-3l-8-16V5"/><path d="M19 25h18l3 6a1.6 1.6 0 0 1-1.4 2.2H17.4A1.6 1.6 0 0 1 16 31z" fill="#22c55e" stroke="none"/></svg>`;
+
+/* 캔버스 크기 */
+function resize(){
+  const r = stage.getBoundingClientRect();
+  DPR = Math.min(2.5, window.devicePixelRatio || 1); CW = r.width; CH = r.height;
+  cv.width = Math.round(CW * DPR); cv.height = Math.round(CH * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if(tab === 1) t1Retarget(false);
+  kick();
+}
+function rectOf(el){ const a = el.getBoundingClientRect(); return {x:a.left - SR.left, y:a.top - SR.top, w:a.width, h:a.height}; }
+
+/* ── 그리기 도구 ── */
+const ease = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+function dIon(sp, x, y, r, a){
+  if(r <= .4) return;
+  if(sp === "W") return dDrop(x, y, r, a);
+  const I = ION[sp];
+  ctx.globalAlpha = a == null ? 1 : a;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fillStyle = I.c; ctx.fill();
+  ctx.lineWidth = Math.max(1, r * .12); ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.stroke();
+  if(r >= 7.5){
+    const len = [...I.s].length, fs = Math.min(r * 1.0, r * 2.75 / Math.max(len, 2));
+    ctx.fillStyle = I.t; ctx.font = `800 ${fs}px ${FONT}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(I.s, x, y + fs * .06);
+  }
+  ctx.globalAlpha = 1;
+}
+function dDrop(x, y, r, a){
+  if(r <= .4) return;
+  ctx.globalAlpha = a == null ? 1 : a;
+  ctx.beginPath(); ctx.moveTo(x, y - r * 1.2);
+  ctx.quadraticCurveTo(x + r * .95, y - r * .15, x + r * .85, y + r * .25);
+  ctx.arc(x, y + r * .25, r * .85, 0, Math.PI);
+  ctx.quadraticCurveTo(x - r * .95, y - r * .15, x, y - r * 1.2);
+  ctx.fillStyle = "#7dd3fc"; ctx.fill(); ctx.lineWidth = Math.max(1, r * .12); ctx.strokeStyle = "#0369a1"; ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+function rrect(x, y, w, h, r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+function txt(s, x, y, size, col, align, weight){
+  ctx.font = `${weight || 800} ${size}px ${FONT}`; ctx.fillStyle = col || "#e2e8f0";
+  ctx.textAlign = align || "center"; ctx.textBaseline = "middle"; ctx.fillText(s, x, y);
+}
+function badge(s, x, y, size, bg, fg){
+  ctx.font = `900 ${size}px ${FONT}`; const w = ctx.measureText(s).width + size * .8, h = size * 1.45;
+  rrect(x - w / 2, y - h / 2, w, h, h / 2); ctx.fillStyle = bg || "#0f172a"; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.stroke();
+  txt(s, x, y + 1, size, fg || "#fff");
+}
+/* 비커: (x,y) 몸통 왼쪽 위, w×h 몸통, level 0~1 (액체 높이), cells(눈금 칸 수), col 액체 색 */
+function dBeaker(x, y, w, h, o){
+  o = o || {};
+  const lw = Math.max(2, w * .025), lh = h * (o.level || 0);
+  if(lh > 0){
+    rrect(x + lw, y + h - lh, w - 2 * lw, lh - lw * .5, [0, 0, w * .07, w * .07]);
+    ctx.globalAlpha = o.alpha == null ? .32 : o.alpha; ctx.fillStyle = o.col || BTB.X; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = o.col || BTB.X; ctx.globalAlpha = .75; ctx.fillRect(x + lw, y + h - lh, w - 2 * lw, Math.max(2, lw * .8)); ctx.globalAlpha = 1;
+    if(o.cells > 1){
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = 1.5;
+      for(let i = 1; i < o.cells; i++){ const yy = y + h - lh * i / o.cells; ctx.beginPath(); ctx.moveTo(x + lw, yy); ctx.lineTo(x + w - lw, yy); ctx.stroke(); }
+      ctx.restore();
+    }
+  }
+  if(o.target){ // 도전 목표: 점선 초록
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = BTB.N; ctx.lineWidth = 2.5;
+    const th = h * o.target; rrect(x + lw * 2, y + h - th, w - 4 * lw, th - lw, 6); ctx.stroke(); ctx.restore();
+  }
+  ctx.beginPath(); const lip = w * .06;
+  ctx.moveTo(x - lip, y - lip * .6); ctx.lineTo(x, y + lip * .3); ctx.lineTo(x, y + h - w * .07);
+  ctx.quadraticCurveTo(x, y + h, x + w * .07, y + h); ctx.lineTo(x + w - w * .07, y + h);
+  ctx.quadraticCurveTo(x + w, y + h, x + w, y + h - w * .07); ctx.lineTo(x + w, y + lip * .3); ctx.lineTo(x + w + lip, y - lip * .6);
+  ctx.strokeStyle = o.glow || "#cbd5e1"; ctx.lineWidth = lw; ctx.lineJoin = "round"; ctx.stroke();
+  if(o.glow){ ctx.save(); ctx.shadowColor = o.glow; ctx.shadowBlur = 18; ctx.stroke(); ctx.restore(); }
+}
+function dThermo(x, y, w, h, frac){
+  const br = w * .62, tubeH = h - br * 2;
+  rrect(x + w * .2, y, w * .6, tubeH + br, w * .3); ctx.fillStyle = "#1e293b"; ctx.fill(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x + w / 2, y + h - br, br, 0, 6.2832); ctx.fillStyle = "#ef4444"; ctx.fill(); ctx.stroke();
+  const fh = (tubeH - 4) * Math.max(0, Math.min(1, frac));
+  ctx.fillStyle = "#ef4444"; ctx.fillRect(x + w * .32, y + tubeH + br * .3 - fh, w * .36, fh + br * .7);
+  ctx.strokeStyle = "rgba(255,255,255,.4)"; ctx.lineWidth = 1;
+  for(let i = 1; i < 6; i++){ const yy = y + 4 + (tubeH - 4) * i / 6; ctx.beginPath(); ctx.moveTo(x + w * .8, yy); ctx.lineTo(x + w, yy); ctx.stroke(); }
+}
+// 분자(붙은 덩어리) 또는 쪼개진 이온 무리의 자리
+function molPos(m, cx, cy, r, spread){
+  const io = MOL[m].io, out = [], s = spread ? 1.3 : 1;
+  if(io.some(x => x[1] === 2)){
+    const two = io.find(x => x[1] === 2)[0], one = io.find(x => x[1] === 1)[0];
+    out.push({sp:two, x:cx - 1.45 * r * s, y:cy - .38 * r * s}, {sp:two, x:cx + 1.45 * r * s, y:cy - .38 * r * s}, {sp:one, x:cx, y:cy + .32 * r * s});
+  } else { out.push({sp:io[0][0], x:cx - .88 * r * s, y:cy}, {sp:io[1][0], x:cx + .88 * r * s, y:cy}); }
+  return out;
+}
+// 칸 비커 안 이온 자리 (칸마다 분자 p개, 분자마다 이온 무리)
+function layoutSol(s, B){
+  const n3 = MOL[s.m].io.some(x => x[1] === 2), iw = B.w - B.w * .1, slotW = iw / s.p;
+  const r = Math.min(slotW / (n3 ? 5.4 : 4.7), B.cellH / (n3 ? 3.3 : 2.5), B.rMax || 22);
+  const out = [];
+  for(let i = 0; i < s.c; i++){
+    const cy = B.y + B.h - (i + .5) * B.cellH;
+    for(let j = 0; j < s.p; j++){
+      const cx = B.x + B.w * .05 + (j + .5) * slotW;
+      molPos(s.m, cx, cy + (n3 ? r * .05 : 0), r, true).forEach(p => out.push({sp:p.sp, x:p.x, y:p.y, r}));
+    }
+  }
+  return out;
+}
+// 칸 비커를 영역 안에 맞추기
+function beakerIn(A, cap, cells, maxW){
+  const bodyH = Math.min(A.h, (maxW || A.w) * 1.5 * cap / 5.4), w = Math.min(maxW || A.w, A.w, bodyH * 5.4 / cap * .8 + 20);
+  const cellH = bodyH / cap;
+  return {x:A.x + (A.w - w) / 2, y:A.y + A.h - bodyH, w, h:bodyH, cellH, cells, cap, rMax:22};
+}
+function dSolBeaker(s, B, o){
+  o = o || {};
+  dBeaker(B.x, B.y, B.w, B.h, {level:s.c * B.cellH / B.h, cells:s.c, col:o.col || BTB[MOL[s.m].k === "a" ? "A" : "B"], glow:o.glow});
+  layoutSol(s, B).forEach(p => { if(o.skip !== p.sp) dIon(p.sp, p.x, p.y, p.r, o.dim && o.dim !== p.sp ? .35 : 1); });
+}
+function gridSlots(n, R, rMax){
+  if(!n) return {pts:[], r:rMax};
+  let best = {cell:0, cols:1};
+  for(let c = 1; c <= n; c++){ const rows = Math.ceil(n / c), cell = Math.min(R.w / c, R.h / rows); if(cell > best.cell) best = {cell, cols:c}; }
+  const cols = best.cols, rows = Math.ceil(n / cols), cell = best.cell, r = Math.min(cell * .43, rMax);
+  const ox = R.x + (R.w - cols * cell) / 2, oy = R.y + (R.h - rows * cell) / 2, pts = [];
+  for(let i = 0; i < n; i++){ const col = i % cols, row = Math.floor(i / cols);
+    pts.push({x:ox + (col + .5) * cell, y:oy + (rows - 1 - row + .5) * cell}); }
+  return {pts, r};
+}
+// 종류별 한 줄 정렬 (+ 개수 자리)
+function rowsLayout(groups, R, rMax){
+  const L = Math.min(46, Math.max(28, R.w * .12));
+  let r = rMax, lay = null;
+  for(; r >= 2; r -= .5){
+    const cols = Math.max(1, Math.floor((R.w - L) / (2.2 * r)));
+    let lines = 0; groups.forEach(g => lines += Math.max(1, Math.ceil(g.n / cols)));
+    const H = lines * 2.25 * r + (groups.length - 1) * r * .5;
+    if(H <= R.h){ lay = {cols, H}; break; }
+  }
+  if(!lay) lay = {cols:Math.floor((R.w - L) / 4.4), H:R.h};
+  let y = R.y + (R.h - lay.H) / 2;
+  const items = [], labels = [];
+  groups.forEach(g => {
+    const lines = Math.max(1, Math.ceil(g.n / lay.cols));
+    labels.push({sp:g.sp, n:g.n, x:R.x + L / 2, y:y + 1.125 * r});
+    for(let i = 0; i < g.n; i++) items.push({sp:g.sp, x:R.x + L + (i % lay.cols + .5) * 2.2 * r, y:y + (Math.floor(i / lay.cols) + .5) * 2.25 * r, r});
+    y += lines * 2.25 * r + r * .5;
+  });
+  return {items, labels, r};
+}
+function dLabels(labels, r){ labels.forEach(l => txt(String(l.n), l.x, l.y, Math.max(14, Math.min(30, r * 1.5)), "#fff")); }
+
+/* 움직이는 입자: 열쇠 장면(keyframe) 사이를 부드럽게 */
+function posAt(p, t){
+  const k = p.k;
+  if(t <= k[0].t) return k[0];
+  for(let i = 1; i < k.length; i++) if(t < k[i].t){
+    const a = k[i - 1], b = k[i], u = ease((t - a.t) / (b.t - a.t));
+    const A = a.a == null ? 1 : a.a, Bv = b.a == null ? 1 : b.a;
+    return {x:a.x + (b.x - a.x) * u, y:a.y + (b.y - a.y) * u, r:a.r + (b.r - a.r) * u, a:A + (Bv - A) * u};
+  }
+  return k[k.length - 1];
+}
+function dParts(P, t){
+  let busy = false;
+  P.forEach(p => {
+    const last = p.k[p.k.length - 1];
+    if(t < last.t) busy = true;
+    if(p.late && t < p.k[0].t) return;
+    if(t >= last.t && last.a === 0) return;
+    const q = posAt(p, t); dIon(p.sp, q.x, q.y, q.r, q.a);
+  });
+  return busy;
+}
+
+/* 반짝이 · 흔들림 */
+const FX = [], SHK = {};
+function sparkle(x, y, n, spread){
+  const t = T();
+  for(let i = 0; i < (n || 18); i++){ const a = Math.random() * 6.28, v = (spread || 90) * (.4 + Math.random());
+    FX.push({x, y, vx:Math.cos(a) * v, vy:Math.sin(a) * v - 40, t0:t, life:.8 + Math.random() * .4, c:["#fde047","#86efac","#fff","#f9a8d4"][i % 4]}); }
+  kick();
+}
+function shakeOf(id, t){ const u = SHK[id]; if(!u || t > u) return 0; return Math.sin(t * 70) * 7 * (u - t) / .45; }
+function shake(id){ SHK[id] = T() + .45; kick(); }
+function dFx(t){
+  for(let i = FX.length - 1; i >= 0; i--){
+    const f = FX[i], u = (t - f.t0) / f.life;
+    if(u >= 1){ FX.splice(i, 1); continue; }
+    const x = f.x + f.vx * (t - f.t0), y = f.y + f.vy * (t - f.t0) + 120 * (t - f.t0) ** 2, s = 7 * (1 - u) + 2;
+    ctx.globalAlpha = 1 - u; ctx.fillStyle = f.c; ctx.beginPath();
+    for(let j = 0; j < 10; j++){ const rr = j % 2 ? s * .42 : s, a = j * Math.PI / 5 - Math.PI / 2; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+    ctx.fill(); ctx.globalAlpha = 1;
+  }
+  return FX.length > 0 || Object.values(SHK).some(u => u > t);
+}
+
+/* 그리기 반복 (움직일 것이 있을 때만) */
+let rafOn = false, lastT = 0;
+function kick(){ if(!rafOn && !document.hidden){ rafOn = true; requestAnimationFrame(frame); } }
+function frame(){
+  rafOn = false;
+  const t = T(), dt = Math.min(.1, Math.max(0, t - (lastT || t))); lastT = t;
+  const sr = stage.getBoundingClientRect(); SR = {left:sr.left, top:sr.top};
+  if(Math.abs(sr.width - CW) > .5 || Math.abs(sr.height - CH) > .5){ resize(); }
+  ctx.clearRect(0, 0, CW, CH);
+  let busy = false;
+  if(tab === 1) busy = drawT1(t); else if(tab === 2) busy = drawT2(t); else if(tab === 3) busy = drawT3(t); else busy = drawT4(t, dt);
+  if(dFx(t)) busy = true;
+  if(busy) kick(); else lastT = 0;
+}
+document.addEventListener("visibilitychange", () => { lastT = 0; if(!document.hidden) kick(); });
+window.addEventListener("resize", () => { resize(); });
+
+/* ════════ 탭1 쪼개기 ════════ */
+const S1 = {m:"H2SO4", n:0, P:[], ch:false, q:null, step:0, got:[], stars:CS.store.get("n2_s1", 0), busy:false};
+N2.S1 = S1;
+$("#t1cards").innerHTML = ALLM.map(m => `<button class="card ${MOL[m].k}" data-m="${m}">${MOL[m].f}</button>`).join("");
+$$("#t1cards .card").forEach(b => b.onclick = () => { S1.m = b.dataset.m; t1Clear(); t1UI(); });
+function t1Geom(){
+  const R = rectOf($("#t1beak")), sh = shakeOf("t1", T());
+  const w = Math.min(R.w * .9, R.h * .9 / 1.05), h = Math.min(R.h - 14, w * 1.08);
+  const x = R.x + (R.w - w) / 2 + sh, y = R.y + R.h - h - 4;
+  const lh = h * .84, pad = w * .06;
+  return {x, y, w, h, liq:{x:x + pad, y:y + h - lh + pad * .6, w:w - 2 * pad, h:lh - pad * 1.2}, rMax:Math.max(10, Math.min(26, w / 9))};
+}
+function t1Counts(){ const o = {}; MOL[S1.m].io.forEach(([sp]) => o[sp] = 0); S1.P.forEach(p => { if(p.arrived) o[p.sp]++; }); return o; }
+function t1Retarget(anim){
+  if(!$("#t1beak").offsetWidth) return;
+  const G = t1Geom(), g = gridSlots(S1.P.length, G.liq, G.rMax), t = T();
+  S1.P.forEach((p, i) => {
+    const s = g.pts[i];
+    if(p.fresh){ p.k[p.k.length - 1] = Object.assign(p.k[p.k.length - 1], {x:s.x, y:s.y, r:g.r}); p.fresh = false; return; }
+    const cur = posAt(p, t);
+    p.k = anim ? [{t, x:cur.x, y:cur.y, r:cur.r, a:1}, {t:t + .3, x:s.x, y:s.y, r:g.r, a:1}] : [{t, x:s.x, y:s.y, r:g.r, a:1}];
+  });
+  kick();
+}
+function t1Add(count, delay0){
+  const per = Math.max(...MOL[S1.m].io.map(x => x[1])), cap = Math.floor(MAXI / per);
+  count = Math.min(count, cap - S1.n);
+  if(count <= 0){ shake("t1"); badFx(null); return 0; }
+  const G = t1Geom(), t0 = T() + (delay0 || 0), rc = Math.max(G.rMax * .75, 9);
+  for(let i = 0; i < count; i++){
+    const ts = t0 + i * (count > 3 ? .07 : .12), cx = G.x + G.w * (.3 + Math.random() * .4);
+    const top = G.y - rc * 1.5, surf = G.liq.y + rc * .6;
+    molPos(S1.m, cx, 0, rc, false).forEach((q, j) => {
+      const sp = molPos(S1.m, cx, 0, rc, true)[j];
+      const p = {sp:q.sp, fresh:true, late:true, k:[
+        {t:ts, x:q.x, y:top + q.y, r:rc}, {t:ts + .26, x:q.x, y:surf + q.y, r:rc},
+        {t:ts + .36, x:sp.x, y:surf + sp.y + rc * .3, r:rc}, {t:ts + .8, x:0, y:0, r:rc}]};
+      S1.P.splice(Math.floor(Math.random() * (S1.P.length + 1)), 0, p);
+      setTimeout(() => { p.arrived = true; t1Count(); }, (ts - T() + .3) * 1000);
+    });
+    if(i < 12) setTimeout(() => snd("pop"), (ts - T() + .27) * 1000);
+  }
+  S1.n += count;
+  t1Retarget(true);
+  $("#t1hint").classList.add("hide");
+  return count;
+}
+function t1Clear(){ S1.P = []; S1.n = 0; t1Count(); kick(); }
+function t1Count(){
+  const c = t1Counts();
+  if(S1.ch && S1.q){
+    const q = S1.q;
+    $("#t1cnt").innerHTML = `<div class="cr">${molH(q.m, 1.5)}<b>${q.n}</b></div><div class="cr arrow">▼</div>` +
+      q.steps.map((s, i) => `<div class="cr ${i === S1.step && !S1.busy ? "now" : ""}" data-i="${i}">${ionH(s.sp, 1.9)}<b>${i < S1.step ? s.val : "?"}</b></div>`).join("");
+  } else {
+    $("#t1cnt").innerHTML = `<div class="cr">${molH(S1.m, 1.5)}<b>${S1.n}</b></div><div class="cr arrow">▼</div>` +
+      MOL[S1.m].io.map(([sp]) => `<div class="cr">${ionH(sp, 1.9)}<b>${c[sp]}</b></div>`).join("");
+  }
+}
+function t1UI(){
+  $$("#t1cards .card").forEach(b => b.classList.toggle("on", b.dataset.m === S1.m));
+  $("#t1cards").classList.toggle("hide", S1.ch);
+  $("#t1q").classList.toggle("hide", !S1.ch);
+  $("#t1tiles").classList.toggle("hide", !S1.ch);
+  $("#t1x10").classList.toggle("hide", S1.ch);
+  $("#t1clr").classList.toggle("hide", S1.ch);
+  $("#t1ch").classList.toggle("on", S1.ch);
+  $("#t1st").textContent = S1.ch ? "⭐ " + S1.stars : "";
+  $("#t1hint").classList.toggle("hide", S1.ch || S1.n > 0);
+  t1Count(); t1Tiles();
+  requestAnimationFrame(() => t1Retarget(false));
+}
+function t1Tiles(){
+  if(!S1.ch || !S1.q) return;
+  const st = S1.q.steps[Math.min(S1.step, S1.q.steps.length - 1)];
+  $("#t1tiles").innerHTML = st.tiles.map((v, i) => `<button class="tile" data-i="${i}">${v}</button>`).join("");
+  $$("#t1tiles .tile").forEach(b => b.onclick = () => t1Pick(+b.dataset.i, b));
+}
+function t1NewQ(){ S1.q = genSplit(); S1.m = S1.q.m; S1.step = 0; S1.busy = false; t1Clear(); t1UI(); kick(); }
+function t1Pick(i, el){
+  if(S1.busy) return;
+  const st = S1.q.steps[S1.step];
+  if(i !== st.ans){ badFx(el); return; }
+  goodFx(el); S1.step++;
+  if(S1.step >= S1.q.steps.length){
+    S1.busy = true; t1Count();
+    const n = S1.q.n; t1Clear(); S1.n = 0;
+    setTimeout(() => {
+      t1Add(n);
+      const dur = n * (n > 3 ? .07 : .12) + 1;
+      setTimeout(() => { S1.stars++; CS.store.set("n2_s1", S1.stars); $("#t1st").textContent = "⭐ " + S1.stars;
+        const G = t1Geom(); sparkle(G.x + G.w / 2, G.y + G.h * .4, 22); snd("win"); }, dur * 1000);
+      setTimeout(t1NewQ, dur * 1000 + 1300);
+    }, 250);
+  } else { t1Count(); t1Tiles(); }
+}
+$("#t1beak").onclick = () => { if(!S1.ch) t1Add(1); };
+$("#t1x10").onclick = () => t1Add(10);
+$("#t1clr").onclick = () => { t1Clear(); $("#t1hint").classList.remove("hide"); };
+$("#t1ch").onclick = () => { S1.ch = !S1.ch; if(S1.ch) t1NewQ(); else { t1Clear(); t1UI(); } };
+function drawT1(t){
+  const G = t1Geom(), c = t1Counts();
+  const nat = (c.H || 0) > 0 ? "A" : (c.OH || 0) > 0 ? "B" : "N";
+  dBeaker(G.x, G.y, G.w, G.h, {level:.84, col:BTB[nat]});
+  let busy = dParts(S1.P, t);
+  if(S1.ch && S1.q){
+    const R = rectOf($("#t1q")), r = Math.min(R.h * .3, 30), cx = R.x + R.w / 2 - r * 2.2, cy = R.y + R.h / 2;
+    molPos(S1.q.m, cx, cy, r, false).forEach(p => dIon(p.sp, p.x, p.y, r));
+    txt("×" + S1.q.n, cx + r * 3.1, cy, r * 1.5, "#fff", "left", 900);
+  }
+  return busy;
+}
+
+/* ════════ 탭2 농도·부피 ════════ */
+const S2 = {q:null, rev:false, t0:0, stars:CS.store.get("n2_s2", 0), pick:-1};
+N2.S2 = S2;
+function t2New(){
+  S2.q = genCompare(); S2.rev = false; S2.pick = -1;
+  $("#t2ask").innerHTML = `${ionH(S2.q.sp, 1.15)}<span>?</span>`;
+  $("#t2mult").classList.remove("show");
+  $("#t2btn").classList.remove("hide"); $("#t2next").classList.add("hide");
+  $$("#t2btn .k").forEach(b => b.classList.remove("good", "bad"));
+  kick();
+}
+function t2Geom(){
+  const R = rectOf($("#t2beak")), hw = R.w / 2, lab = Math.min(30, R.h * .09), bars = R.h * .3;
+  const halves = [0, 1].map(i => {
+    const A = {x:R.x + i * hw + hw * .12, y:R.y + lab + 6, w:hw * .76, h:R.h - lab - bars - 12};
+    const B = beakerIn(A, 5.4, 0, Math.min(A.w, A.h * .85));
+    B.x += shakeOf("t2" + i, T());
+    return {B, lab:{x:R.x + i * hw + hw / 2, y:R.y + lab / 2 + 2}, bar:{x:R.x + i * hw + 6, y:R.y + R.h - bars, w:hw - 12, h:bars - 2}};
+  });
+  return {R, halves, lab};
+}
+function barPos(bar, n, r, i){ const cols = 10, L = Math.min(40, bar.w * .2);
+  return {x:bar.x + L + (i % cols + .5) * 2.15 * r, y:bar.y + (Math.floor(i / cols) + .5) * 2.2 * r, L}; }
+function drawT2(t){
+  if(!S2.q) return false;
+  const G = t2Geom(), q = S2.q, sols = [q.A, q.B], ns = [q.nA, q.nB];
+  const rb = Math.min(...G.halves.map(h => Math.min((h.bar.w - Math.min(40, h.bar.w * .2)) / 21.5, h.bar.h / 6.6)));
+  let busy = false;
+  G.halves.forEach((h, i) => {
+    txt((i ? "(나) " : "(가) ") + MOL[sols[i].m].f, h.lab.x, h.lab.y, Math.max(14, Math.min(28, G.lab * .7)), "#e2e8f0");
+    const glow = S2.rev ? (q.ans === 1 || q.ans === i * 2 ? "#22c55e" : null) : null;
+    if(!S2.rev){ dSolBeaker(sols[i], h.B, {dim:q.sp}); return; }
+    dSolBeaker(sols[i], h.B, {skip:q.sp, dim:q.sp, glow});
+    const src = layoutSol(sols[i], h.B).filter(p => p.sp === q.sp);
+    src.forEach((p, j) => {
+      const d = S2.t0 + j * .025, e = d + .55, b = barPos(h.bar, ns[i], rb, j);
+      if(t < e) busy = true;
+      const u = ease((t - d) / (e - d));
+      dIon(q.sp, p.x + (b.x - p.x) * u, p.y + (b.y - p.y) * u, p.r + (rb - p.r) * u);
+    });
+    const endT = S2.t0 + src.length * .025 + .55;
+    if(t >= endT){ const b = barPos(h.bar, ns[i], rb, 0); txt(String(ns[i]), h.bar.x + b.L / 2, h.bar.y + rb * 1.1, Math.max(16, rb * 1.9), "#fff"); }
+  });
+  return busy;
+}
+function t2Pick(v, el){
+  if(S2.rev || !S2.q) return;
+  const ok = v === S2.q.ans; S2.pick = v;
+  if(ok){ goodFx(el); S2.stars++; CS.store.set("n2_s2", S2.stars); }
+  else { badFx(el); shake("t2" + (v === 2 ? 1 : 0)); }
+  const right = $$("#t2btn .k")[S2.q.ans]; if(!ok) setTimeout(() => right.classList.add("good"), 350);
+  setTimeout(() => {
+    S2.rev = true; S2.t0 = T(); kick();
+    const q = S2.q;
+    [q.A, q.B].forEach((s, i) => {
+      const k = coefOf(s.m, q.sp);
+      $(i ? "#t2mB" : "#t2mA").innerHTML = `<div class="l">${cellIco}<b>${s.c}</b><span class="x">×</span>${molH(s.m, .95)}<b>${s.p}</b><span class="x">×</span>${ionH(q.sp, 1.15)}<b>${k}</b></div>` +
+        `<div class="l"><span class="x">=</span>${ionH(q.sp, 1.3)}<b>${s.c * s.p * k}</b></div>`;
+    });
+    setTimeout(() => { $("#t2mult").classList.add("show"); if(ok){ const G = t2Geom(); G.halves.forEach((h, i) => { if(q.ans === 1 || q.ans === i * 2) sparkle(h.B.x + h.B.w / 2, h.B.y + h.B.h / 2, 14); }); } }, 700);
+    $("#t2st").textContent = "⭐ " + S2.stars;
+    $("#t2btn").classList.add("hide"); $("#t2next").classList.remove("hide");
+  }, ok ? 300 : 650);
+}
+$$("#t2btn .k").forEach(b => b.onclick = () => t2Pick(+b.dataset.v, b));
+$("#t2beak").onclick = e => { const R = $("#t2beak").getBoundingClientRect(); const v = e.clientX - R.left < R.width / 2 ? 0 : 2; t2Pick(v, $$("#t2btn .k")[v]); };
+$("#t2go").onclick = t2New;
+
+/* ════════ 탭3 섞기 ════════ */
+const S3 = {a:{m:"H2SO4", c:2, p:2}, b:{m:"NaOH", c:3, p:2}, mode:0, mixed:null, P:[], green:null, hot:null, stars:CS.store.get("n2_s3", 0)};
+N2.S3 = S3;
+$("#mixBtn").innerHTML = mixIco + "섞기";
+function t3UI(){
+  ["a", "b"].forEach(s => {
+    const o = S3[s];
+    $(`#t3${s}M`).textContent = MOL[o.m].f;
+    $(`#t3${s}C`).innerHTML = `${cellIco}${o.c}`;
+    $(`#t3${s}P`).innerHTML = `${molH(o.m, .8)}${o.p}`;
+  });
+  $("#t3A").classList.toggle("lock", S3.mode === 1);
+  $("#t3free").classList.toggle("hide", S3.mode === 2);
+  $("#t3hotS").classList.toggle("hide", S3.mode !== 2);
+  [0, 1, 2].forEach(i => $("#t3m" + i).classList.toggle("on", S3.mode === i));
+  $("#t3go").classList.toggle("hide", !(S3.mode === 2 && S3.hot && S3.hot.pick != null));
+  $("#t3st").textContent = S3.mode ? "⭐ " + S3.stars : "";
+  kick();
+}
+function t3Reset(){ S3.mixed = null; S3.P = []; kick(); }
+$$("#t3 .stp .k").forEach(b => b.onclick = () => {
+  const o = S3[b.dataset.s], f = b.dataset.f, nv = o[f] + +b.dataset.d, test = Object.assign({}, o, {[f]:nv});
+  if(!solOk(test)){ badFx(b); shake(b.dataset.s === "a" ? "t3a" : "t3b"); return; }
+  o[f] = nv; snd("tick"); t3Reset(); t3UI();
+});
+["a", "b"].forEach(s => $(`#t3${s}M`).onclick = () => {
+  const list = s === "a" ? ACIDS : BASES, o = S3[s];
+  for(let k = 1; k <= 3; k++){
+    const m = list[(list.indexOf(o.m) + k) % 3];
+    const am = s === "a" ? m : S3.a.m, bm = s === "b" ? m : S3.b.m;
+    if(isPrecip(am, bm)) continue;
+    const t = Object.assign({}, o, {m}); while(!solOk(t)) { if(t.p > 1) t.p--; else t.c--; }
+    S3[s] = t; break;
+  }
+  snd("tick"); t3Reset(); t3UI();
+});
+function t3Geom(){
+  const t = T();
+  const srcB = ["a", "b"].map(s => {
+    const R = rectOf($(`#t3${s}S`)), B = beakerIn({x:R.x + 4, y:R.y + 4, w:R.w - 8, h:R.h - 8}, 5.3, S3[s].c, Math.min(R.w - 8, R.h * .95));
+    B.x += shakeOf("t3" + s, t); return B;
+  });
+  const M = rectOf($("#t3mS")), tw = Math.max(22, Math.min(44, M.w * .07));
+  const total = (S3.mixed ? S3.mixed.r.cells : S3.a.c + S3.b.c), cap = total + .7;
+  const bh = M.h - 10, bw = Math.min(M.w - tw * 2.6, bh * 1.7);
+  const bx = M.x + (M.w - tw * 1.6 - bw) / 2 + shakeOf("t3m", t), by = M.y + 6;
+  const cellH = bh / cap, lh = total * cellH, pad = bw * .045;
+  return {srcB, mix:{x:bx, y:by, w:bw, h:bh, cellH, total, cap, liq:{x:bx + pad, y:by + bh - lh + pad * .5, w:bw - 2 * pad, h:lh - pad}},
+    th:{x:bx + bw + tw * .6, y:by + bh * .08, w:tw, h:bh * .9}};
+}
+function mixGroups(r){ return r.order.map(sp => ({sp, n:r.rem[sp]})).concat(r.water ? [{sp:"W", n:r.water}] : []); }
+function doMix(){
+  if(S3.mixed && !S3.mixed.done) return;
+  const a = S3.a, b = S3.b, r = mix(a, b);
+  S3.mixed = {r, t0:T(), done:false, a:Object.assign({}, a), b:Object.assign({}, b)};
+  const G = t3Geom(), t0 = S3.mixed.t0;
+  const src = layoutSol(a, G.srcB[0]).concat(layoutSol(b, G.srcB[1]));
+  const g = gridSlots(src.length, G.mix.liq, Math.min(20, G.mix.w / 14));
+  const order = shuf(src.map((_, i) => i));
+  const P = src.map((s, i) => {
+    const slot = g.pts[order[i]], d = Math.random() * .15;
+    const top = Math.min(s.y, G.mix.y) - 24;
+    return {sp:s.sp, slot, k:[{t:t0, x:s.x, y:s.y, r:s.r}, {t:t0 + d, x:s.x, y:s.y, r:s.r},
+      {t:t0 + d + .25, x:(s.x + slot.x) / 2, y:top, r:(s.r + g.r) / 2}, {t:t0 + d + .6, x:slot.x, y:slot.y, r:g.r}]};
+  });
+  const Hs = shuf(P.filter(p => p.sp === "H")), OHs = shuf(P.filter(p => p.sp === "OH")), W = r.water, drops = [];
+  for(let k = 0; k < W; k++){
+    const h = Hs[k], o = OHs[k], ts = t0 + .8 + (W > 1 ? k * .8 / (W - 1) : 0);
+    const mx = (h.slot.x + o.slot.x) / 2, my = (h.slot.y + o.slot.y) / 2;
+    [h, o].forEach(p => { p.k.push({t:ts, x:p.slot.x, y:p.slot.y, r:g.r}, {t:ts + .3, x:mx, y:my, r:g.r * .6, a:0}); p.dead = true; });
+    const d = {sp:"W", late:true, k:[{t:ts + .22, x:mx, y:my, r:0}, {t:ts + .4, x:mx, y:my, r:g.r * .95}], ts:ts + .3};
+    drops.push(d);
+  }
+  const all = P.concat(drops), t3 = t0 + 2.0;
+  const RL = rowsLayout(mixGroups(r), G.mix.liq, Math.min(18, G.mix.w / 16));
+  const bySp = {}; RL.items.forEach(it => (bySp[it.sp] = bySp[it.sp] || []).push(it));
+  all.filter(p => !p.dead).forEach(p => {
+    const it = bySp[p.sp].shift(), last = p.k[p.k.length - 1];
+    p.k.push({t:t3, x:last.x, y:last.y, r:last.r}, {t:t3 + .6, x:it.x, y:it.y, r:it.r});
+  });
+  S3.P = all; S3.mixed.drops = drops;
+  snd("pop"); setTimeout(() => snd("pop"), 900); setTimeout(() => snd("pop"), 1400);
+  kick();
+}
+$("#mixBtn").onclick = doMix;
+function t3After(){
+  const m = S3.mixed, G = t3Geom(), cx = G.mix.x + G.mix.w / 2, cy = G.mix.y + G.mix.h / 2;
+  if(S3.mode === 1){
+    if(m.r.nature === "N"){
+      S3.stars++; CS.store.set("n2_s3", S3.stars); snd("win"); sparkle(cx, cy, 30, 140); t3UI();
+      setTimeout(() => { if(S3.mode === 1) t3Green(); }, 1700);
+    } else { shake("t3m"); badFx(null); }
+  } else if(m.r.nature === "N"){ sparkle(cx, cy, 16); snd("ok"); }
+}
+function drawT3(t){
+  if(S3.mode === 2) return drawHot(t);
+  const G = t3Geom(), m = S3.mixed;
+  let busy = false;
+  const pour = m ? Math.min(1, (t - m.t0) / .55) : 0;
+  ["a", "b"].forEach((s, i) => {
+    const B = G.srcB[i], o = S3[s];
+    if(!m){ dSolBeaker(o, B); return; }
+    dBeaker(B.x, B.y, B.w, B.h, {level:o.c * B.cellH / B.h * (1 - ease(pour)), cells:o.c, col:BTB[i ? "B" : "A"]});
+  });
+  // 섞은 비커
+  const M = G.mix;
+  if(!m){
+    dBeaker(M.x, M.y, M.w, M.h, {level:0, target:S3.mode === 1 ? M.total / M.cap : 0});
+    dThermo(G.th.x, G.th.y, G.th.w, G.th.h, .08);
+    return busy;
+  }
+  const r = m.r, u1 = ease((t - m.t0) / .7), u2 = ease((t - m.t0 - .8) / 1.1);
+  const col = mixCol(BTB.X, BTB[r.nature], u2);
+  dBeaker(M.x, M.y, M.w, M.h, {level:M.total / M.cap * u1, cells:M.total, col, alpha:.38});
+  let made = 0; (m.drops || []).forEach(d => { if(t >= d.ts) made++; });
+  if(m.done) made = r.water;
+  dThermo(G.th.x, G.th.y, G.th.w, G.th.h, .08 + .9 * made / MAXI);
+  if(!m.done){
+    busy = dParts(S3.P, t);
+    if(!busy && t > m.t0 + 2.5){ m.done = true; S3.P = []; t3After(); busy = true; }
+    else busy = true;
+  } else {
+    const RL = rowsLayout(mixGroups(r), M.liq, Math.min(18, M.w / 16));
+    RL.items.forEach(it => dIon(it.sp, it.x, it.y, it.r));
+    dLabels(RL.labels, RL.r);
+  }
+  return busy;
+}
+function mixCol(c1, c2, u){
+  const h = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)), A = h(c1), B = h(c2);
+  return "#" + A.map((v, i) => Math.round(v + (B[i] - v) * Math.max(0, Math.min(1, u))).toString(16).padStart(2, "0")).join("");
+}
+function t3Green(){ const g = genGreen(); S3.green = g; S3.a = g.a; S3.b = g.b; t3Reset(); t3UI(); }
+function t3Hot(){ S3.hot = genHot(); S3.hot.pick = null; S3.hot.t0 = 0; t3UI(); }
+$("#t3m0").onclick = () => { S3.mode = 0; t3Reset(); t3UI(); };
+$("#t3m1").onclick = () => { S3.mode = 1; t3Green(); };
+$("#t3m2").onclick = () => { S3.mode = 2; t3Hot(); };
+$("#t3go").onclick = () => t3Hot();
+function hotCards(){
+  const R = rectOf($("#t3hotS")), k = S3.hot.combos.length, vert = R.h > R.w * .9, gap = 8, out = [];
+  for(let i = 0; i < k; i++){
+    out.push(vert ? {x:R.x, y:R.y + i * (R.h + gap) / k, w:R.w, h:(R.h + gap) / k - gap}
+                  : {x:R.x + i * (R.w + gap) / k, y:R.y, w:(R.w + gap) / k - gap, h:R.h});
+  }
+  return out;
+}
+function drawHot(t){
+  const H = S3.hot; if(!H) return false;
+  const cards = hotCards(); let busy = false;
+  const mxW = Math.max(...H.combos.map(c => c.w));
+  cards.forEach((C, i) => {
+    const sh = shakeOf("hot" + i, t); C = Object.assign({}, C, {x:C.x + sh});
+    const cb = H.combos[i], rev = H.pick != null, win = i === H.ans;
+    rrect(C.x, C.y, C.w, C.h, 14); ctx.fillStyle = rev && win ? "rgba(34,197,94,.16)" : "#1e293b"; ctx.fill();
+    ctx.lineWidth = rev && (win || i === H.pick) ? 3 : 1.5; ctx.strokeStyle = rev ? (win ? "#22c55e" : i === H.pick ? "#ef4444" : "#334155") : "#334155"; ctx.stroke();
+    const th = Math.max(18, Math.min(40, C.w * .07)), lab = Math.max(14, Math.min(26, C.h * .1));
+    const inner = {x:C.x + 8, y:C.y + lab + 8, w:C.w - th * 2.4 - 16, h:C.h - lab - 16};
+    const pw = inner.w * .14, bwA = (inner.w - pw) / 2;
+    const cap = H.T + .3;
+    [cb.a, cb.b].forEach((s, j) => {
+      const A = {x:inner.x + j * (bwA + pw), y:inner.y, w:bwA, h:inner.h};
+      const B = beakerIn(A, cap, s.c, Math.min(A.w * .9, A.h * 1.2));
+      dSolBeaker(s, B);
+      txt(MOL[s.m].f, A.x + A.w / 2, C.y + lab / 2 + 5, lab, "#e2e8f0");
+    });
+    txt("+", inner.x + bwA + pw / 2, inner.y + inner.h * .55, Math.min(30, pw * .9), "#94a3b8");
+    let frac = .08;
+    if(rev){ const u = ease((t - H.t0) / .9); frac = .08 + .9 * cb.w / MAXI * u; if(u < 1) busy = true;
+      if(u >= 1){ const dx = C.x + C.w - th * 1.2, dy = C.y + lab / 2 + 6; dDrop(dx - th * .55, dy, lab * .45); txt(String(cb.w), dx + th * .2, dy + 1, lab, "#fff", "left", 900); } }
+    dThermo(C.x + C.w - th * 1.6, C.y + lab + 12, th, C.h - lab - 22, frac);
+  });
+  return busy;
+}
+$("#t3hotS").onclick = e => {
+  const H = S3.hot; if(!H || H.pick != null) return;
+  const x = e.clientX - SR.left, y = e.clientY - SR.top;
+  const i = hotCards().findIndex(C => x >= C.x && x <= C.x + C.w && y >= C.y && y <= C.y + C.h);
+  if(i < 0) return;
+  H.pick = i; H.t0 = T();
+  setTimeout(() => {
+    const C = hotCards()[H.ans];
+    if(i === H.ans){ S3.stars++; CS.store.set("n2_s3", S3.stars); snd("win"); sparkle(C.x + C.w / 2, C.y + C.h / 2, 26, 120); }
+    else { shake("hot" + i); badFx(null); }
+    t3UI();
+  }, 900);
+  t3UI();
+};
+
+/* ════════ 탭4 게임 ════════ */
+const S4 = {state:"idle", clock:0, score:0, combo:0, maxCombo:0, q:null, wrong:[], retry:[], lock:false, best:CS.store.get("n2_best", 0), pickT:0, pick:-1};
+N2.S4 = S4;
+$("#t4best0").textContent = S4.best;
+function t4Start(retry){
+  S4.state = retry ? "retry" : "play"; S4.clock = 0; S4.combo = 0; S4.lock = false;
+  if(!retry){ S4.score = 0; S4.maxCombo = 0; S4.wrong = []; }
+  else { S4.retry = CS.shuffle(S4.wrong); S4.wrong = []; S4.rDone = 0; S4.rTot = S4.retry.length; }
+  $("#t4start").classList.add("hide"); $("#t4end").classList.add("hide");
+  t4Next(); kick();
+}
+function t4Next(){
+  S4.q = S4.state === "retry" ? S4.retry.shift() : genGame();
+  S4.pick = -1; S4.lock = false;
+  const q = S4.q, el = $("#t4tiles");
+  el.classList.toggle("c3", q.tiles.length === 3);
+  el.innerHTML = q.tiles.map((v, i) => `<button class="tile" data-i="${i}">${tileH(q, v)}</button>`).join("");
+  $$("#t4tiles .tile").forEach(b => b.onclick = () => t4Pick(+b.dataset.i, b));
+  t4Hud(); kick();
+}
+function tileH(q, v){
+  if(q.type === "cmp") return v === "A" ? "(가)" : v === "B" ? "(나)" : "=";
+  if(q.type === "col") return `<span class="sw" style="background:${BTB[v]}"></span>`;
+  if(q.type === "rem") return v.split(",").map(sp => ionH(sp, .78)).join("");
+  if(q.type === "rat") return `<span style="font-size:.85em">${v}</span>`;
+  return v;
+}
+function t4Hud(){
+  $("#t4sc").textContent = S4.state === "retry" ? `${S4.rDone}/${S4.rTot}` : "⭐" + S4.score;
+  $("#t4cb").textContent = S4.combo >= 2 ? "🔥" + S4.combo : "";
+  $("#t4tb").style.width = S4.state === "retry" ? "100%" : Math.max(0, 100 - S4.clock / 60 * 100) + "%";
+}
+function t4Pick(i, el){
+  if(S4.lock || (S4.state !== "play" && S4.state !== "retry")) return;
+  S4.lock = true; S4.pick = i; S4.pickT = T();
+  const q = S4.q, ok = i === q.ans, tiles = $$("#t4tiles .tile");
+  if(ok){
+    goodFx(el); S4.combo++; S4.maxCombo = Math.max(S4.maxCombo, S4.combo);
+    if(S4.state === "play") S4.score++; else S4.rDone++;
+    const R = rectOf(el); sparkle(R.x + R.w / 2, R.y + R.h / 2, S4.combo >= 3 ? 16 : 8, 70);
+  } else {
+    badFx(el); S4.combo = 0; tiles[q.ans].classList.add("good");
+    if(!S4.wrong.includes(q)) S4.wrong.push(q);
+    if(S4.state === "retry") S4.retry.push(q);
+  }
+  t4Hud(); kick();
+  setTimeout(() => {
+    if(S4.state === "play") t4Next();
+    else if(S4.state === "retry"){ if(S4.retry.length) t4Next(); else t4End(); }
+  }, ok ? 380 : 1100);
+}
+function t4End(){
+  const was = S4.state; S4.state = "end"; S4.lock = true;
+  let h;
+  if(was === "retry"){
+    h = `<div class="bigs">✓</div><div class="bigs" style="font-size:36px">${S4.rTot} / ${S4.rTot}</div>`;
+    snd("win");
+  } else {
+    const nb = S4.score > S4.best; if(nb){ S4.best = S4.score; CS.store.set("n2_best", S4.best); }
+    h = `<div class="bigs">⭐ ${S4.score}</div><div style="font-size:30px;font-weight:900">🏆 ${S4.best}${nb ? " 🎉" : ""}</div>` +
+      (S4.maxCombo >= 2 ? `<div style="font-size:24px;font-weight:900;color:#fb923c">🔥${S4.maxCombo}</div>` : "");
+    nb ? snd("win") : snd("ok");
+    if(nb) setTimeout(() => sparkle(CW / 2, CH * .35, 40, 180), 100);
+  }
+  h += `<div class="row2"><button class="k" id="t4again" aria-label="다시">🔁 60″</button>` +
+    (S4.wrong.length ? `<button class="k" id="t4retry" style="border-color:#ef4444">✕ 틀린 것만 다시 ${S4.wrong.length}</button>` : "") + `</div>`;
+  $("#t4end").innerHTML = h; $("#t4end").classList.remove("hide");
+  $("#t4best0").textContent = S4.best;
+  $("#t4again").onclick = () => t4Start(false);
+  const rb = $("#t4retry"); if(rb) rb.onclick = () => t4Start(true);
+}
+$("#t4play").onclick = () => t4Start(false);
+N2.skip = sec => { S4.clock += sec; kick(); };
+function drawT4(t, dt){
+  let busy = false;
+  if(S4.state === "play"){
+    S4.clock += dt * N2.timeScale; t4Hud(); busy = true;
+    if(S4.clock >= 60){ S4.clock = 60; t4Hud(); t4End(); }
+  }
+  const q = S4.q; if(!q || S4.state === "idle") return busy;
+  const R = rectOf($("#t4fig"));
+  drawQ(q, R, t);
+  return busy;
+}
+// 문제 그림
+function drawQ(q, R, t){
+  const fs = Math.max(15, Math.min(30, Math.min(R.w, R.h) * .07));
+  if(q.type === "mi"){
+    const r = Math.min(R.h * .2, R.w * .09, 54), cy = R.y + R.h / 2, cx = R.x + R.w * .26;
+    molPos(q.m, cx, cy, r, false).forEach(p => dIon(p.sp, p.x, p.y, r));
+    txt("×" + q.n, cx + r * 3.2, cy, r * 1.25, "#fff", "left", 900);
+    txt("→", R.x + R.w * .66, cy, r * 1.2, "#94a3b8");
+    dIon(q.sp, R.x + R.w * .84, cy, r * 1.05);
+    badge("?", R.x + R.w * .84 + r * .9, cy - r * .9, r * .6, "#facc15", "#422006");
+    return;
+  }
+  if(q.type === "cmp"){
+    const hw = R.w / 2, top = fs * 2.6;
+    dIon(q.sp, R.x + R.w / 2 - fs * .7, R.y + fs * 1.1, fs * 1.0); txt("?", R.x + R.w / 2 + fs * .9, R.y + fs * 1.1, fs * 1.6, "#fff", "center", 900);
+    [q.A, q.B].forEach((s, i) => {
+      const A = {x:R.x + i * hw + hw * .1, y:R.y + top + fs * 1.4, w:hw * .8, h:R.h - top - fs * 1.4 - 4};
+      txt((i ? "(나) " : "(가) ") + MOL[s.m].f, R.x + i * hw + hw / 2, R.y + top + fs * .4, fs, "#e2e8f0");
+      dSolBeaker(s, beakerIn(A, 5.3, s.c, Math.min(A.w, A.h * .9)), {dim:q.sp});
+    });
+    return;
+  }
+  // 섞기 문제: 산 비커 + 염기 비커 → 결과(?)
+  const wide = R.w > R.h * 1.5;
+  const Rb = wide ? {x:R.x, y:R.y, w:R.w * .66, h:R.h} : {x:R.x, y:R.y, w:R.w, h:R.h * .74};
+  const Rt = wide ? {x:R.x + R.w * .68, y:R.y, w:R.w * .32, h:R.h} : {x:R.x, y:R.y + R.h * .76, w:R.w, h:R.h * .24};
+  const pw = Rb.w * .12, bw = (Rb.w - pw) / 2;
+  [q.a, q.b].forEach((s, j) => {
+    const A = {x:Rb.x + j * (bw + pw), y:Rb.y + fs * 1.5, w:bw, h:Rb.h - fs * 1.5 - 4};
+    txt(MOL[s.m].f, A.x + A.w / 2, Rb.y + fs * .7, fs, "#e2e8f0");
+    dSolBeaker(s, beakerIn(A, 5.3, s.c, Math.min(A.w * .92, A.h * .95)));
+  });
+  txt("+", Rb.x + bw + pw / 2, Rb.y + Rb.h * .6, Math.min(34, pw * .8), "#94a3b8");
+  const cx = Rt.x + Rt.w / 2, cy = Rt.y + Rt.h / 2, s = Math.min(Rt.h * .42, Rt.w * .3, 60);
+  if(q.type === "col"){
+    dBeaker(cx - s * .8, cy - s * .8, s * 1.6, s * 1.6, {level:.75, col:"#475569", alpha:.6});
+    txt("?", cx, cy + s * .15, s * .9, "#fff", "center", 900);
+  } else if(q.type === "rem"){
+    txt("?", cx, cy, s * 1.2, "#fff", "center", 900);
+    dBeaker(cx - s * .9, cy - s * .8, s * 1.8, s * 1.6, {level:.75, col:"#475569", alpha:.35});
+  } else if(q.type === "wat"){
+    dDrop(cx - s * .45, cy + s * .1, s * .55); txt("?", cx + s * .55, cy, s * 1.1, "#fff", "center", 900);
+  } else if(q.type === "rat"){
+    const k = q.r.order.length, rr = Math.min(s * .5, Rt.w / (k * 3.4 + 2.5)), gap = rr * 3.3, x0 = cx - ((k - 1) * gap + rr * 2.5) / 2;
+    q.r.order.forEach((sp, i) => { dIon(sp, x0 + i * gap, cy, rr); if(i < k - 1) txt(":", x0 + i * gap + gap / 2, cy, rr * 1.4, "#fff", "center", 900); });
+    txt("= ?", x0 + (k - 1) * gap + rr * 2.6, cy, rr * 1.2, "#fff", "center", 900);
+  }
+}
+
+/* ════════ 탭 · 도움말 · 소리 ════════ */
+const HELP = {
+  1:"H₂SO₄ 1개 → H⁺ 2개 + SO₄²⁻ 1개<br>카드 고르고 비커를 톡!",
+  2:`이온 수 = ${cellIco}칸(부피) × 칸 속 분자(농도) × 가수`,
+  3:"H⁺ 1 + OH⁻ 1 → H₂O 1<br>노랑 산성 · 초록 중성 · 파랑 염기성",
+  4:"60초 동안 많이 맞히기!"
+};
+function setTab(n){
+  tab = n; CS.store.set("n2_tab", n);
+  [1, 2, 3, 4].forEach(i => $("#t" + i).classList.toggle("hide", i !== n));
+  $$("#tabs button").forEach(b => b.classList.toggle("on", +b.dataset.t === n));
+  $("#bubble").classList.add("hide");
+  if(n === 1) requestAnimationFrame(() => t1Retarget(false));
+  if(n === 2 && !S2.q) t2New();
+  if(n === 3) t3UI();
+  kick();
+}
+N2.setTab = setTab;
+$$("#tabs button").forEach(b => b.onclick = () => setTab(+b.dataset.t));
+$("#bHelp").onclick = e => { e.stopPropagation(); const b = $("#bubble"); b.innerHTML = HELP[tab]; b.classList.toggle("hide"); };
+document.addEventListener("click", e => { if(!e.target.closest("#bubble") && e.target.id !== "bHelp") $("#bubble").classList.add("hide"); });
+function sndUI(){ $("#bSnd").textContent = soundOn ? "🔊" : "🔇"; }
+$("#bSnd").onclick = () => { soundOn = !soundOn; CS.store.set("n2_snd", soundOn); sndUI(); if(soundOn) snd("ok"); };
+sndUI();
+t1UI(); t3UI();
+resize();
+setTab(CS.store.get("n2_tab", 1));
+</script>
+</body>
+</html>
