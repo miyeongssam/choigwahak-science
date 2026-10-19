@@ -3,85 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>원소 기호 게임 · 최과학 과학</title>
+<title>원소 기호 · 화학식 게임 · 최과학 과학</title>
 <link rel="stylesheet" href="../common/common.css">
 <style>
-.wrap{max-width:1200px}
-.setup .lbl{font-size:14px;color:var(--muted);margin:10px 0 6px}
-.setup .chip{font-size:15px;padding:9px 16px}
-.starts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.starts .btn{font-size:19px;padding:14px 8px}
-.starts .btn small{display:block;font-size:13px;font-weight:500;opacity:.85;margin-top:3px}
-.best{margin-top:10px;font-size:15px}
-.best b{color:#fde68a;font-size:18px}
+/* ===== 한 화면 레이아웃 (스크롤 없음) ===== */
+html,body{height:100%}
+body{height:100vh;height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.top{flex:none;padding-top:calc(env(safe-area-inset-top) + 6px);padding-bottom:6px}
+.wrap{flex:1;min-height:0;width:100%;max-width:1200px;display:flex;flex-direction:column;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom))}
+.wrap>section{flex:1;min-height:0;display:flex;flex-direction:column;margin:0}
+.panel{margin-bottom:0}
+sub,sup{font-size:.62em;line-height:0}
+.bx{color:var(--warn);font-weight:800}
 
-/* 큰 문제 */
-.qbig{text-align:center;padding:10px 0 16px;line-height:1.1}
-.qbig .k{font-size:15px;color:var(--muted);margin-bottom:6px}
-.qbig .sym{font-size:104px;font-weight:800;color:#fff;letter-spacing:1px}
-.qbig .nm{font-size:58px;font-weight:800;color:#fff;word-break:keep-all}
-.qbig .z{font-size:14px;color:var(--muted);margin-top:4px}
-.ch4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ch4 button{background:var(--card2);color:var(--text);border:2px solid var(--line);border-radius:14px;padding:18px 6px;
-  font-size:30px;font-weight:700;font-family:inherit;cursor:pointer;min-height:84px;word-break:keep-all;transition:background .12s}
-.ch4 button.sm{font-size:24px}
-.ch4 button.right{border-color:var(--ok);background:rgba(34,197,94,.22)}
-.ch4 button.wrong{border-color:var(--no);background:rgba(239,68,68,.22)}
-.hud{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.hud .t{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;min-width:1.3em;text-align:right}
-.hud .sc{margin-left:auto;font-size:18px} .hud .sc b{font-size:30px;color:#93c5fd}
-.tbar{height:10px;background:var(--card2);border-radius:6px;overflow:hidden;margin-bottom:8px}
+/* 설정 화면 */
+.setup{padding:12px}
+.setup .lbl{font-size:13px;color:var(--muted);margin:2px 0 6px;font-weight:600}
+.setup .lbl+.cg{margin-bottom:10px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cg.d3{grid-template-columns:1fr 1fr 1fr}
+.cg .chip{font-size:14px;padding:8px 6px;border-radius:12px;text-align:center;line-height:1.25;word-break:keep-all}
+.cg .chip small{font-size:11px;opacity:.75;margin-left:3px}
+#unitChips .chip{padding:5px 4px;line-height:1.2}
+#unitChips .chip small{margin:0;font-size:11.5px}
+.cg .chip.wide{grid-column:1 / -1}
+.cg .chip.mixall{border-style:dashed}
+.cg .chip.mixall.on{border-style:solid}
+.starts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.starts .btn{font-size:18px;padding:12px 6px}
+.starts .btn small{display:block;font-size:12px;font-weight:500;opacity:.85;margin-top:2px}
+.best{margin-top:8px;font-size:14px}
+.best b{color:var(--warn);font-size:17px}
+.setup .note{margin:6px 0 0;font-size:12px;line-height:1.5}
+
+/* 타임 어택 */
+#ta{padding:10px 12px}
+.hud{flex:none;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.hud .t{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;min-width:1.3em;text-align:right}
+.hud .sc{margin-left:auto;font-size:16px} .hud .sc b{font-size:28px;color:var(--accent)}
+.tbar{flex:none;height:8px;background:var(--card2);border-radius:6px;overflow:hidden;margin-bottom:4px}
 .tbar div{height:100%;background:var(--accent);width:100%}
-.combo{text-align:center;height:30px;font-size:22px;font-weight:800;color:#fbbf24}
+.combo{flex:none;text-align:center;height:26px;line-height:26px;font-size:20px;font-weight:800;color:var(--warn);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.combo.no{color:var(--no);font-size:16px;font-weight:700}
 .combo.pulse{animation:cp .3s}
 @keyframes cp{0%{transform:scale(1.4)}100%{transform:none}}
-.endbig{font-size:72px;font-weight:800;text-align:center;color:#93c5fd;line-height:1.1}
-.wl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.wl span{background:rgba(239,68,68,.12);border:1px solid var(--no);border-radius:10px;padding:6px 10px;font-size:17px}
-.wl b{font-size:20px;margin-right:4px}
-.btncol{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.btncol .btn{font-size:17px;padding:14px}
 
-/* 연습(QuizRound) 화면도 크게 */
-#quizBox .qz-q{margin-bottom:10px}
-#quizBox .qz-ch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#quizBox .qz-ch button{justify-content:center;align-items:center;text-align:center;font-size:26px;font-weight:700;padding:16px 6px;min-height:76px}
+/* 문제 카드 (타임 어택 · 연습 공통) */
+.qbig{flex:1;min-height:70px;display:flex;flex-direction:column;overflow:hidden;text-align:center}
+.qbig .k{flex:none;font-size:14px;color:var(--muted);margin-bottom:2px}
+.qbig .k em{font-style:normal;font-size:12px;padding:1px 7px;border-radius:9px;background:var(--card2);border:1px solid var(--line);margin-right:6px;color:var(--text)}
+.qbig .main{flex:1;min-height:0;display:flex;align-items:center;overflow:hidden}
+.qbig .main>span{display:block;width:100%;font-weight:800;color:#fff;line-height:1.15;word-break:keep-all;overflow-wrap:normal}
+.qbig .main>span.eq{line-height:1.35}
+
+/* 보기 4개 */
+.ch4{flex:none;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:var(--bh);gap:8px;--bh:76px;margin-top:6px}
+.ch4.long{grid-template-columns:1fr;--bh:54px}
+.ch4 button{background:var(--card2);color:var(--text);border:2px solid var(--line);border-radius:14px;padding:4px 8px;
+  font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  transition:background .12s;min-width:0}
+.fb{display:block;width:100%;font-size:28px;font-weight:700;line-height:1.2;text-align:center;word-break:keep-all;overflow-wrap:normal}
+.ch4 button.right{border-color:var(--ok);background:rgba(134,217,160,.2)}
+.ch4 button.wrong{border-color:var(--no);background:rgba(244,151,142,.2)}
+
+/* 결과 */
+#taEnd{padding:12px}
+.endbig{flex:none;font-size:64px;font-weight:800;text-align:center;color:var(--accent);line-height:1.1}
+.wlh{flex:none;margin-top:10px;font-weight:600;font-size:15px}
+.wl{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;margin:6px 0}
+.wl span{background:rgba(244,151,142,.12);border:1px solid var(--no);border-radius:10px;padding:4px 9px;font-size:15px;line-height:1.4}
+.wl b{font-size:17px;margin-right:4px}
+.btncol{flex:none;display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.btncol .btn{font-size:16px;padding:12px}
+
+/* 연습(QuizRound) */
+#quizBox{flex:1;min-height:0;display:flex;flex-direction:column}
+#quizBox .qz-meta{flex:none;margin-bottom:4px}
+#quizBox .qz-prog{flex:none;margin-bottom:6px}
+#quizBox .qz-card{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px}
+#quizBox .qz-q{flex:1;min-height:0;display:flex;flex-direction:column;margin:0;line-height:1.2}
+#quizBox .qz-ch{flex:none;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:var(--bh);gap:8px;--bh:70px;margin-top:6px}
+#quizBox.long .qz-ch{grid-template-columns:1fr;--bh:50px}
+#quizBox .qz-ch button{justify-content:center;align-items:center;padding:4px 8px;overflow:hidden;min-width:0}
 #quizBox .qz-ch button .n{display:none}
+#quizBox .qz-ch button>span:last-child{flex:1;min-width:0}
+#quizBox .qz-ch .fb{font-size:26px}
+#quizBox .qz-exp{flex:none;margin-top:8px;padding-top:8px;font-size:15px;line-height:1.45}
+#quizBox .qz-exp .res{font-size:15px;margin-bottom:2px}
+#quizBox #qzNext{flex:none;margin-top:8px!important;padding:11px}
+#quizBox .qz-done{justify-content:center}
+
 @media (min-width:900px){
-  .qbig .sym{font-size:180px}
-  .qbig .nm{font-size:120px}
+  .wrap{padding:14px 20px}
+  .setup{padding:20px 24px}
+  .setup .lbl{font-size:16px}
+  .cg .chip{font-size:18px;padding:12px 8px}
+  .cg .chip small{font-size:14px}
+  .starts .btn{font-size:24px;padding:18px 8px}
+  .starts .btn small{font-size:15px}
+  .best{font-size:18px} .best b{font-size:22px}
+  .setup .note{font-size:15px}
   .qbig .k{font-size:20px}
-  .qbig .z{font-size:18px}
-  .ch4{gap:14px}
-  .ch4 button{font-size:52px;min-height:130px}
-  .ch4 button.sm{font-size:44px}
+  .qbig .k em{font-size:16px}
+  .ch4,.ch4.long{grid-template-columns:1fr 1fr;--bh:130px;gap:14px}
+  #quizBox .qz-ch,#quizBox.long .qz-ch{grid-template-columns:1fr 1fr;--bh:110px;gap:14px}
   .hud .t{font-size:44px} .hud .sc{font-size:22px} .hud .sc b{font-size:44px}
-  .combo{font-size:30px;height:40px}
+  .combo{font-size:30px;height:40px;line-height:40px} .combo.no{font-size:24px}
   .tbar{height:14px}
-  #quizBox .qz-ch button{font-size:44px;min-height:120px}
-  .endbig{font-size:120px}
+  .endbig{font-size:110px}
+  .wl span{font-size:18px} .wl b{font-size:21px}
+  #quizBox .qz-exp{font-size:18px}
 }
 </style>
 </head>
 <body>
-<header class="top"><a class="back" href="../">‹ 홈</a><h1>원소 기호 게임<small>화학 · 원소 이름 ↔ 원소 기호</small></h1></header>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1>원소 기호 · 화학식 게임<small>화학 · 원소 · 이온식 · 화학식 · 반응식 타임 어택</small></h1></header>
 <div class="wrap">
   <section id="setup" class="panel setup">
-    <div class="lbl">범위</div>
-    <div class="row" id="rangeChips"></div>
-    <div class="lbl">문제 방향</div>
-    <div class="row" id="dirChips"></div>
+    <div class="lbl">문제 범위 <span style="font-weight:400">(여러 개 켤 수 있어요)</span></div>
+    <div class="cg" id="catChips"></div>
+    <div class="lbl">교재 단원 <span style="font-weight:400">(이온식 · 화학식 · 식에 적용)</span></div>
+    <div class="cg d3" id="unitChips"></div>
+    <div class="lbl">문제 방향 <span style="font-weight:400">(원소 · 이온식 · 화학식)</span></div>
+    <div class="cg d3" id="dirChips"></div>
     <div class="starts">
       <button class="btn" id="goTA">⏱️ 타임 어택<small>60초 동안 최대한 많이</small></button>
       <button class="btn ghost" id="goPR">📝 연습<small>10문제, 시간 제한 없음</small></button>
     </div>
     <div class="best" id="bestTxt"></div>
-    <p class="note" style="margin-bottom:0">타임 어택: 맞히면 +1점, 연달아 맞히면 콤보! 틀리면 정답을 보여 주고 0.8초 뒤 다음 문제.<br>연습: 시간 제한 없음, 틀린 것만 다 맞을 때까지 다시 풀기.</p>
+    <p class="note">맞히면 +1점, 연달아 맞히면 콤보! 틀리면 정답을 보여 주고 다음 문제. 최고 기록은 범위 조합마다 따로 저장돼요.</p>
   </section>
 
   <section id="ta" class="panel hide">
@@ -104,6 +161,7 @@
 <script>
 "use strict";
 /*CORE-START*/
+/* ---------- 데이터 ---------- */
 // [원자 번호, 기호, 이름] — 대한화학회 2015 이후 표기
 const ELEMENTS = [
   [1,"H","수소"],[2,"He","헬륨"],[3,"Li","리튬"],[4,"Be","베릴륨"],[5,"B","붕소"],[6,"C","탄소"],[7,"N","질소"],
@@ -111,18 +169,161 @@ const ELEMENTS = [
   [14,"Si","규소"],[15,"P","인"],[16,"S","황"],[17,"Cl","염소"],[18,"Ar","아르곤"],[19,"K","칼륨"],[20,"Ca","칼슘"],
   [24,"Cr","크로뮴"],[25,"Mn","망가니즈"],[26,"Fe","철"],[28,"Ni","니켈"],[29,"Cu","구리"],[30,"Zn","아연"],
   [35,"Br","브로민"],[47,"Ag","은"],[50,"Sn","주석"],[53,"I","아이오딘"],[56,"Ba","바륨"],[78,"Pt","백금"],
-  [79,"Au","금"],[80,"Hg","수은"],[82,"Pb","납"]
-].map(e => ({z:e[0], s:e[1], n:e[2]}));
+  [79,"Au","금"],[80,"Hg","수은"],[82,"Pb","납"],
+  // 통합과학1 「물질의 전기적 성질」 128·133쪽 (반도체 불순물·LED 재료)
+  [31,"Ga","갈륨"],[32,"Ge","저마늄"],[33,"As","비소"],[49,"In","인듐"],[51,"Sb","안티모니"]
+].map(e => ({cat:"el", z:e[0], s:e[1], n:e[2]}));
 // 서로 헷갈리기 쉬운 묶음 (기호 또는 이름이 비슷함)
 const GROUPS = [
   ["Na","N","Ne","Ni"],["K","Ca","C","Cr"],["Mg","Mn"],["Cl","C","Ca","Cr","Cu"],["S","Si","Sn"],["Fe","F"],
   ["Ag","Au","Al","Ar"],["Cu","Ca","C"],["Pb","P","Pt"],["Hg","H","He"],["Zn","Sn"],["Be","B","Ba","Br"],
   ["Ar","Al","Ag"],["O","Ne"],["I","Li"],["K","Ca"],["Na","Li","K"],["B","Si"],["N","O","C","H"],["F","Br","I"],
-  ["Cr","Mn","Mg"],["Au","Ag","Pt"],["Pb","Sn"],["Hg","Ag"],["Ni","Na","N"],["Ba","Be"],["P","S"],["H","He","Li"]
+  ["Cr","Mn","Mg"],["Au","Ag","Pt"],["Pb","Sn"],["Hg","Ag"],["Ni","Na","N"],["Ba","Be"],["P","S"],["H","He","Li"],
+  ["Ga","Ge","As","Al"],["In","I","Ni"],["Sb","Sn","S"],["As","Ar","Al","Ag"],["Ge","Ga"]
 ];
-const BY = {}; ELEMENTS.forEach(e => BY[e.s] = e);
-const RANGES = { r20: ELEMENTS.filter(e => e.z <= 20), all: ELEMENTS };
-function simScore(a, b){
+// 이온 (하이탑 고등과학 「산화와 환원」·「산과 염기의 중화 반응」)
+const IONS = [
+  ["H⁺","수소 이온"],["OH⁻","수산화 이온"],["Na⁺","나트륨 이온"],["K⁺","칼륨 이온"],["Ca²⁺","칼슘 이온"],
+  ["Mg²⁺","마그네슘 이온"],["Al³⁺","알루미늄 이온"],["NH₄⁺","암모늄 이온"],["Cu⁺","구리(Ⅰ) 이온"],["Cu²⁺","구리(Ⅱ) 이온"],
+  ["Zn²⁺","아연 이온"],["Ag⁺","은 이온"],["Fe³⁺","철(Ⅲ) 이온"],["Ba²⁺","바륨 이온"],["Cl⁻","염화 이온"],
+  ["O²⁻","산화 이온"],["S²⁻","황화 이온"],["SO₄²⁻","황산 이온"],["NO₃⁻","질산 이온"],["CO₃²⁻","탄산 이온"],
+  ["PO₄³⁻","인산 이온"],["CH₃COO⁻","아세트산 이온"],
+  // 통합과학1 106~107쪽 (이름은 99쪽 이온 이름 규칙)
+  ["Li⁺","리튬 이온"],["F⁻","플루오린화 이온"]
+].map(e => ({cat:"ion", s:e[0], n:e[1]}));
+// 화학식 [식, 이름, 종류(acid 산, base 염기, salt 염, ox 산화물, mol 분자)]
+const COMPOUNDS = [
+  ["HCl","염산(염화 수소)","acid"],["H₂SO₄","황산","acid"],["HNO₃","질산","acid"],["H₂CO₃","탄산","acid"],
+  ["CH₃COOH","아세트산","acid"],["H₃PO₄","인산","acid"],
+  ["NaOH","수산화 나트륨","base"],["KOH","수산화 칼륨","base"],["Ca(OH)₂","수산화 칼슘","base"],
+  ["Mg(OH)₂","수산화 마그네슘","base"],["Al(OH)₃","수산화 알루미늄","base"],["NH₃","암모니아","base"],
+  ["NaCl","염화 나트륨","salt"],["CaCl₂","염화 칼슘","salt"],["MgCl₂","염화 마그네슘","salt"],["CaCO₃","탄산 칼슘","salt"],
+  ["CaSO₄","황산 칼슘","salt"],["NaHCO₃","탄산수소 나트륨","salt"],["KNO₃","질산 칼륨","salt"],["CuSO₄","황산 구리(Ⅱ)","salt"],
+  ["AgNO₃","질산 은","salt"],["Ag₂S","황화 은","salt"],["Al₂S₃","황화 알루미늄","salt"],
+  ["CuO","산화 구리(Ⅱ)","ox"],["Cu₂O","산화 구리(Ⅰ)","ox"],["Fe₂O₃","산화 철(Ⅲ)","ox"],["MgO","산화 마그네슘","ox"],
+  ["CaO","산화 칼슘","ox"],["SiO₂","이산화 규소","ox"],["CO","일산화 탄소","ox"],["CO₂","이산화 탄소","ox"],
+  ["H₂S","황화 수소","mol"],["H₂O","물","mol"],["CH₄","메테인","mol"],["C₆H₁₂O₆","포도당","mol"],
+  ["O₂","산소","mol"],["O₃","오존","mol"],["H₂","수소","mol"],["Cl₂","염소","mol"],
+  // 통합과학1 「원소의 주기성」·「화학 결합」·「물질의 전기적 성질」 86~133쪽
+  ["F₂","플루오린","mol"],["Br₂","브로민","mol"],["I₂","아이오딘","mol"],["N₂","질소","mol"],
+  ["HF","플루오린화 수소","mol"],["Na₂O","산화 나트륨","ox"],["NaF","플루오린화 나트륨","salt"],["MgF₂","플루오린화 마그네슘","salt"],
+  ["C₁₂H₂₂O₁₁","설탕","mol"],["C₂H₅OH","에탄올","mol"],
+  ["GaN","질화 갈륨","semi"],["AlGaAs","알루미늄 갈륨 비소","semi"],["InGaN","인듐 질화 갈륨","semi"]
+].map(e => ({cat:"fml", s:e[0], n:e[1], t:e[2]}));
+// 이온화식 [왼쪽, 오른쪽]
+const IONIZE = [
+  ["HCl","H⁺ + Cl⁻"],["H₂SO₄","2H⁺ + SO₄²⁻"],["HNO₃","H⁺ + NO₃⁻"],["H₂CO₃","2H⁺ + CO₃²⁻"],
+  ["CH₃COOH","H⁺ + CH₃COO⁻"],["H₃PO₄","3H⁺ + PO₄³⁻"],["NaOH","Na⁺ + OH⁻"],["KOH","K⁺ + OH⁻"],
+  ["Ca(OH)₂","Ca²⁺ + 2OH⁻"],["Mg(OH)₂","Mg²⁺ + 2OH⁻"],["Al(OH)₃","Al³⁺ + 3OH⁻"],["NH₃ + H₂O","NH₄⁺ + OH⁻"]
+].map(e => ({cat:"ionz", l:e[0], r:e[1]}));
+// 화학 반응식
+const REACTIONS = [
+  "Mg + 2HCl → MgCl₂ + H₂","CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂","HCl + NaOH → H₂O + NaCl",
+  "H₂SO₄ + Ca(OH)₂ → 2H₂O + CaSO₄","H⁺ + OH⁻ → H₂O","2CuO + C → 2Cu + CO₂","2Cu + O₂ → 2CuO",
+  "CuO + CO → Cu + CO₂","2C + O₂ → 2CO","Fe₂O₃ + 3CO → 2Fe + 3CO₂","2Mg + O₂ → 2MgO",
+  "Zn + Cu²⁺ → Zn²⁺ + Cu","Zn + 2H⁺ → Zn²⁺ + H₂","Mg + 2H⁺ → Mg²⁺ + H₂","Cu + 2Ag⁺ → Cu²⁺ + 2Ag",
+  "2Na + Cl₂ → 2NaCl","6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂","C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O",
+  "CH₄ + 2O₂ → CO₂ + 2H₂O","2H₂ + O₂ → 2H₂O","4Fe + 3O₂ → 2Fe₂O₃","3Ag₂S + 2Al → 6Ag + Al₂S₃",
+  "Ca(OH)₂ + CO₂ → CaCO₃ + H₂O","CaCO₃ → CaO + CO₂",
+  // 통합과학1 93쪽 (교재는 전자를 ⊖로 표시)
+  "O₂ + 4e⁻ → 2O²⁻","2H₂O + 2e⁻ → H₂ + 2OH⁻"
+].map(eq => ({cat:"rxn", eq}));
+// 교재 단원: t1 = 통합과학1 「자연을 구성하는 원소」(84~140쪽), t2 = 「산화와 환원」·「산과 염기의 중화 반응」
+const T1 = new Set(["OH⁻","O²⁻","Mg²⁺","Cu²⁺","S²⁻","Na⁺","Cl⁻","Li⁺","Al³⁺","F⁻","H⁺",
+  "O₂","H₂O","H₂","F₂","Cl₂","Br₂","I₂","HF","HCl","NaCl","MgCl₂","Na₂O","CH₄","NH₃","CO₂","CaCl₂","CaCO₃","Mg(OH)₂",
+  "Fe₂O₃","C₁₂H₂₂O₁₁","C₆H₁₂O₆","N₂","C₂H₅OH","CH₃COOH","NaF","MgF₂","NaOH","KOH","GaN","AlGaAs","InGaN",
+  "O₂ + 4e⁻ → 2O²⁻","2H₂O + 2e⁻ → H₂ + 2OH⁻"]);
+const T1_ONLY = new Set(["Li⁺","F⁻","F₂","Br₂","I₂","N₂","HF","Na₂O","NaF","MgF₂","C₁₂H₂₂O₁₁","C₂H₅OH","GaN","AlGaAs","InGaN",
+  "O₂ + 4e⁻ → 2O²⁻","2H₂O + 2e⁻ → H₂ + 2OH⁻"]);
+IONIZE.forEach(it => { it.u = ["t2"]; });   // 이온화식은 통합과학2(중화 반응) 범위
+[].concat(IONS, COMPOUNDS, REACTIONS).forEach(it => { const k = it.s || it.eq; it.u = T1.has(k) ? (T1_ONLY.has(k) ? ["t1"] : ["t1","t2"]) : ["t2"]; });
+const UNITS = [{id:"both", label:"두 교재 모두"},{id:"t1", label:"통합과학1<br><small>원소·결합</small>"},{id:"t2", label:"통합과학2<br><small>산화·환원·중화</small>"}];
+
+const CATS = [
+  {id:"r20", label:"원소 기호 1~20번", n:20},
+  {id:"all", label:"원소 기호 전체", n:ELEMENTS.length},
+  {id:"ion", label:"이온식", n:IONS.length},
+  {id:"fml", label:"화학식", n:COMPOUNDS.length},
+  {id:"ionz", label:"이온화식", n:IONIZE.length},
+  {id:"rxn", label:"화학 반응식", n:REACTIONS.length}
+];
+const CAT_ORDER = CATS.map(c => c.id);
+function itemsFor(cats, unit){
+  let out = [];
+  const U = arr => !unit || unit === "both" ? arr : arr.filter(it => it.u.includes(unit));
+  if(cats.includes("all")) out = out.concat(ELEMENTS);
+  else if(cats.includes("r20")) out = out.concat(ELEMENTS.filter(e => e.z <= 20));
+  if(cats.includes("ion")) out = out.concat(U(IONS));
+  if(cats.includes("fml")) out = out.concat(U(COMPOUNDS));
+  if(cats.includes("ionz")) out = out.concat(U(IONIZE));
+  if(cats.includes("rxn")) out = out.concat(U(REACTIONS));
+  return out;
+}
+const elPoolFor = cats => cats.includes("all") ? ELEMENTS : ELEMENTS.filter(e => e.z <= 20);
+
+/* ---------- 화학식 파서 (첨자 유니코드) ---------- */
+const SUBD = "₀₁₂₃₄₅₆₇₈₉", SUPD = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+const subN = n => String(n).split("").map(d => SUBD[+d]).join("");
+const supN = n => String(n).split("").map(d => SUPD[+d]).join("");
+const chargeStr = q => q === 0 ? "" : (Math.abs(q) > 1 ? supN(Math.abs(q)) : "") + (q > 0 ? "⁺" : "⁻");
+// "Ca(OH)₂", "SO₄²⁻" → {toks:[{el,n}|{g:[...],n}], q}
+function parseF(str){
+  let s = str, q = 0;
+  const m = s.match(/([⁰¹²³⁴⁵⁶⁷⁸⁹]*)([⁺⁻])$/);
+  if(m){
+    const mag = m[1] ? +m[1].split("").map(c => SUPD.indexOf(c)).join("") : 1;
+    q = (m[2] === "⁺" ? 1 : -1) * mag; s = s.slice(0, s.length - m[0].length);
+  }
+  if(s === "e") return {toks:[], q};   // 전자 e⁻
+  let i = 0;
+  const num = () => { let t = ""; while(i < s.length && SUBD.indexOf(s[i]) >= 0) t += SUBD.indexOf(s[i++]); return t ? +t : 1; };
+  function seq(){
+    const out = [];
+    while(i < s.length && s[i] !== ")"){
+      if(s[i] === "("){ i++; const g = seq(); if(s[i] !== ")") throw new Error("괄호: " + str); i++; out.push({g, n:num()}); }
+      else { const mm = s.slice(i).match(/^[A-Z][a-z]?/); if(!mm) throw new Error("화학식: " + str); i += mm[0].length; out.push({el:mm[0], n:num()}); }
+    }
+    return out;
+  }
+  const toks = seq(); if(i !== s.length || !toks.length) throw new Error("화학식: " + str);
+  return {toks, q};
+}
+function fmtT(toks){
+  return toks.map(t => t.g ? (t.n > 1 ? "(" + fmtT(t.g) + ")" + subN(t.n) : fmtT(t.g)) : t.el + (t.n > 1 ? subN(t.n) : "")).join("");
+}
+const fmtF = (toks, q) => fmtT(toks) + chargeStr(q);
+function atomsOf(toks, k, acc){
+  acc = acc || {}; k = k || 1;
+  toks.forEach(t => { if(t.g) atomsOf(t.g, k * t.n, acc); else acc[t.el] = (acc[t.el] || 0) + k * t.n; });
+  return acc;
+}
+const elemSet = f => new Set((f.match(/[A-Z][a-z]?/g) || []));
+// "2H⁺ + SO₄²⁻" → [{c:2,f:"H⁺"},{c:1,f:"SO₄²⁻"}]
+function parseSide(s){
+  return s.split(" + ").map(x => { const m = x.trim().match(/^(\d*)(.+)$/); return {c: m[1] ? +m[1] : 1, f: m[2]}; });
+}
+const sideStr = side => side.map(x => (x.c > 1 ? x.c : "") + x.f).join(" + ");
+function parseEq(eq){ const p = eq.split(" → "); if(p.length !== 2) throw new Error("반응식: " + eq); return {L: parseSide(p[0]), R: parseSide(p[1])}; }
+// 원자 수 · 전하 합 (한쪽 변)
+function tally(side){
+  const at = {}; let q = 0;
+  side.forEach(x => { const p = parseF(x.f); const a = atomsOf(p.toks); for(const e in a) at[e] = (at[e] || 0) + x.c * a[e]; q += x.c * p.q; });
+  return {at, q};
+}
+function balanced(L, R){
+  try{
+    const a = tally(L), b = tally(R);
+    if(a.q !== b.q) return false;
+    const ks = new Set(Object.keys(a.at).concat(Object.keys(b.at)));
+    for(const k of ks) if((a.at[k] || 0) !== (b.at[k] || 0)) return false;
+    return true;
+  }catch(e){ return false; }
+}
+// 범위 안의 실제 물질 (원소 기호 · 이온 · 화합물)
+const REAL = new Set([].concat(ELEMENTS.map(e => e.s), IONS.map(e => e.s), COMPOUNDS.map(e => e.s)));
+
+/* ---------- 오답 만들기 ---------- */
+function simEl(a, b){
   let sc = 0;
   GROUPS.forEach(g => { if(g.includes(a.s) && g.includes(b.s)) sc += 5; });
   if(a.s[0] === b.s[0]) sc += 3;
@@ -135,76 +336,304 @@ function simScore(a, b){
   if(Math.abs(a.z - b.z) <= 2) sc += 1;
   return sc;
 }
-// 범위 안에서 헷갈리는 오답 3개 (rand: 0~1 난수 함수)
-function distractors(e, pool, k, rand){
-  rand = rand || Math.random; k = k || 3;
-  return pool.filter(x => x !== e)
-    .map(x => ({x, v: simScore(e, x) + rand() * 2.5}))
-    .sort((p, q) => q.v - p.v).slice(0, k).map(p => p.x);
+const nameToks = n => n.replace(/ 이온$/, "").replace(/\([^)]*\)/g, " ").split(/\s+/).filter(Boolean);
+const qOf = f => { try{ return parseF(f).q; }catch(e){ return 0; } };
+// 이온 · 화합물끼리 얼마나 헷갈리는지 (성분 원소 · 종류 · 이름 조각)
+function simItem(a, b){
+  let sc = 0;
+  const ea = elemSet(a.s), eb = elemSet(b.s);
+  ea.forEach(e => { if(eb.has(e)) sc += 3; });
+  if(a.t && a.t === b.t) sc += 2;
+  const qa = qOf(a.s), qb = qOf(b.s);
+  if(Math.sign(qa) === Math.sign(qb)) sc += 1;
+  if(qa === qb) sc += 1;
+  const ta = nameToks(a.n), tb = nameToks(b.n);
+  ta.forEach(x => { if(tb.includes(x)) sc += 3; else if(tb.some(y => y[0] === x[0])) sc += 1; });
+  return sc;
 }
+// 화학식 실수 꼴 (아래 첨자 ±1, 첨자 바꿔 쓰기, 괄호 빼먹기, 전하 실수)
+function fakeFormulas(f){
+  const p = parseF(f), T = p.toks, q = p.q, out = new Set();
+  const cl = () => JSON.parse(JSON.stringify(T));
+  const put = (toks, qq) => { const s = fmtF(toks, qq); if(s !== f) out.add(s); };
+  T.forEach((t, i) => {
+    if(t.n >= 2 && t.n <= 4){ let a = cl(); a[i].n = t.n - 1; put(a, q); a = cl(); a[i].n = t.n + 1; put(a, q); }
+    if(t.n === 1 && T.length === 2){ const a = cl(); a[i].n = 2; put(a, q); }
+    if(t.g && t.n > 1){ // Ca(OH)₂ → CaOH₂
+      const a = cl(), inner = a[i].g; inner[inner.length - 1].n *= t.n; a.splice(i, 1, ...inner); put(a, q);
+    }
+  });
+  if(T.length === 2 && T[0].n !== T[1].n){ const a = cl(); a[0].n = T[1].n; a[1].n = T[0].n; put(a, q); }
+  if(q){
+    const aq = Math.abs(q), sg = Math.sign(q);
+    if(aq < 3) put(T, sg * (aq + 1));
+    if(aq > 1) put(T, sg * (aq - 1));
+    put(T, -q);
+  }
+  // 원소 기호 하나만 남는 꼴(H, O, Cl)은 '원소 기호'로도 맞는 답이 될 수 있어 뺀다
+  return [...out].filter(s => !/^[A-Z][a-z]?$/.test(s));
+}
+// 점수 높은 순으로 서로 다른 것 k개
+function topK(cands, k, exclude){
+  const seen = new Set(exclude || []), out = [];
+  cands.sort((a, b) => b.v - a.v).forEach(c => { if(out.length < k && !seen.has(c.x)){ seen.add(c.x); out.push(c.x); } });
+  return out;
+}
+function finish(q, answer, wrongs){
+  const opts = CS.shuffle([answer].concat(wrongs));
+  q.opts = opts; q.ans = opts.indexOf(answer);
+  q.long = opts.some(o => o.length > 9);
+  return q;
+}
+const LABEL = {
+  el:  {n2s:"이 원소의 기호는?", s2n:"이 원소의 이름은?"},
+  ion: {n2s:"이 이온의 이온식은?", s2n:"이 이온의 이름은?"},
+  fml: {n2s:"이 물질의 화학식은?", s2n:"이 물질의 이름은?"}
+};
+const TAG = {el:"원소", ion:"이온식", fml:"화학식", ionz:"이온화식", rxn:"반응식"};
+const ALLF = [...new Set([].concat(COMPOUNDS.map(c => c.s), IONS.map(c => c.s),
+  ...REACTIONS.map(r => { const e = parseEq(r.eq); return e.L.concat(e.R).map(x => x.f); })))];
+// 반응식 빈칸에 넣을 헷갈리는 화학식 후보
+function formulaCands(ans){
+  const ea = elemSet(ans), qa = qOf(ans), fakes = new Set(fakeFormulas(ans));
+  const pool = [...new Set(ALLF.concat([...fakes]))].filter(x => x !== ans && x !== "e⁻");
+  return pool.map(x => {
+    let v = 0; const ex = elemSet(x);
+    ex.forEach(e => { if(ea.has(e)) v += 3; });
+    if(Math.sign(qOf(x)) === Math.sign(qa)) v += 2;
+    if(fakes.has(x)) v += 2;
+    if(ex.size === ea.size && [...ex].every(e => ea.has(e))) v += 3;   // 같은 원소로만 이루어짐 (O₂·O₃)
+    const bare = s => /^[A-Z][a-z]?$/.test(s);
+    if(bare(x) && bare(ans)) v += 5;          // 원소(금속)끼리
+    if(v <= 2) v -= 6;                        // 공통점 없는 것은 뒤로
+    return {x, v: v + Math.random() * 3};
+  });
+}
+// 이온화식 오답: 계수 빠뜨림 · 계수를 첨자로 · 계수를 전하로 · 전하 실수 · 부호 뒤집기
+function ionizeWrongs(it){
+  const P = parseSide(it.r), L = parseSide(it.l), vs = [];
+  const mod = fn => { const Q = P.map(x => ({c:x.c, f:x.f})); fn(Q); vs.push(sideStr(Q)); };
+  P.forEach((sp, i) => {
+    const pf = parseF(sp.f), aq = Math.abs(pf.q), sg = Math.sign(pf.q);
+    if(sp.c > 1){
+      mod(Q => { Q[i].c = 1; });
+      mod(Q => { Q[i].c = 1; Q[i].f = (pf.toks.length === 1 && !pf.toks[0].g)
+        ? fmtF([{el:pf.toks[0].el, n:pf.toks[0].n * sp.c}], pf.q) : fmtF([{g:pf.toks, n:sp.c}], pf.q); });
+      if(aq === 1) mod(Q => { Q[i].c = 1; Q[i].f = fmtF(pf.toks, sg * sp.c); });
+      mod(Q => { Q[i].c = sp.c + 1; });
+    } else mod(Q => { Q[i].c = 2; });
+    if(aq < 3) mod(Q => { Q[i].f = fmtF(pf.toks, sg * (aq + 1)); });
+    if(aq > 1) mod(Q => { Q[i].f = fmtF(pf.toks, sg * (aq - 1)); });
+  });
+  mod(Q => Q.forEach(x => { const p = parseF(x.f); x.f = fmtF(p.toks, -p.q); }));
+  // 정답과 같거나, 실제 이온들로 원자 수·전하가 모두 맞는 다른 답(=또 하나의 정답)은 뺀다
+  return [...new Set(vs)].filter(v => v !== it.r && !(balanced(L, parseSide(v)) && parseSide(v).every(x => REAL.has(x.f))));
+}
+const blankEq = (L, R, side, idx, what) => {
+  const show = (arr, s) => arr.map((x, i) => {
+    if(s === side && i === idx) return what === "c" ? "□" + x.f : (x.c > 1 ? x.c : "") + "□";
+    return (x.c > 1 ? x.c : "") + x.f;
+  }).join(" + ");
+  return show(L, "L") + " → " + show(R, "R");
+};
+// 문제 하나 만들기
+// 반환: {item, kind, label, main, opts:[보기 4개], ans:정답 번호, long, exp}
+function makeQ(item, o){
+  o = o || {}; const dir0 = o.dir || "mix";
+  const dir = dir0 === "mix" ? (Math.random() < 0.5 ? "n2s" : "s2n") : dir0;
+  if(item.cat === "el"){
+    const pool = o.elPool || ELEMENTS.filter(e => e.z <= 20);
+    const ds = pool.filter(x => x !== item).map(x => ({x, v: simEl(item, x) + Math.random() * 2.5}))
+      .sort((p, r) => r.v - p.v).slice(0, 3).map(p => p.x);
+    const q = {item, kind:dir, label:LABEL.el[dir], main: dir === "n2s" ? item.n : item.s,
+      exp: `${item.s} = ${item.n} (원자 번호 ${item.z})`};
+    return finish(q, dir === "n2s" ? item.s : item.n, ds.map(x => dir === "n2s" ? x.s : x.n));
+  }
+  if(item.cat === "ion" || item.cat === "fml"){
+    const full = item.cat === "ion" ? IONS : COMPOUNDS;
+    const lu = o.unit && o.unit !== "both" ? full.filter(x => x.u.includes(o.unit)) : full;
+    const list = lu.length >= 8 ? lu : full;
+    const q = {item, kind:dir, label:LABEL[item.cat][dir], main: dir === "n2s" ? item.n : item.s, exp: `${item.s} = ${item.n}`};
+    const reals = list.filter(x => x !== item).map(x => ({x, v: simItem(item, x) + Math.random() * 3}));
+    if(dir === "s2n"){
+      return finish(q, item.n, topK(reals.map(c => ({x:c.x.n, v:c.v})), 3, [item.n]));
+    }
+    // 실수 꼴 1~2개(전하 실수 우선) + 범위 안의 비슷한 실제 물질
+    const body = f => fmtT(parseF(f).toks);
+    const fakes = fakeFormulas(item.s).map(x => ({x, v: (body(x) === body(item.s) ? 9 : 6) + Math.random() * 4}));
+    const f1 = topK(fakes, Math.min(fakes.length, Math.random() < 0.5 ? 1 : 2), [item.s]);
+    const ws = f1.concat(topK(reals.map(c => ({x:c.x.s, v:c.v})), 3 - f1.length, [item.s].concat(f1)));
+    return finish(q, item.s, ws);
+  }
+  if(item.cat === "ionz"){
+    const q = {item, kind:"ionz", label:"이온화식을 완성하면?", main: item.l + " → □", exp: item.l + " → " + item.r};
+    return finish(q, item.r, CS.shuffle(ionizeWrongs(item)).slice(0, 3));
+  }
+  // 화학 반응식
+  const E = parseEq(item.eq), L = E.L, R = E.R;
+  const spots = [];
+  L.forEach((x, i) => spots.push({side:"L", i, x})); R.forEach((x, i) => spots.push({side:"R", i, x}));
+  const coefSpots = spots.filter(s => s.x.c >= 2);
+  const r = Math.random();
+  let kind = coefSpots.length ? (r < 0.35 ? "rcoef" : r < 0.7 ? "rsub" : "rfull") : (r < 0.55 ? "rsub" : "rfull");
+  if(o.kind && (o.kind !== "rcoef" || coefSpots.length)) kind = o.kind;
+  const q = {item, kind, exp: item.eq};
+  const subst = (s, val, what) => {
+    const L2 = L.map(x => ({c:x.c, f:x.f})), R2 = R.map(x => ({c:x.c, f:x.f}));
+    const t = (s.side === "L" ? L2 : R2)[s.i]; if(what === "c") t.c = val; else t.f = val;
+    return balanced(L2, R2);
+  };
+  if(kind === "rcoef"){
+    const s = CS.pick(coefSpots), ans = s.x.c;
+    const nums = [1,2,3,4,5,6].filter(n => n !== ans && !subst(s, n, "c"))
+      .map(n => ({n, v: -Math.abs(n - ans) + Math.random() * 1.5})).sort((a, b) => b.v - a.v).slice(0, 3).map(a => a.n);
+    const all = [ans].concat(nums).sort((a, b) => a - b).map(String);
+    q.label = "□에 알맞은 계수는?"; q.main = blankEq(L, R, s.side, s.i, "c");
+    q.opts = all; q.ans = all.indexOf(String(ans)); q.long = false;
+    return q;
+  }
+  if(kind === "rsub"){
+    const s = CS.pick(spots.filter(p => p.x.f !== "e⁻")), ans = s.x.f;
+    const ws = topK(formulaCands(ans).filter(c => !subst(s, c.x, "f")), 3, [ans]);
+    q.label = "□에 알맞은 화학식은?"; q.main = blankEq(L, R, s.side, s.i, "f");
+    return finish(q, ans, ws);
+  }
+  // rfull: 반응물 → 생성물 전체 고르기
+  const ans = sideStr(R), vs = [];
+  const mod = fn => { const Q = R.map(x => ({c:x.c, f:x.f})); if(fn(Q) !== false) vs.push({Q}); };
+  R.forEach((x, i) => {
+    mod(Q => { Q[i].c = x.c + 1; });
+    if(x.c > 1) mod(Q => { Q[i].c = x.c - 1; });
+    topK(formulaCands(x.f), 3, [x.f]).forEach(f => mod(Q => { Q[i].f = f; }));
+    if(R.length >= 2) mod(Q => { Q.splice(i, 1); });
+  });
+  const good = [...new Set(vs.filter(v => v.Q.length && !balanced(L, v.Q)).map(v => sideStr(v.Q)))].filter(s => s !== ans);
+  q.label = "생성물로 알맞은 것은?"; q.main = sideStr(L) + " → □";
+  return finish(q, ans, CS.shuffle(good).slice(0, 3));
+}
+const bestKeyFor = (cats, dir, unit) => "elem_best_" + CAT_ORDER.filter(c => cats.includes(c)).join("+") + "_" + dir
+  + (unit && unit !== "both" && cats.some(c => c !== "r20" && c !== "all") ? "_" + unit : "");
 /*CORE-END*/
 
+/* ---------- 화면 ---------- */
+// 유니코드 첨자 → HTML (<sub>, <sup>), □ 강조
+function H(s){
+  return CS.esc(s)
+    .replace(/[₀-₉]+/g, m => "<sub>" + m.split("").map(ch => SUBD.indexOf(ch)).join("") + "</sub>")
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, m => "<sup>" + m.split("").map(ch => ch === "⁺" ? "+" : ch === "⁻" ? "−" : SUPD.indexOf(ch)).join("") + "</sup>")
+    .replace(/□/g, '<span class="bx">□</span>')
+    .replace(/ → /g, " →<wbr> ");
+}
 const $ = id => document.getElementById(id);
-let range = CS.store.get("elem_range", "r20"); if(!RANGES[range]) range = "r20";
+const wide = () => window.innerWidth >= 900;
+const isEq = q => q.item.cat === "ionz" || q.item.cat === "rxn";
+
+// 글자를 상자에 맞게 줄이기 (넘치면 작게)
+function fitText(el, box, max, min){
+  let s = max; el.style.fontSize = s + "px";
+  const cs = getComputedStyle(box);
+  const avail = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  let guard = 0;
+  while(s > min && guard++ < 60 && (el.scrollWidth > el.clientWidth + 1 || el.offsetHeight > avail + 1)){
+    s = Math.max(min, s - Math.max(1, Math.round(s * 0.07))); el.style.fontSize = s + "px";
+  }
+}
+function fitIn(root){
+  if(!root || root.offsetParent === null) return;
+  root.querySelectorAll(".qbig .main>span").forEach(sp => {
+    const eq = sp.classList.contains("eq");
+    const max = eq ? (wide() ? 84 : 42) : (wide() ? 200 : 104);
+    fitText(sp, sp.parentElement, max, 14);
+  });
+  root.querySelectorAll("button .fb").forEach(sp => {
+    const btn = sp.closest("button");
+    fitText(sp, btn, wide() ? 54 : 30, 11);
+  });
+}
+
+let cats = CS.store.get("elem_cats", null);
+if(!Array.isArray(cats)){ const r = CS.store.get("elem_range", "r20"); cats = [r === "all" ? "all" : "r20"]; }
+cats = cats.filter(c => CAT_ORDER.includes(c)); if(!cats.length) cats = ["r20"];
+if(cats.includes("r20") && cats.includes("all")) cats = cats.filter(c => c !== "r20");
 let dir = CS.store.get("elem_dir", "mix"); if(!["n2s","s2n","mix"].includes(dir)) dir = "mix";
-const DIRS = [["n2s","이름 → 기호"],["s2n","기호 → 이름"],["mix","섞어서"]];
-const bestKey = () => "elem_best_" + range + "_" + dir;
+const DIRS = [["s2n","기호 → 이름"],["n2s","이름 → 기호"],["mix","섞어서"]];
+const NON_EL = ["ion","fml","ionz","rxn"];
+let unit = CS.store.get("elem_unit", "both"); if(!UNITS.some(u => u.id === unit)) unit = "both";
+const bestKey = () => bestKeyFor(cats, dir, unit);
+const allOn = () => NON_EL.every(c => cats.includes(c)) && (cats.includes("r20") || cats.includes("all"));
 
 function chips(){
-  $("rangeChips").innerHTML = [["r20","1 ~ 20번"],["all","자주 나오는 원소 포함 전체 (" + ELEMENTS.length + "개)"]]
-    .map(r => `<button class="chip ${range === r[0] ? "on" : ""}" data-v="${r[0]}">${r[1]}</button>`).join("");
+  $("catChips").innerHTML = CATS.map(c => `<button class="chip ${cats.includes(c.id) ? "on" : ""}" data-v="${c.id}">${c.label}<small>${itemsFor([c.id], unit).length}</small></button>`).join("")
+    + `<button class="chip wide mixall ${allOn() ? "on" : ""}" data-v="mixall">🔀 모두 섞기</button>`;
   $("dirChips").innerHTML = DIRS.map(d => `<button class="chip ${dir === d[0] ? "on" : ""}" data-v="${d[0]}">${d[1]}</button>`).join("");
-  $("rangeChips").querySelectorAll(".chip").forEach(b => b.onclick = () => { range = b.dataset.v; CS.store.set("elem_range", range); chips(); });
+  $("catChips").querySelectorAll(".chip").forEach(b => b.onclick = () => toggleCat(b.dataset.v));
   $("dirChips").querySelectorAll(".chip").forEach(b => b.onclick = () => { dir = b.dataset.v; CS.store.set("elem_dir", dir); chips(); });
+  $("unitChips").innerHTML = UNITS.map(u => `<button class="chip ${unit === u.id ? "on" : ""}" data-v="${u.id}">${u.label}</button>`).join("");
+  $("unitChips").querySelectorAll(".chip").forEach(b => b.onclick = () => { unit = b.dataset.v; CS.store.set("elem_unit", unit); chips(); });
   const best = CS.store.get(bestKey(), 0);
-  $("bestTxt").innerHTML = `이 설정의 타임 어택 최고 기록: <b>${best}점</b>`;
+  $("bestTxt").innerHTML = `이 조합의 타임 어택 최고 기록: <b>${best}점</b>`;
 }
-function show(id){ ["setup","ta","taEnd","pr"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo({top:0}); }
+function toggleCat(v){
+  if(v === "mixall"){
+    if(allOn()) cats = [cats.includes("all") ? "all" : "r20"];
+    else { const el = cats.includes("all") ? "all" : "r20"; cats = [el].concat(NON_EL); }
+  } else if(v === "r20" || v === "all"){
+    const other = v === "r20" ? "all" : "r20";
+    if(cats.includes(v)){ if(cats.length === 1){ CS.toast("하나 이상은 골라야 해요"); return; } cats = cats.filter(c => c !== v); }
+    else cats = cats.filter(c => c !== other).concat([v]);
+  } else {
+    if(cats.includes(v)){ if(cats.length === 1){ CS.toast("하나 이상은 골라야 해요"); return; } cats = cats.filter(c => c !== v); }
+    else cats.push(v);
+  }
+  CS.store.set("elem_cats", cats); chips();
+}
+let screen = "setup";
+function show(id){ screen = id; ["setup","ta","taEnd","pr"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo({top:0}); }
 
-// 문제 하나: {e, d:"n2s"|"s2n", opts:[원소 4개 섞음]}
-function makeOne(e, pool){
-  const d = dir === "mix" ? (Math.random() < 0.5 ? "n2s" : "s2n") : dir;
-  return {e, d, opts: CS.shuffle([e].concat(distractors(e, pool, 3)))};
-}
 function qHTML(q){
-  return q.d === "n2s"
-    ? `<div class="k">이 원소의 기호는?</div><div class="nm">${q.e.n}</div>`
-    : `<div class="k">이 원소의 이름은?</div><div class="sym">${q.e.s}</div>`;
+  return `<div class="k"><em>${TAG[q.item.cat]}</em>${q.label}</div><div class="main"><span class="${isEq(q) ? "eq" : ""}">${H(q.main)}</span></div>`;
 }
-const optText = (q, x) => q.d === "n2s" ? x.s : x.n;
+const mk = item => makeQ(item, {dir, unit, elPool: elPoolFor(cats)});
+function poolOrWarn(){
+  const p = itemsFor(cats, unit);
+  if(!p.length) CS.toast("고른 범위·단원에 해당하는 문제가 없어요");
+  return p;
+}
 
 /* ===== 타임 어택 ===== */
 const TA_SEC = 60;
 let ta = null;
 function startTA(){
-  const pool = RANGES[range];
-  ta = {pool, deck: [], score: 0, combo: 0, maxCombo: 0, wrong: [], left: TA_SEC * 1000, last: performance.now(), busy: false, run: true, raf: 0};
-  show("ta"); $("tScore").textContent = 0; $("combo").textContent = "";
+  const pool = poolOrWarn(); if(!pool.length) return;
+  ta = {pool, deck: [], score: 0, combo: 0, maxCombo: 0, wrong: [], left: TA_SEC * 1000, last: performance.now(), busy: false, run: true, raf: 0, cur: null};
+  show("ta"); $("tScore").textContent = 0; $("combo").textContent = ""; $("combo").className = "combo";
   nextTA(); ta.raf = requestAnimationFrame(tick);
 }
 function nextTA(){
-  if(!ta.deck.length){ let d = CS.shuffle(ta.pool); if(ta.cur && d[0] === ta.cur.e) d.push(d.shift()); ta.deck = d; }
-  const q = ta.cur = makeOne(ta.deck.shift(), ta.pool);
+  if(!ta.deck.length){ const d = CS.shuffle(ta.pool); if(ta.cur && d[0] === ta.cur.item && d.length > 1) d.push(d.shift()); ta.deck = d; }
+  const q = ta.cur = mk(ta.deck.shift());
   ta.busy = false;
   $("taQ").innerHTML = qHTML(q);
-  $("taCh").innerHTML = q.opts.map((x, k) => `<button data-k="${k}" class="${q.d === "s2n" && x.n.length > 3 ? "sm" : ""}">${optText(q, x)}</button>`).join("");
+  $("taCh").className = "ch4" + (q.long ? " long" : "");
+  $("taCh").innerHTML = q.opts.map((x, k) => `<button data-k="${k}"><span class="fb">${H(x)}</span></button>`).join("");
   $("taCh").querySelectorAll("button").forEach(b => b.onclick = () => answerTA(+b.dataset.k));
+  fitIn($("ta"));
 }
 function answerTA(k){
   if(ta.busy || !ta.run) return; ta.busy = true;
-  const q = ta.cur, ok = q.opts[k] === q.e, btns = $("taCh").querySelectorAll("button");
-  btns.forEach((b, i) => { if(q.opts[i] === q.e) b.classList.add("right"); else if(i === k) b.classList.add("wrong"); });
+  const q = ta.cur, ok = k === q.ans, btns = $("taCh").querySelectorAll("button");
+  btns.forEach((b, i) => { if(i === q.ans) b.classList.add("right"); else if(i === k) b.classList.add("wrong"); });
   const c = $("combo");
   if(ok){
     ta.score++; ta.combo++; ta.maxCombo = Math.max(ta.maxCombo, ta.combo);
     $("tScore").textContent = ta.score;
-    c.textContent = ta.combo >= 2 ? `🔥 ${ta.combo} 콤보!` : "";
-    c.classList.remove("pulse"); void c.offsetWidth; if(ta.combo >= 2) c.classList.add("pulse");
+    c.className = "combo"; c.textContent = ta.combo >= 2 ? `🔥 ${ta.combo} 콤보!` : "";
+    void c.offsetWidth; if(ta.combo >= 2) c.classList.add("pulse");
     setTimeout(() => { if(ta.run) nextTA(); }, 250);
   } else {
-    ta.combo = 0; c.textContent = `정답: ${q.e.s} = ${q.e.n}`;
-    if(!ta.wrong.includes(q.e)) ta.wrong.push(q.e);
-    setTimeout(() => { if(ta.run){ c.textContent = ""; nextTA(); } }, 800);
+    ta.combo = 0; c.className = "combo no"; c.innerHTML = "정답: " + H(q.exp);
+    if(!ta.wrong.includes(q.item)) ta.wrong.push(q.item);
+    setTimeout(() => { if(ta.run){ c.textContent = ""; c.className = "combo"; nextTA(); } }, isEq(q) ? 1300 : 800);
   }
 }
 function tick(now){
@@ -219,17 +648,21 @@ function tick(now){
   ta.raf = requestAnimationFrame(tick);
 }
 document.addEventListener("visibilitychange", () => { if(ta && ta.run && !document.hidden){ ta.last = performance.now(); } });
+function itemLabel(it){
+  if(it.cat === "ionz") return H(it.l + " → " + it.r);
+  if(it.cat === "rxn") return H(it.eq);
+  return `<b>${H(it.s)}</b>${it.n}`;
+}
 function endTA(stopped){
   ta.run = false; cancelAnimationFrame(ta.raf);
   const key = bestKey(), prev = CS.store.get(key, 0), rec = !stopped && ta.score > prev;
   if(rec) CS.store.set(key, ta.score);
-  let h = `<div class="center muted">${stopped ? "중간에 그만둠 (기록은 저장되지 않아요)" : "시간 끝!"}</div>
+  let h = `<div class="center muted" style="flex:none">${stopped ? "중간에 그만둠 (기록은 저장되지 않아요)" : "시간 끝!"}</div>
     <div class="endbig">${ta.score}점</div>
-    <div class="center" style="font-size:17px;margin-top:4px">${rec ? "🏆 <b style='color:#fde68a'>새 최고 기록!</b>" : "최고 기록 <b>" + Math.max(prev, stopped ? 0 : ta.score) + "점</b>"} · 최대 콤보 <b>${ta.maxCombo}</b></div>`;
+    <div class="center" style="flex:none;font-size:16px;margin-top:2px">${rec ? "🏆 <b style='color:var(--warn)'>새 최고 기록!</b>" : "최고 기록 <b>" + Math.max(prev, stopped ? 0 : ta.score) + "점</b>"} · 최대 콤보 <b>${ta.maxCombo}</b></div>`;
   if(ta.wrong.length){
-    h += `<div style="margin-top:14px;font-weight:600">틀린 원소 ${ta.wrong.length}개</div><div class="wl">` +
-      ta.wrong.map(e => `<span><b>${e.s}</b>${e.n}</span>`).join("") + `</div>`;
-  } else h += `<div class="center" style="margin-top:12px;color:var(--ok);font-weight:600">틀린 원소가 없어요!</div>`;
+    h += `<div class="wlh">틀린 문제 ${ta.wrong.length}개</div><div class="wl">` + ta.wrong.map(it => `<span>${itemLabel(it)}</span>`).join("") + `</div>`;
+  } else h += `<div class="center" style="flex:1;margin-top:12px;color:var(--ok);font-weight:600">틀린 문제가 없어요!</div>`;
   h += `<div class="btncol">`;
   if(ta.wrong.length) h += `<button class="btn" id="eWrong">🔁 틀린 것만 연습 (${ta.wrong.length}개)</button>`;
   h += `<button class="btn ${ta.wrong.length ? "ghost" : ""}" id="eAgain">⏱️ 다시 도전</button><button class="btn ghost" id="eHome">처음으로</button></div>`;
@@ -243,24 +676,32 @@ $("taStop").onclick = () => endTA(true);
 
 /* ===== 연습 (QuizRound) ===== */
 function toQuiz(q){
-  const e = q.e;
-  return { id: q.d + "|" + e.s,
-    q: `<div class="qbig">${qHTML(q)}</div>`,
-    choices: q.opts.map(x => optText(q, x)), answer: q.opts.indexOf(e),
-    exp: `<b style="font-size:20px">${e.s}</b> = <b style="font-size:20px">${e.n}</b> <span class="muted">(원자 번호 ${e.z})</span>` };
+  return { id: q.item.cat + "|" + (q.item.s || q.item.l || q.item.eq) + "|" + q.kind,
+    q: `<div class="qbig" data-long="${q.long ? 1 : 0}">${qHTML(q)}</div>`,
+    choices: q.opts.map(x => `<span class="fb">${H(x)}</span>`), answer: q.ans,
+    exp: H(q.exp) };
 }
 function startPractice(only){
-  const pool = RANGES[range];
   const src = only && only.length ? only : null;
-  const make = n => {
-    const base = CS.shuffle(src || pool).slice(0, src ? src.length : n);
-    return base.map(e => toQuiz(makeOne(e, pool)));
-  };
+  const pool = src || poolOrWarn(); if(!pool.length) return;
+  const make = n => CS.shuffle(src || pool).slice(0, src ? src.length : n).map(it => toQuiz(mk(it)));
   show("pr");
-  const qr = CS.QuizRound($("quizBox"), {make, count: src ? src.length : 10,
+  const qr = CS.QuizRound($("quizBox"), {make, count: src ? Math.min(src.length, 10) : 10,
     endButtons: [{label: "⏱️ 타임 어택 하러 가기", onClick: startTA}, {label: "처음으로", onClick: () => { chips(); show("setup"); }}]});
-  qr.start();
+  qr.start(make(src ? src.length : 10));
 }
+// 연습 화면이 다시 그려질 때마다 보기 배치 · 글자 크기 맞추기
+let fitPend = 0;
+new MutationObserver(() => {
+  if(fitPend) return;
+  fitPend = requestAnimationFrame(() => {
+    fitPend = 0;
+    const qb = $("quizBox").querySelector(".qbig");
+    $("quizBox").classList.toggle("long", !!(qb && qb.dataset.long === "1"));
+    fitIn($("quizBox"));
+  });
+}).observe($("quizBox"), {childList: true, subtree: true});
+window.addEventListener("resize", () => { if(screen === "ta") fitIn($("ta")); if(screen === "pr") fitIn($("quizBox")); });
 
 $("goTA").onclick = startTA;
 $("goPR").onclick = () => startPractice(null);

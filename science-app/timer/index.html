@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +23,7 @@
   .ctl .btn{font-size:20px;padding:14px 26px;min-width:120px}
   .adj{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
   body.done .num{color:var(--no);animation:blink 1s infinite}
-  body.done{background:#3b0a0a}
+  body.done{background:#1f0d0d}
   @keyframes blink{50%{opacity:.35}}
   body.fs .top,body.fs .presets,body.fs .adj,body.fs .note{display:none}
   body.fs .ring{width:min(96vw,84vh)}
@@ -35,8 +35,8 @@
 <div class="wrap stage">
   <div class="presets" id="presets"></div>
   <div class="ring">
-    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#243044" stroke-width="6"/>
-      <circle id="arc" cx="50" cy="50" r="45" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="0"/></svg>
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#1c1c1f" stroke-width="6"/>
+      <circle id="arc" cx="50" cy="50" r="45" fill="none" stroke="#9db8ff" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="0"/></svg>
     <div class="t"><div class="num" id="num">10:00</div><div class="lab" id="lab">준비</div></div>
   </div>
   <div class="adj">
@@ -62,7 +62,7 @@ function fmt(s){ s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60), r 
 function draw(){
   $("#num").textContent = fmt(left);
   $("#arc").setAttribute("stroke-dashoffset", (C * (1 - (total ? left / total : 0))).toFixed(2));
-  $("#arc").setAttribute("stroke", left <= 60 && running ? "#f59e0b" : "#3b82f6");
+  $("#arc").setAttribute("stroke", left <= 60 && running ? "#f6c87a" : "#9db8ff");
   $("#lab").textContent = running ? "남은 시간" : (left <= 0 ? "끝!" : (left < total ? "일시정지" : fmt(total) + " 타이머"));
   $("#start").textContent = running ? "일시정지" : (left < total && left > 0 ? "계속" : "시작");
   document.title = (running ? fmt(left) + " · " : "") + "타이머 · 최과학 과학";

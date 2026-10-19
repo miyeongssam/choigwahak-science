@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -482,8 +482,8 @@ function drawCircles(){
       const px = a.x + x, py = a.y + sg * hgt;
       if(px < 0 || px > W || py < 0 || py > H) continue;
       ctx.beginPath(); ctx.arc(X(px), Y(py), rad, 0, Math.PI * 2);
-      if(same){ ctx.fillStyle = "#fbbf24"; ctx.fill(); ctx.strokeStyle = "#0b1222"; ctx.lineWidth = 1 * dpr; ctx.stroke(); }
-      else { ctx.fillStyle = "#0b1222"; ctx.fill(); ctx.strokeStyle = "#fca5a5"; ctx.lineWidth = 2 * dpr; ctx.stroke(); }
+      if(same){ ctx.fillStyle = "#fbbf24"; ctx.fill(); ctx.strokeStyle = "#0b0b0d"; ctx.lineWidth = 1 * dpr; ctx.stroke(); }
+      else { ctx.fillStyle = "#0b0b0d"; ctx.fill(); ctx.strokeStyle = "#fca5a5"; ctx.lineWidth = 2 * dpr; ctx.stroke(); }
     }
   }
   // 범례
@@ -515,7 +515,7 @@ function drawSegmentNodes(){
   for(const c of diffs){
     const x = m + c / 2;
     ctx.beginPath(); ctx.arc(X(x), Y(H / 2), 5 * dpr, 0, Math.PI * 2);
-    ctx.fillStyle = "#0b1222"; ctx.fill(); ctx.lineWidth = 2.2 * dpr; ctx.strokeStyle = "#fca5a5"; ctx.stroke();
+    ctx.fillStyle = "#0b0b0d"; ctx.fill(); ctx.lineWidth = 2.2 * dpr; ctx.strokeStyle = "#fca5a5"; ctx.stroke();
   }
   ctx.restore();
 }
