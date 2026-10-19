@@ -100,10 +100,11 @@ sub,sup{font-size:.62em;line-height:0}
 #quizBox{flex:1;min-height:0;display:flex;flex-direction:column;--qk:1}
 #quizBox .qz-meta{flex:none;margin-bottom:4px}
 #quizBox .qz-prog{flex:none;margin-bottom:6px}
-#quizBox .qz-card{flex:none;padding:calc(12px * var(--qk)) 12px}
+#quizBox .qz-card{flex:1 1 auto;display:flex;flex-direction:column;padding:calc(12px * var(--qk)) 12px}
 #quizBox .qz-q{font-size:calc(16px * var(--qk));line-height:1.5;margin-bottom:calc(10px * var(--qk))}
 #quizBox .qz-q .bigf{font-size:calc(24px * var(--qk));font-weight:800;color:#fff}
-#quizBox .qz-ch{gap:calc(6px * var(--qk))}
+#quizBox .qz-ch{gap:calc(6px * var(--qk));flex:1 1 auto;max-height:calc(110px * 5 * var(--qk))}
+#quizBox .qz-ch button{flex:1 1 0}
 #quizBox .qz-ch button{font-size:calc(18px * var(--qk));padding:calc(8px * var(--qk)) 12px;line-height:1.35;align-items:center}
 #quizBox .qz-exp{margin-top:calc(8px * var(--qk));padding-top:calc(8px * var(--qk));font-size:calc(14px * var(--qk));line-height:1.5}
 #quizBox .qz-exp .res{font-size:calc(15px * var(--qk));margin-bottom:2px}
@@ -436,6 +437,7 @@ function setTab(t){
   if(t !== "quiz") $("qtPanel").classList.add("hide");
   $("quizView").classList.toggle("hide", t !== "quiz");
   if(t === "quiz" && !quiz){ quiz = CS.QuizRound($("quizBox"), {make:makeSet, count:10}); drawChips(); quiz.start(); }
+  if(t === "quiz"){ requestAnimationFrame(fitQuiz); setTimeout(fitQuiz, 400); }
   CS.store.set("ionp_tab", t);
 }
 $("qtBtn").onclick = () => $("qtPanel").classList.toggle("hide");
@@ -444,8 +446,9 @@ $("qtClose").onclick = () => $("qtPanel").classList.add("hide");
 function fitQuiz(){
   const qb = $("quizBox"); if($("quizView").classList.contains("hide")) return;
   // 크게 시작해서 화면에 들어갈 때까지 줄이기(빈 공간 없이 글자를 크게)
-  let k = window.innerWidth >= 1000 ? 1.25 : 1.6; qb.style.setProperty("--qk", k);
-  const over = () => document.documentElement.scrollHeight > window.innerHeight || qb.scrollHeight > qb.clientHeight + 1;
+  let k = window.innerWidth >= 1000 ? 1.25 : 2; qb.style.setProperty("--qk", k);
+  // 문제 칸 안에서만 넘침을 확인(휴대폰마다 화면 전체 높이 값이 달라서)
+  const over = () => qb.scrollHeight > qb.clientHeight + 1;
   while(k > 0.62 && over()){ k -= 0.04; qb.style.setProperty("--qk", k.toFixed(2)); }
 }
 let fq = 0;
