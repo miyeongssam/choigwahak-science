@@ -3,7 +3,7 @@
    - 각 앱과 문제 파일은 처음 열 때 저장 → 그다음부터 인터넷 없이도 열림
    - 항상 최신 내용을 먼저 받아 오고(3초 안에 응답이 없으면 저장본 사용)
    - 앱 기능을 바꾼 뒤에는 VERSION 숫자만 올리면 됨 */
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE = "choisci-science-" + VERSION;
 const SHELL = ["./", "./index.html", "./apps.json", "./manifest.webmanifest",
   "./common/common.css", "./common/common.js", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
@@ -21,7 +21,8 @@ self.addEventListener("fetch", e => {
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const key = req.url.split("?")[0].split("#")[0];
-    const net = fetch(req).then(res => { if (res.ok) cache.put(key, res.clone()); return res; });
+    // 깃허브의 10분 저장을 건너뛰고 항상 새 파일을 받아 옴(고친 내용이 바로 보이게)
+    const net = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => { if (res.ok) cache.put(key, res.clone()); return res; });
     const timeout = new Promise(r => setTimeout(r, 3000));
     try {
       const res = await Promise.race([net, timeout]);
