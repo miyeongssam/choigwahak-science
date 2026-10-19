@@ -2,6 +2,7 @@
   "subjects": [
     { "id": "tong", "name": "통합과학", "color": "var(--c-tong)", "apps": [
       { "path": "quiz/?b=tong", "icon": "🃏", "title": "통합과학 암기 문제", "desc": "OX · ①~⑤ · 카드, 틀린 것만 반복" },
+      { "path": "neutral2/", "icon": "🧪", "title": "중화 반응 2 · 그림으로 놀기", "desc": "쪼개기 · 농도와 부피 · 섞기 · 60초 게임" },
       { "path": "neutral/", "icon": "⚗️", "title": "중화 반응의 양적 관계", "desc": "H⁺와 OH⁻ 개수로 남는 이온 · 액성 · 비" }
     ]},
     { "id": "phy", "name": "물리 (역학과 에너지)", "color": "var(--c-phy)", "apps": [
@@ -13,7 +14,7 @@
     { "id": "chem", "name": "화학 (물질과 에너지)", "color": "var(--c-chem)", "apps": [
       { "path": "quiz/?b=chem", "icon": "🃏", "title": "화학 암기 문제", "desc": "OX · ①~⑤ · 카드, 틀린 것만 반복" },
       { "path": "ion-puzzle/", "icon": "🧩", "title": "이온식 만들기 퍼즐", "desc": "양이온 · 음이온을 맞춰 전하 합 0" },
-      { "path": "elements/", "icon": "🔤", "title": "원소 기호 게임", "desc": "이름 ↔ 기호, 시간 제한 · 점수" },
+      { "path": "elements/", "icon": "🔤", "title": "원소 기호 · 화학식 게임", "desc": "원소 · 이온식 · 화학식 · 반응식, 60초 타임 어택" },
       { "path": "eq-kt/", "icon": "🌡️", "title": "온도와 평형 상수", "desc": "K–T 관계 탐구" },
       { "path": "n2o4/", "icon": "🟤", "title": "N₂O₄ ⇌ 2NO₂ 평형", "desc": "온도에 따른 평형 이동과 색 변화" }
     ]},
