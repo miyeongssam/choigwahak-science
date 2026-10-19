@@ -91,3 +91,7 @@ canvas,svg.fig{display:block;width:100%;background:#0b0b0d;border:1px solid var(
   .qz-ch button{font-size:19px}
   .qz-exp{font-size:17px}
 }
+
+/* 안드로이드에서 화면이 시스템 바 밑까지 그려질 때(common.js가 html에 edge를 붙임) */
+html.edge body{padding-bottom:max(52px, env(safe-area-inset-bottom))}
+html.edge-top .top{padding-top:30px}

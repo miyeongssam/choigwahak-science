@@ -11,6 +11,20 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register(sw.href, { scope: scope.href }).catch(() => {}));
 }
 
+// 안드로이드 앱 모드에서 화면이 내비게이션 바(||| ○ <) 밑까지 그려지는 휴대폰이 있음
+// 보이는 높이와 화면 전체 높이의 차이가 작으면(= 아래 바 밑까지 그려짐) 아래 여백을 확보
+//  - 차이 < 10px: 위 상태 표시줄 밑까지 그려짐 → 위 여백도 확보
+function edgeCheck(){
+  const app = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  const android = /Android/i.test(navigator.userAgent);
+  const gap = (screen.height || 0) - window.innerHeight;
+  const root = document.documentElement;
+  root.classList.toggle("edge", !!app && android && gap < 60);
+  root.classList.toggle("edge-top", !!app && android && gap < 10);
+}
+edgeCheck();
+window.addEventListener("resize", edgeCheck);
+
 // 저장 (사파리 개인정보 모드 등에서 실패해도 앱은 그대로 동작)
 CS.store = {
   get(k, d){ try{ const v = localStorage.getItem("cs_" + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
