@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="icon" href="../icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>중화 반응 2 · 최과학 과학</title>
@@ -104,7 +105,7 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:inherit;font-size:11px;font-weight:800;gap:0}
   #mixBtn svg{width:36px;height:36px}
   #mixBtn:active{transform:scale(.94)}
-  #t3mS{flex:1.15 1 0}
+  #t3mS{flex:.95 1 0}
 
   /* ── 탭4 게임 ── */
   .hud{height:40px}
@@ -158,6 +159,7 @@
     .stars{font-size:26px}
     .sw{width:80px;height:80px}
     #bubble{font-size:20px;top:64px;max-width:460px}
+    .hint{font-size:90px}
   }
 </style>
 </head>
@@ -529,7 +531,8 @@ function dBeaker(x, y, w, h, o){
   }
   if(o.target){ // 도전 목표: 점선 초록
     ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = BTB.N; ctx.lineWidth = 2.5;
-    const th = h * o.target; rrect(x + lw * 2, y + h - th, w - 4 * lw, th - lw, 6); ctx.stroke(); ctx.restore();
+    const th = h * o.target; rrect(x + lw * 2, y + h - th, w - 4 * lw, th - lw, 6); ctx.stroke();
+    ctx.globalAlpha = .12; ctx.fillStyle = BTB.N; ctx.fill(); ctx.restore();
   }
   ctx.beginPath(); const lip = w * .06;
   ctx.moveTo(x - lip, y - lip * .6); ctx.lineTo(x, y + lip * .3); ctx.lineTo(x, y + h - w * .07);
@@ -559,7 +562,7 @@ function molPos(m, cx, cy, r, spread){
 // 칸 비커 안 이온 자리 (칸마다 분자 p개, 분자마다 이온 무리)
 function layoutSol(s, B){
   const n3 = MOL[s.m].io.some(x => x[1] === 2), iw = B.w - B.w * .1, slotW = iw / s.p;
-  const r = Math.min(slotW / (n3 ? 5.4 : 4.7), B.cellH / (n3 ? 3.3 : 2.5), B.rMax || 22);
+  const r = Math.min(slotW / (n3 ? 6.2 : 4.7), B.cellH / (n3 ? 3.3 : 2.5), B.rMax || 22);
   const out = [];
   for(let i = 0; i < s.c; i++){
     const cy = B.y + B.h - (i + .5) * B.cellH;
@@ -574,7 +577,7 @@ function layoutSol(s, B){
 function beakerIn(A, cap, cells, maxW){
   const bodyH = Math.min(A.h, (maxW || A.w) * 1.5 * cap / 5.4), w = Math.min(maxW || A.w, A.w, bodyH * 5.4 / cap * .8 + 20);
   const cellH = bodyH / cap;
-  return {x:A.x + (A.w - w) / 2, y:A.y + A.h - bodyH, w, h:bodyH, cellH, cells, cap, rMax:22};
+  return {x:A.x + (A.w - w) / 2, y:A.y + A.h - bodyH, w, h:bodyH, cellH, cells, cap, rMax:Math.min(40, Math.max(14, w / 9))};
 }
 function dSolBeaker(s, B, o){
   o = o || {};
@@ -683,8 +686,8 @@ $("#t1cards").innerHTML = ALLM.map(m => `<button class="card ${MOL[m].k}" data-m
 $$("#t1cards .card").forEach(b => b.onclick = () => { S1.m = b.dataset.m; t1Clear(); t1UI(); });
 function t1Geom(){
   const R = rectOf($("#t1beak")), sh = shakeOf("t1", T());
-  const w = Math.min(R.w * .9, R.h * .9 / 1.05), h = Math.min(R.h - 14, w * 1.08);
-  const x = R.x + (R.w - w) / 2 + sh, y = R.y + R.h - h - 4;
+  const w = Math.min(R.w * .92, R.h * .8), h = Math.min(R.h - 24, w * 1.45);
+  const x = R.x + (R.w - w) / 2 + sh, y = R.y + (R.h - h) / 2 + 8;
   const lh = h * .84, pad = w * .06;
   return {x, y, w, h, liq:{x:x + pad, y:y + h - lh + pad * .6, w:w - 2 * pad, h:lh - pad * 1.2}, rMax:Math.max(10, Math.min(26, w / 9))};
 }
@@ -818,7 +821,7 @@ function drawT2(t){
   const rb = Math.min(...G.halves.map(h => Math.min((h.bar.w - Math.min(40, h.bar.w * .2)) / 21.5, h.bar.h / 6.6)));
   let busy = false;
   G.halves.forEach((h, i) => {
-    txt((i ? "(나) " : "(가) ") + MOL[sols[i].m].f, h.lab.x, h.lab.y, Math.max(14, Math.min(28, G.lab * .7)), "#ececee");
+    txt((i ? "(나) " : "(가) ") + MOL[sols[i].m].f, h.lab.x, Math.max(h.lab.y, h.B.y - G.lab * .75), Math.max(14, Math.min(28, G.lab * .7)), "#ececee");
     const glow = S2.rev ? (q.ans === 1 || q.ans === i * 2 ? "#4ade80" : null) : null;
     if(!S2.rev){ dSolBeaker(sols[i], h.B, {dim:q.sp}); return; }
     dSolBeaker(sols[i], h.B, {skip:q.sp, dim:q.sp, glow});
@@ -830,6 +833,7 @@ function drawT2(t){
       dIon(q.sp, p.x + (b.x - p.x) * u, p.y + (b.y - p.y) * u, p.r + (rb - p.r) * u);
     });
     const endT = S2.t0 + src.length * .025 + .55;
+    if(t < endT) busy = true;
     if(t >= endT){ const b = barPos(h.bar, ns[i], rb, 0); txt(String(ns[i]), h.bar.x + b.L / 2, h.bar.y + rb * 1.1, Math.max(16, rb * 1.9), "#fff"); }
   });
   return busy;
@@ -931,7 +935,7 @@ function doMix(){
     drops.push(d);
   }
   const all = P.concat(drops), t3 = t0 + 2.0;
-  const RL = rowsLayout(mixGroups(r), G.mix.liq, Math.min(18, G.mix.w / 16));
+  const RL = rowsLayout(mixGroups(r), G.mix.liq, Math.min(40, G.mix.w / 16));
   const bySp = {}; RL.items.forEach(it => (bySp[it.sp] = bySp[it.sp] || []).push(it));
   all.filter(p => !p.dead).forEach(p => {
     const it = bySp[p.sp].shift(), last = p.k[p.k.length - 1];
@@ -979,7 +983,7 @@ function drawT3(t){
     if(!busy && t > m.t0 + 2.5){ m.done = true; S3.P = []; t3After(); busy = true; }
     else busy = true;
   } else {
-    const RL = rowsLayout(mixGroups(r), M.liq, Math.min(18, M.w / 16));
+    const RL = rowsLayout(mixGroups(r), M.liq, Math.min(40, M.w / 16));
     RL.items.forEach(it => dIon(it.sp, it.x, it.y, it.r));
     dLabels(RL.labels, RL.r);
   }
@@ -1118,13 +1122,14 @@ function t4End(){
 }
 $("#t4play").onclick = () => t4Start(false);
 N2.skip = sec => { S4.clock += sec; kick(); };
+N2.showQ = q => { S4.retry = [q]; S4.state = "retry"; S4.rTot = 1; S4.rDone = 0; $("#t4start").classList.add("hide"); $("#t4end").classList.add("hide"); t4Next(); };
 function drawT4(t, dt){
   let busy = false;
   if(S4.state === "play"){
     S4.clock += dt * N2.timeScale; t4Hud(); busy = true;
     if(S4.clock >= 60){ S4.clock = 60; t4Hud(); t4End(); }
   }
-  const q = S4.q; if(!q || S4.state === "idle") return busy;
+  const q = S4.q; if(!q || (S4.state !== "play" && S4.state !== "retry")) return busy;
   const R = rectOf($("#t4fig"));
   drawQ(q, R, t);
   return busy;
@@ -1133,12 +1138,12 @@ function drawT4(t, dt){
 function drawQ(q, R, t){
   const fs = Math.max(15, Math.min(30, Math.min(R.w, R.h) * .07));
   if(q.type === "mi"){
-    const r = Math.min(R.h * .2, R.w * .09, 54), cy = R.y + R.h / 2, cx = R.x + R.w * .26;
-    molPos(q.m, cx, cy, r, false).forEach(p => dIon(p.sp, p.x, p.y, r));
-    txt("×" + q.n, cx + r * 3.2, cy, r * 1.25, "#fff", "left", 900);
-    txt("→", R.x + R.w * .66, cy, r * 1.2, "#9a9aa2");
-    dIon(q.sp, R.x + R.w * .84, cy, r * 1.05);
-    badge("?", R.x + R.w * .84 + r * .9, cy - r * .9, r * .6, "#fcd34d", "#422006");
+    const r = Math.min(R.h * .2, R.w / 14, 54), cy = R.y + R.h / 2, x0 = R.x + (R.w - 13.2 * r) / 2;
+    molPos(q.m, x0 + 2.5 * r, cy, r, false).forEach(p => dIon(p.sp, p.x, p.y, r));
+    txt("×" + q.n, x0 + 5.3 * r, cy, r * 1.2, "#fff", "left", 900);
+    txt("→", x0 + 9.3 * r, cy, r * 1.2, "#9a9aa2");
+    dIon(q.sp, x0 + 11.9 * r, cy, r * 1.05);
+    badge("?", x0 + 11.9 * r + r * .9, cy - r * .9, r * .6, "#fcd34d", "#422006");
     return;
   }
   if(q.type === "cmp"){
@@ -1146,8 +1151,9 @@ function drawQ(q, R, t){
     dIon(q.sp, R.x + R.w / 2 - fs * .7, R.y + fs * 1.1, fs * 1.0); txt("?", R.x + R.w / 2 + fs * .9, R.y + fs * 1.1, fs * 1.6, "#fff", "center", 900);
     [q.A, q.B].forEach((s, i) => {
       const A = {x:R.x + i * hw + hw * .1, y:R.y + top + fs * 1.4, w:hw * .8, h:R.h - top - fs * 1.4 - 4};
-      txt((i ? "(나) " : "(가) ") + MOL[s.m].f, R.x + i * hw + hw / 2, R.y + top + fs * .4, fs, "#ececee");
-      dSolBeaker(s, beakerIn(A, 5.3, s.c, Math.min(A.w, A.h * .9)), {dim:q.sp});
+      const B = beakerIn(A, 5.3, s.c, Math.min(A.w, A.h * .9));
+      txt((i ? "(나) " : "(가) ") + MOL[s.m].f, R.x + i * hw + hw / 2, B.y - fs * .9, fs, "#ececee");
+      dSolBeaker(s, B, {dim:q.sp});
     });
     return;
   }
@@ -1158,8 +1164,9 @@ function drawQ(q, R, t){
   const pw = Rb.w * .12, bw = (Rb.w - pw) / 2;
   [q.a, q.b].forEach((s, j) => {
     const A = {x:Rb.x + j * (bw + pw), y:Rb.y + fs * 1.5, w:bw, h:Rb.h - fs * 1.5 - 4};
-    txt(MOL[s.m].f, A.x + A.w / 2, Rb.y + fs * .7, fs, "#ececee");
-    dSolBeaker(s, beakerIn(A, 5.3, s.c, Math.min(A.w * .92, A.h * .95)));
+    const B = beakerIn(A, 5.3, s.c, Math.min(A.w * .92, A.h * .95));
+    txt(MOL[s.m].f, A.x + A.w / 2, B.y - fs * .9, fs, "#ececee");
+    dSolBeaker(s, B);
   });
   txt("+", Rb.x + bw + pw / 2, Rb.y + Rb.h * .6, Math.min(34, pw * .8), "#9a9aa2");
   const cx = Rt.x + Rt.w / 2, cy = Rt.y + Rt.h / 2, s = Math.min(Rt.h * .42, Rt.w * .3, 60);
