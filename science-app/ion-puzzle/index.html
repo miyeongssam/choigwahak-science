@@ -43,9 +43,9 @@ sub,sup{font-size:.62em;line-height:0}
 .cnt button{width:40px;height:29px;border-radius:9px;font-size:21px;font-weight:700;border:1px solid var(--line);
   background:var(--card2);color:var(--text);cursor:pointer;font-family:inherit;line-height:1;padding:0}
 .cnt span{min-width:26px;text-align:center;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
-.tray{flex:none;display:flex;flex-wrap:nowrap;gap:4px;height:46px;padding:3px 4px;border-radius:11px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-bottom:6px;--cs:22px}
+.tray{flex:none;display:flex;flex-wrap:nowrap;gap:4px;height:62px;padding:3px 4px;border-radius:11px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-bottom:6px;--cs:22px}
 .card{flex:0 1 64px;min-width:0;border-radius:9px;padding:3px 2px;text-align:center;animation:pop .18s ease-out;display:flex;flex-direction:column;justify-content:center}
-.card .sym{font-size:var(--cs);font-weight:700;white-space:nowrap;line-height:1.15;overflow:hidden}
+.card .sym{font-size:var(--cs);font-weight:700;white-space:nowrap;line-height:1.25;overflow:hidden;padding-top:.12em}
 .card .chg{display:flex;justify-content:center;gap:2px;margin-top:2px}
 .card .chg i{width:13px;height:13px;border-radius:50%;font-style:normal;font-size:11px;font-weight:800;line-height:13px;color:#000}
 .card.cat{background:var(--cat-bg);border:2px solid var(--cat)} .card.cat .chg i{background:var(--cat)}
@@ -443,7 +443,8 @@ $("qtClose").onclick = () => $("qtPanel").classList.add("hide");
 // 문제 화면이 화면 높이를 넘으면 글자를 조금씩 줄이기
 function fitQuiz(){
   const qb = $("quizBox"); if($("quizView").classList.contains("hide")) return;
-  let k = 1; qb.style.setProperty("--qk", k);
+  // 크게 시작해서 화면에 들어갈 때까지 줄이기(빈 공간 없이 글자를 크게)
+  let k = window.innerWidth >= 1000 ? 1.25 : 1.6; qb.style.setProperty("--qk", k);
   const over = () => document.documentElement.scrollHeight > window.innerHeight || qb.scrollHeight > qb.clientHeight + 1;
   while(k > 0.62 && over()){ k -= 0.04; qb.style.setProperty("--qk", k.toFixed(2)); }
 }

@@ -12,18 +12,27 @@ if ("serviceWorker" in navigator) {
 }
 
 // 안드로이드 앱 모드에서 화면이 내비게이션 바(||| ○ <) 밑까지 그려지는 휴대폰이 있음
-// 보이는 높이와 화면 전체 높이의 차이가 작으면(= 아래 바 밑까지 그려짐) 아래 여백을 확보
 //  - 차이 < 10px: 위 상태 표시줄 밑까지 그려짐 → 위 여백도 확보
 function edgeCheck(){
   const app = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   const android = /Android/i.test(navigator.userAgent);
   const gap = (screen.height || 0) - window.innerHeight;
   const root = document.documentElement;
-  root.classList.toggle("edge", !!app && android && gap < 60);
+  // 재는 값이 앱을 켤 때마다 달라지는 휴대폰이 있어서, 안드로이드 앱 모드면 항상 아래 여백을 둠
+  const before = root.className;
+  root.classList.toggle("edge", !!app && android);
   root.classList.toggle("edge-top", !!app && android && gap < 10);
+  // 여백이 바뀌면 그림(캔버스)도 새 크기로 다시 그리게 알림
+  if(root.className !== before) window.dispatchEvent(new Event("resize"));
 }
 edgeCheck();
+// 앱을 켤 때 휴대폰이 "앱 모드"를 늦게 알려 주는 경우가 있어 몇 번 더 확인
 window.addEventListener("resize", edgeCheck);
+window.addEventListener("load", edgeCheck);
+window.addEventListener("pageshow", edgeCheck);
+document.addEventListener("visibilitychange", edgeCheck);
+[300, 1000, 2500].forEach(t => setTimeout(edgeCheck, t));
+try{ matchMedia("(display-mode: standalone)").addEventListener("change", edgeCheck); }catch(e){}
 
 // 저장 (사파리 개인정보 모드 등에서 실패해도 앱은 그대로 동작)
 CS.store = {
