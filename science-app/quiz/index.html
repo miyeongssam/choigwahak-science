@@ -34,12 +34,12 @@
       <div class="units" id="unitList"><div class="muted">불러오는 중…</div></div>
     </div>
     <div class="panel">
-      <h2>3. 유형</h2>
+      <h2 id="hType">3. 유형</h2>
       <div class="row" id="typeChips"></div>
-      <h2 style="margin-top:14px">4. 푸는 방식</h2>
+      <h2 style="margin-top:14px" id="hMode">4. 푸는 방식</h2>
       <div class="row" id="modeChips"></div>
       <div class="note" style="margin-top:6px" id="modeNote"></div>
-      <h2 style="margin-top:14px">5. 한 번에 풀 문제 수</h2>
+      <h2 style="margin-top:14px" id="hCnt">5. 한 번에 풀 문제 수</h2>
       <div class="row" id="cntChips"></div>
     </div>
     <div class="panel">
@@ -115,7 +115,9 @@ async function init(){
   })));
   const on = CS.store.get("qBooks_" + (SUBJ || "all"), null);
   BOOKS.forEach((b, i) => b._on = on ? on.includes(b.id) : true);
-  if(WRONG_ONLY){ $("#pBooks").classList.add("hide"); $("#pUnits").classList.add("hide"); $("#go").textContent = "⭐ 틀린 문제 섞어서 시작"; $("#goWrong").classList.add("hide"); }
+  if(WRONG_ONLY){ $("#pBooks").classList.add("hide"); $("#pUnits").classList.add("hide"); $("#go").textContent = "⭐ 틀린 문제 섞어서 시작"; $("#goWrong").classList.add("hide");
+    // 교재 · 단원 칸을 숨기므로 번호를 1부터 다시
+    $("#hType").textContent = "1. 유형"; $("#hMode").textContent = "2. 푸는 방식"; $("#hCnt").textContent = "3. 한 번에 풀 문제 수"; }
   drawBooks(); drawUnits();
 }
 function drawBooks(){
