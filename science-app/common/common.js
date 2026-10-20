@@ -59,6 +59,7 @@ CS.toast = function(msg){
      { id, q:"문제(html)", fig:"그림(html, 선택)", choices:["보기",...], answer:정답번호(0부터), exp:"해설(html)" }
      { id, type:"ox", q, answer:"O"|"X", exp }
      { id, type:"card", q, a:"정답(html)", exp }   ← 스스로 채점
+     { id, type:"multi", q, choices:["보기",...], answers:[정답번호,...], exp }   ← 모두 고르기(누르고 「확인」)
    opts: { make:(n)=>문제배열, count:10, onResult:(q,맞음여부)=>{}, endButtons:[{label,onClick}] }
    끝나면: 점수 → 「틀린 것만 다시 섞어 풀기」를 다 맞을 때까지 반복 → 「새 문제」 */
 CS.QuizRound = function(box, opts){
@@ -78,6 +79,9 @@ CS.QuizRound = function(box, opts){
       <div class="qz-card">${q.fig ? `<div class="qz-fig">${q.fig}</div>` : ""}<div class="qz-q">${q.q}</div>`;
     if(q.type === "ox"){
       h += `<div class="qz-ch ox"><button data-v="O" style="color:#86efac">O</button><button data-v="X" style="color:#fca5a5">X</button></div>`;
+    } else if(q.type === "multi"){
+      h += `<div class="qz-ch multi">` + q.choices.map((c, k) => `<button data-v="${k}"><span class="n">${NUM[k]}</span><span>${c}</span></button>`).join("") + `</div>
+        <button class="btn full" id="qzCheck" style="margin-top:10px">확인 (모두 고른 뒤)</button>`;
     } else if(q.type === "card"){
       h += `<button class="btn full" id="qzReveal">정답 보기</button>`;
     } else {
@@ -85,7 +89,10 @@ CS.QuizRound = function(box, opts){
     }
     h += `<div id="qzAfter"></div></div>`;
     box.innerHTML = h;
-    box.querySelectorAll(".qz-ch button").forEach(b => b.onclick = () => choose(q, b.dataset.v));
+    if(q.type === "multi"){
+      box.querySelectorAll(".qz-ch button").forEach(b => b.onclick = () => { if(!b.disabled) b.classList.toggle("picked"); });
+      box.querySelector("#qzCheck").onclick = () => checkMulti(q);
+    } else box.querySelectorAll(".qz-ch button").forEach(b => b.onclick = () => choose(q, b.dataset.v));
     const rv = box.querySelector("#qzReveal");
     if(rv) rv.onclick = () => {
       rv.remove();
@@ -105,6 +112,21 @@ CS.QuizRound = function(box, opts){
     mark(q, ok);
     const ansTxt = q.type === "ox" ? q.answer : NUM[q.answer];
     box.querySelector("#qzAfter").innerHTML = `<div class="qz-exp"><div class="res ${ok?"ok":"no"}">${ok ? "정답!" : "오답 — 정답은 " + ansTxt}</div>${q.exp || ""}</div>
+      <button class="btn full" id="qzNext" style="margin-top:12px">${i+1 < list.length ? "다음 →" : "결과 보기"}</button>`;
+    box.querySelector("#qzNext").onclick = next;
+    box.querySelector("#qzNext").scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+  function checkMulti(q){
+    const btns = [...box.querySelectorAll(".qz-ch button")];
+    const picked = btns.filter(b => b.classList.contains("picked")).map(b => +b.dataset.v);
+    if(!picked.length){ CS.toast("하나 이상 골라 주세요"); return; }
+    btns.forEach(b => { b.disabled = true; b.classList.remove("picked"); });
+    box.querySelector("#qzCheck").remove();
+    const ans = q.answers.slice().sort((a, b) => a - b);
+    const ok = picked.length === ans.length && picked.sort((a, b) => a - b).every((v, k) => v === ans[k]);
+    btns.forEach(b => { const v = +b.dataset.v; if(ans.includes(v)) b.classList.add("right"); else if(picked.includes(v)) b.classList.add("wrong"); });
+    mark(q, ok);
+    box.querySelector("#qzAfter").innerHTML = `<div class="qz-exp"><div class="res ${ok?"ok":"no"}">${ok ? "정답!" : "오답 — 정답은 " + ans.map(k => NUM[k]).join(" ")}</div>${q.exp || ""}</div>
       <button class="btn full" id="qzNext" style="margin-top:12px">${i+1 < list.length ? "다음 →" : "결과 보기"}</button>`;
     box.querySelector("#qzNext").onclick = next;
     box.querySelector("#qzNext").scrollIntoView({behavior:"smooth", block:"nearest"});

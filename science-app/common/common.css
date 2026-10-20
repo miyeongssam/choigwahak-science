@@ -75,6 +75,7 @@ canvas,svg.fig{display:block;width:100%;background:#0b0b0d;border:1px solid var(
 .qz-ch button .n{font-weight:700;color:var(--accent);min-width:22px}
 .qz-ch button.right{border-color:var(--ok);background:rgba(134,217,160,.13)}
 .qz-ch button.wrong{border-color:var(--no);background:rgba(244,151,142,.13)}
+.qz-ch.multi button.picked{border-color:var(--accent);background:rgba(167,139,250,.16)}
 .qz-ch.ox{flex-direction:row}
 .qz-ch.ox button{flex:1;justify-content:center;font-size:26px;font-weight:700;padding:16px}
 .qz-exp{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:15px;line-height:1.65;color:#d4d4d8}
