@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>암기 문제 · 최과학 과학</title>
+<title>플래시카드 · 최과학 과학</title>
 <link rel="stylesheet" href="../common/common.css">
 <style>
   .units{max-height:40vh;overflow:auto}
@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<header class="top"><a class="back" href="../">‹ 홈</a><h1 id="ttl">암기 문제<small>OX · ①~⑤ · 모두 고르기 · 카드 — 틀린 것만 다시 반복</small></h1></header>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1 id="ttl">플래시카드<small>OX · ①~⑤ · 모두 고르기 · 서술 — 틀린 것만 다시 반복</small></h1></header>
 <div class="wrap">
   <div id="setup">
     <div class="panel" id="pBooks"><h2>1. 교재</h2><div class="row" id="bookChips"></div></div>
@@ -36,10 +36,8 @@
     <div class="panel">
       <h2 id="hType">3. 유형</h2>
       <div class="row" id="typeChips"></div>
-      <h2 style="margin-top:14px" id="hMode">4. 푸는 방식</h2>
-      <div class="row" id="modeChips"></div>
-      <div class="note" style="margin-top:6px" id="modeNote"></div>
-      <h2 style="margin-top:14px" id="hCnt">5. 한 번에 풀 문제 수</h2>
+      <div class="note" style="margin-top:6px">OX는 O/X, 단답형은 ①~⑤ 고르기, 모두고르기는 맞는 것 전부 누르고 확인, 서술형은 정답 보고 스스로 채점</div>
+      <h2 style="margin-top:14px" id="hCnt">4. 한 번에 풀 문제 수</h2>
       <div class="row" id="cntChips"></div>
     </div>
     <div class="panel">
@@ -73,10 +71,8 @@ const cardId = c => c._book + "|" + c._file + "|" + c.번호;
 
 // ---- 선택 칩 ----
 const TYPES = ["전체", "OX", "단답형", "모두고르기", "서술형"];
-const MODES = [{id:"quiz", name:"문제 풀기", note:"OX는 O/X, 단답형은 ①~⑤ 고르기, 모두고르기는 맞는 것 전부 누르고 확인, 서술형은 정답 보고 스스로 채점"},
-               {id:"card", name:"카드 넘기기", note:"모든 문제를 카드로 — 생각해 보고 정답 확인 후 스스로 채점"}];
 const COUNTS = [10, 20, 0];
-let sel = { type: CS.store.get("qType", "전체"), mode: CS.store.get("qMode", "quiz"), cnt: CS.store.get("qCnt", 10) };
+let sel = { type: CS.store.get("qType", "전체"), cnt: CS.store.get("qCnt", 10) };
 function chips(box, items, cur, label, onPick){
   box.innerHTML = "";
   items.forEach(it => {
@@ -89,9 +85,7 @@ function chips(box, items, cur, label, onPick){
 }
 function drawChips(){
   chips($("#typeChips"), TYPES, sel.type, t => t, t => { sel.type = t; CS.store.set("qType", t); drawChips(); stat(); });
-  chips($("#modeChips"), MODES, sel.mode, m => m.name, m => { sel.mode = m.id; CS.store.set("qMode", m.id); drawChips(); });
   chips($("#cntChips"), COUNTS, sel.cnt, n => n ? n + "문제" : "전부", n => { sel.cnt = n; CS.store.set("qCnt", n); drawChips(); });
-  $("#modeNote").textContent = MODES.find(m => m.id === sel.mode).note;
 }
 
 async function loadUnit(file){
@@ -108,8 +102,8 @@ async function init(){
   catch(e){ $("#unitList").innerHTML = '<div class="muted">문제 목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; return; }
   // ?b= 에는 교재 id(화학 · 물질과에너지 …) 또는 묶음(tong)을 쓴다
   BOOKS = d.books.filter(b => !SUBJ || b.id === SUBJ || b.subject === SUBJ);
-  if(SUBJ === "tong") $("#ttl").firstChild.textContent = "통합과학 암기 문제";
-  else if(BOOKS.length === 1) $("#ttl").firstChild.textContent = BOOKS[0].name + " 암기 문제";
+  if(SUBJ === "tong") $("#ttl").firstChild.textContent = "통합과학 플래시카드";
+  else if(BOOKS.length === 1) $("#ttl").firstChild.textContent = BOOKS[0].name + " 플래시카드";
   if(WRONG_ONLY) $("#ttl").firstChild.textContent = "오답 노트";
   await Promise.all(BOOKS.flatMap(b => b.units.map(async u => {
     try{ u._count = ((await loadUnit(u.file)).cards || []).length; }catch(e){ u._count = 0; }
@@ -118,7 +112,7 @@ async function init(){
   BOOKS.forEach((b, i) => b._on = on ? on.includes(b.id) : true);
   if(WRONG_ONLY){ $("#pBooks").classList.add("hide"); $("#pUnits").classList.add("hide"); $("#go").textContent = "⭐ 틀린 문제 섞어서 시작"; $("#goWrong").classList.add("hide");
     // 교재 · 단원 칸을 숨기므로 번호를 1부터 다시
-    $("#hType").textContent = "1. 유형"; $("#hMode").textContent = "2. 푸는 방식"; $("#hCnt").textContent = "3. 한 번에 풀 문제 수"; }
+    $("#hType").textContent = "1. 유형"; $("#hCnt").textContent = "2. 한 번에 풀 문제 수"; }
   drawBooks(); drawUnits();
 }
 function drawBooks(){
@@ -174,7 +168,8 @@ function toQuestion(c, pool){
   const tag = `<div class="tagline"><span>${CS.esc(c._unit)}</span><span>${c.유형}</span>${c.출처 ? `<span>${CS.esc(c.출처)}</span>` : ""}</div>`;
   const q = tag + CS.esc(c.문제);
   const base = { id: cardId(c), _c: c };
-  if(sel.mode === "card" || c.유형 === "서술형")
+  // 「카드 넘기기」 방식은 없앰(2026-10-20 원장) — 서술형만 정답 보고 스스로 채점
+  if(c.유형 === "서술형")
     return Object.assign(base, { type: "card", q, a: CS.esc(c.정답), exp });
   if(c.유형 === "모두고르기" && Array.isArray(c.보기)){
     // 정답은 "CO₂, NADH" 처럼 보기 글자를 쉼표로 이은 것
@@ -196,7 +191,9 @@ function toQuestion(c, pool){
   // 같은 단원 단답 정답 → 같은 교재 단답 정답 순으로 오답 보기
   const near = CS.shuffle(pool.filter(x => x._file === c._file && x.유형 === "단답형").map(x => String(x.정답).trim()));
   const far = CS.shuffle(pool.filter(x => x._book === c._book && x._file !== c._file && x.유형 === "단답형").map(x => String(x.정답).trim()));
-  const bad = s => s === ans || s.includes(ans) || ans.includes(s) || s.length > 40;
+  // 숫자만인 정답에는 숫자 보기, 낱말 정답에는 낱말 보기만(「피루브산」 보기에 「3」이 섞이지 않게)
+  const isNum = s => /^[-+]?[\d.,/½¼¾²³ ]+(배|개|분자|%)?$/.test(s);
+  const bad = s => s === ans || s.includes(ans) || ans.includes(s) || s.length > 40 || isNum(s) !== isNum(ans);
   // 정답과 길이·문장 모양이 비슷한 것부터 (긴 문장 사이에 짧은 단어 하나만 있으면 정답이 티 남)
   const sentence = s => /[다요]\.?$/.test(s);
   const score = s => Math.abs(s.length - ans.length) / Math.max(ans.length, 4) + (sentence(s) !== sentence(ans) ? 2 : 0);
