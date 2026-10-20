@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<header class="top"><a class="back" href="../">‹ 홈</a><h1 id="ttl">암기 문제<small>OX · ①~⑤ · 카드 — 틀린 것만 다시 반복</small></h1></header>
+<header class="top"><a class="back" href="../">‹ 홈</a><h1 id="ttl">암기 문제<small>OX · ①~⑤ · 모두 고르기 · 카드 — 틀린 것만 다시 반복</small></h1></header>
 <div class="wrap">
   <div id="setup">
     <div class="panel" id="pBooks"><h2>1. 교재</h2><div class="row" id="bookChips"></div></div>
@@ -72,8 +72,8 @@ const saveWrong = () => CS.store.set(WKEY, [...wrong]);
 const cardId = c => c._book + "|" + c._file + "|" + c.번호;
 
 // ---- 선택 칩 ----
-const TYPES = ["전체", "OX", "단답형", "서술형"];
-const MODES = [{id:"quiz", name:"문제 풀기", note:"OX는 O/X, 단답형은 ①~⑤ 고르기, 서술형은 정답 보고 스스로 채점"},
+const TYPES = ["전체", "OX", "단답형", "모두고르기", "서술형"];
+const MODES = [{id:"quiz", name:"문제 풀기", note:"OX는 O/X, 단답형은 ①~⑤ 고르기, 모두고르기는 맞는 것 전부 누르고 확인, 서술형은 정답 보고 스스로 채점"},
                {id:"card", name:"카드 넘기기", note:"모든 문제를 카드로 — 생각해 보고 정답 확인 후 스스로 채점"}];
 const COUNTS = [10, 20, 0];
 let sel = { type: CS.store.get("qType", "전체"), mode: CS.store.get("qMode", "quiz"), cnt: CS.store.get("qCnt", 10) };
@@ -106,9 +106,10 @@ async function init(){
   let d;
   try{ d = await (await fetch("data/books.json", {cache:"no-cache"})).json(); }
   catch(e){ $("#unitList").innerHTML = '<div class="muted">문제 목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; return; }
-  BOOKS = d.books.filter(b => !SUBJ || b.subject === SUBJ);
+  // ?b= 에는 교재 id(화학 · 물질과에너지 …) 또는 묶음(tong)을 쓴다
+  BOOKS = d.books.filter(b => !SUBJ || b.id === SUBJ || b.subject === SUBJ);
   if(SUBJ === "tong") $("#ttl").firstChild.textContent = "통합과학 암기 문제";
-  if(SUBJ === "chem") $("#ttl").firstChild.textContent = "화학 암기 문제";
+  else if(BOOKS.length === 1) $("#ttl").firstChild.textContent = BOOKS[0].name + " 암기 문제";
   if(WRONG_ONLY) $("#ttl").firstChild.textContent = "오답 노트";
   await Promise.all(BOOKS.flatMap(b => b.units.map(async u => {
     try{ u._count = ((await loadUnit(u.file)).cards || []).length; }catch(e){ u._count = 0; }
@@ -175,6 +176,15 @@ function toQuestion(c, pool){
   const base = { id: cardId(c), _c: c };
   if(sel.mode === "card" || c.유형 === "서술형")
     return Object.assign(base, { type: "card", q, a: CS.esc(c.정답), exp });
+  if(c.유형 === "모두고르기" && Array.isArray(c.보기)){
+    // 정답은 "CO₂, NADH" 처럼 보기 글자를 쉼표로 이은 것
+    const right = String(c.정답).split(",").map(s => s.trim());
+    const order = CS.shuffle(c.보기.map((s, k) => k));
+    const choices = order.map(k => CS.esc(c.보기[k]));
+    const answers = order.map((k, j) => right.includes(String(c.보기[k]).trim()) ? j : -1).filter(j => j >= 0);
+    if(answers.length === right.length) return Object.assign(base, { type: "multi", q, choices, answers, exp });
+    return Object.assign(base, { type: "card", q, a: CS.esc(c.정답), exp });
+  }
   if(c.유형 === "OX" && (c.정답 === "O" || c.정답 === "X"))
     return Object.assign(base, { type: "ox", q, answer: c.정답, exp });
   const ans = String(c.정답).trim();
