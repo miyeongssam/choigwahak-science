@@ -16,7 +16,7 @@
   .search input{flex:1;min-width:0}
   input.t,select.t,textarea.t{width:100%;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:11px;
     padding:11px 12px;font-size:16px;font-family:inherit}
-  textarea.t{min-height:42vh;line-height:1.7;resize:vertical}
+  textarea.t{min-height:30vh;line-height:1.7;resize:vertical}
   .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
   .chips .chip{white-space:nowrap}
@@ -93,9 +93,13 @@
     <div class="lab">제목</div>
     <input class="t" id="eTitle" placeholder="예: TCA 회로 · 보일 법칙 · 바탕질" maxlength="60">
     <div class="lab">내용 <span style="font-weight:400">— 아래 버튼으로 기호 넣기</span></div>
+    <div class="bar" style="margin:4px 0 2px"><button type="button" class="btn ghost sm" id="bBold"><b>굵게</b></button><button type="button" class="btn ghost sm" id="bList">• 목록</button><button type="button" class="btn ghost sm" id="bLink">[[ ]] 잇기</button></div>
     <div class="sym" id="sym"></div>
     <textarea class="t" id="eBody" placeholder="예:&#10;- 시트르산 → α-케토글루타르산: CO₂, NADH&#10;- **바탕질** = 마이토콘드리아 안쪽 공간&#10;[[피루브산의 산화]] 다음 단계"></textarea>
-    <div class="note" style="margin:6px 0 12px">[[노트 제목]] → 다른 노트로 이어져요 · **굵게** · 줄 앞에 「- 」 → 목록</div>
+    <div class="note" style="margin:6px 0 4px">**글자** → <b>굵게</b> · 줄 앞에 「- 」 → 목록(엔터 치면 다음 줄도 목록, 빈 줄에서 한 번 더 엔터 → 목록 끝) · [[노트 제목]] → 다른 노트로 이어짐</div>
+    <div class="lab">미리보기</div>
+    <div class="panel body" id="ePrev" style="min-height:60px"></div>
+    <div style="height:4px"></div>
     <div class="bar">
       <button class="btn" id="saveBtn">저장</button>
       <button class="btn ghost" id="cancelBtn">취소</button>
@@ -187,7 +191,7 @@ function render(body){
   const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[\[([^\]]+)\]\]/g, (m, t) =>
     `<a class="lk${byTitle(t.replace(/&amp;/g,"&")) ? "" : " new"}" data-t="${t}">${t}</a>`);
   lines.forEach(l => {
-    const m = l.match(/^\s*[-·•]\s+(.*)$/);
+    const m = l.match(/^\s*[-·•*]\s+(.*)$/) || (l.trim() === "-" ? [l, ""] : null);
     if(m){ if(!inList){ h += "<ul>"; inList = true; } h += `<li>${inline(m[1])}</li>`; }
     else { if(inList){ h += "</ul>"; inList = false; } h += (l.trim() ? inline(l) : "") + "<br>"; }
   });
@@ -230,16 +234,49 @@ function edit(n, preset){
   eTag = p.tag || ""; drawTagChips();
   $("#eTitle").value = p.title || ""; $("#eBody").value = p.body || "";
   $("#delBtn").classList.toggle("hide", !n);
+  prev();
   show("vEdit"); if(!n) $("#eTitle").focus();
 }
 $("#eBook").onchange = () => fillUnits($("#eBook").value, "");
+const ta = $("#eBody");
+const prev = () => { $("#ePrev").innerHTML = ta.value.trim() ? render(ta.value) : '<span class="muted">여기에 저장한 모양이 보여요</span>'; };
+function put(text, sel0 = text.length, sel1 = sel0){            // 커서 자리에 넣기
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.setRangeText(text, s, e, "end"); ta.selectionStart = s + sel0; ta.selectionEnd = s + sel1; ta.focus(); prev();
+}
+ta.addEventListener("input", prev);
+ta.addEventListener("keydown", ev => {
+  if(ev.key !== "Enter" || ev.isComposing || ev.keyCode === 229 || ev.shiftKey) return;   // 한글 조합 중에는 건드리지 않음
+  const s = ta.selectionStart, line = ta.value.slice(ta.value.lastIndexOf("\n", s - 1) + 1, s);
+  const m = line.match(/^(\s*)([-·•*])\s(.*)$/);
+  if(!m) return;
+  ev.preventDefault();
+  if(!m[3].trim()){                                          // 빈 목록 줄에서 엔터 → 「- 」만 지우고 목록 끝
+    ta.setRangeText("", s - line.length, s, "end"); prev();
+  } else put("\n" + m[1] + "- ");
+});
+// 휴대폰 글자판(한글 조합)은 엔터가 keydown 으로 안 올 때가 있어, 줄이 바뀐 뒤에도 한 번 더 본다
+ta.addEventListener("input", ev => {   // keydown 에서 막은 엔터는 input 이 생기지 않으므로 두 번 들어가지 않음
+  if(ev.inputType !== "insertLineBreak" && ev.inputType !== "insertParagraph") return;
+  const s = ta.selectionStart, v = ta.value;
+  if(v[s - 1] !== "\n") return;
+  const prevLine = v.slice(v.lastIndexOf("\n", s - 2) + 1, s - 1), m = prevLine.match(/^(\s*)([-·•*])\s(.*)$/);
+  if(!m) return;
+  if(!m[3].trim()) ta.setRangeText("", s - 1 - prevLine.length, s, "end");   // 빈 목록 줄 → 목록 끝
+  else ta.setRangeText(m[1] + "- ", s, s, "end");
+  prev();
+});
+$("#bBold").onmousedown = $("#bList").onmousedown = $("#bLink").onmousedown = e => e.preventDefault();
+$("#bBold").onclick = () => { const sel = ta.value.slice(ta.selectionStart, ta.selectionEnd) || "굵은 글자"; put("**" + sel + "**", 2, 2 + sel.length); };
+$("#bList").onclick = () => { const s = ta.selectionStart, atStart = s === 0 || ta.value[s - 1] === "\n"; put((atStart ? "" : "\n") + "- "); };
+$("#bLink").onclick = () => { const sel = ta.value.slice(ta.selectionStart, ta.selectionEnd) || "노트 제목"; put("[[" + sel + "]]", 2, 2 + sel.length); };
 // 위 · 아래 첨자는 x 를 붙여 보여 줌(넣는 것은 기호만)
 const SUP = /^[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻₀₁₂₃₄₅₆₇₈₉]+$/;
 $("#sym").innerHTML = SYM.map(s => `<button type="button" data-s="${s}">${SUP.test(s) ? "x" + s : s}</button>`).join("");
 $("#sym").querySelectorAll("button").forEach(b => b.onmousedown = e => e.preventDefault());   // 글자판이 닫히지 않게
 $("#sym").querySelectorAll("button").forEach(b => b.onclick = () => {
   const ta = $("#eBody"), s = ta.selectionStart, e = ta.selectionEnd, v = b.dataset.s;
-  ta.value = ta.value.slice(0, s) + v + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + v.length; ta.focus();
+  ta.value = ta.value.slice(0, s) + v + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + v.length; ta.focus(); prev();
 });
 $("#saveBtn").onclick = () => {
   const title = $("#eTitle").value.trim(), body = $("#eBody").value;
