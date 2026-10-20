@@ -32,7 +32,7 @@
   .sym{display:flex;gap:6px;overflow-x:auto;padding:6px 0;scrollbar-width:none}
   .sym::-webkit-scrollbar{display:none}
   .sym button{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:9px;min-width:40px;
-    padding:8px 9px;font-size:16px;font-family:inherit;cursor:pointer}
+    padding:8px 10px;font-size:19px;font-family:inherit;cursor:pointer;white-space:nowrap}
   .body{font-size:16px;line-height:1.8;word-break:keep-all;white-space:normal}
   .body ul{margin:4px 0;padding-left:22px}
   .body a.lk{color:var(--accent);text-decoration:underline dotted;cursor:pointer}
@@ -233,10 +233,12 @@ function edit(n, preset){
   show("vEdit"); if(!n) $("#eTitle").focus();
 }
 $("#eBook").onchange = () => fillUnits($("#eBook").value, "");
-$("#sym").innerHTML = SYM.map(s => `<button type="button">${s}</button>`).join("");
+// 위 · 아래 첨자는 x 를 붙여 보여 줌(넣는 것은 기호만)
+const SUP = /^[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻₀₁₂₃₄₅₆₇₈₉]+$/;
+$("#sym").innerHTML = SYM.map(s => `<button type="button" data-s="${s}">${SUP.test(s) ? "x" + s : s}</button>`).join("");
 $("#sym").querySelectorAll("button").forEach(b => b.onmousedown = e => e.preventDefault());   // 글자판이 닫히지 않게
 $("#sym").querySelectorAll("button").forEach(b => b.onclick = () => {
-  const ta = $("#eBody"), s = ta.selectionStart, e = ta.selectionEnd, v = b.textContent;
+  const ta = $("#eBody"), s = ta.selectionStart, e = ta.selectionEnd, v = b.dataset.s;
   ta.value = ta.value.slice(0, s) + v + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + v.length; ta.focus();
 });
 $("#saveBtn").onclick = () => {
