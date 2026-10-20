@@ -30,7 +30,7 @@
     ]},
     { "id": "tool", "name": "공부 도구", "color": "var(--c-tool)", "apps": [
       { "path": "timer/", "icon": "⏱️", "title": "타이머", "desc": "5 · 10 · 20 · 30분, 칠판용 큰 화면" },
-      { "path": "graph/", "icon": "📈", "title": "측정값 → 그래프 · 기울기", "desc": "실험값 입력, 추세선과 기울기" },
+      { "path": "notes/", "icon": "📒", "title": "내 공부 노트", "desc": "용어 · 공식 · 헷갈린 것 적고 검색, 과목 · 단원별로 모아 보기" },
       { "path": "quiz/?wrong=1", "icon": "⭐", "title": "오답 노트", "desc": "모든 과목에서 틀린 문제만 모아 풀기" }
     ]}
   ]
