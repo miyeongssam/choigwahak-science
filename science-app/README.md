@@ -19,7 +19,7 @@
 | 5 | `shm/` `interference/` `doppler/` `projectile/` | 물리 |
 | 6 | `ion-puzzle/` `elements/` `eq-kt/` `n2o4/` | 화학 |
 | 7 | `atp/` `etc/` `cycles/` | 생명 |
-| 8 | `timer/` `graph/` | 공부 도구 |
+| 8 | `timer/` `notes/` | 공부 도구(타이머 · 내 공부 노트). `graph/`(측정값 그래프)는 홈에서 뺐고 파일만 남김 |
 | 9 | `sw.js` | 오프라인 저장(앱 기능을 바꾸면 `VERSION` 숫자를 올림) |
 
 ## 플래시카드(암기 문제) 추가·수정 (매달 할 일)
