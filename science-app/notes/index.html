@@ -152,7 +152,7 @@ function snippet(n, q){
   return hl((i > 30 ? "…" : "") + flat.slice(Math.max(0, i - 30), i + 70), q);
 }
 function itemHTML(n, q){
-  return `<div class="item" data-id="${n.id}"><div class="ti">${hl(n.title || "(제목 없음)", q)}${n.tag ? `<span class="tg tg-${n.tag}">#${n.tag}</span>` : ""}</div>
+  return `<div class="item" data-id="${n.id}"><div class="ti">${hl(shownTitle(n), q)}${n.tag ? `<span class="tg tg-${n.tag}">#${n.tag}</span>` : ""}</div>
     <div class="sn">${snippet(n, q)}</div><div class="mt">${CS.esc(bookName(n.book))}${n.unit ? " · " + CS.esc(n.unit) : ""} · ${today(n.updated)}</div></div>`;
 }
 function drawList(){
@@ -185,13 +185,15 @@ function count(){ $("#count").textContent = `노트 ${notes.length}개`; }
 
 // ---- 읽기 ----
 const byTitle = t => notes.find(n => n.title.trim().toLowerCase() === t.trim().toLowerCase());
+// 제목을 비우면 내용 첫 줄을 제목처럼 보여 줌
+const shownTitle = n => n.title.trim() || ((n.body.split("\n").map(s => s.replace(/^\s*[-·•*]\s*/, "").replace(/\*\*|\[\[|\]\]/g, "").trim()).find(Boolean) || "제목 없음").slice(0, 40));
 function render(body){
   const lines = CS.esc(body).split("\n");
   let h = "", inList = false;
   const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[\[([^\]]+)\]\]/g, (m, t) =>
     `<a class="lk${byTitle(t.replace(/&amp;/g,"&")) ? "" : " new"}" data-t="${t}">${t}</a>`);
   lines.forEach(l => {
-    const m = l.match(/^\s*[-·•*]\s+(.*)$/) || (l.trim() === "-" ? [l, ""] : null);
+    const m = l.match(/^\s*[-·•*]\s+(.*)$/);
     if(m){ if(!inList){ h += "<ul>"; inList = true; } h += `<li>${inline(m[1])}</li>`; }
     else { if(inList){ h += "</ul>"; inList = false; } h += (l.trim() ? inline(l) : "") + "<br>"; }
   });
@@ -200,7 +202,7 @@ function render(body){
 }
 function openNote(id){
   cur = notes.find(n => n.id === id); if(!cur) return;
-  $("#rTitle").textContent = cur.title || "(제목 없음)";
+  $("#rTitle").textContent = shownTitle(cur);
   $("#rMeta").textContent = `${bookName(cur.book)}${cur.unit ? " · " + cur.unit : ""} · ${today(cur.updated)}`;
   const t = $("#rTag"); t.className = cur.tag ? "tg tg-" + cur.tag : "tg"; t.textContent = cur.tag ? "#" + cur.tag : "";
   t.style.cssText = "font-size:11px;color:#000;border-radius:8px;padding:1px 7px";
