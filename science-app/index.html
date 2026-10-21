@@ -17,9 +17,12 @@
   .hero{padding:calc(env(safe-area-inset-top) + 18px) 16px 6px;max-width:1100px;margin:0 auto}
   .hero h1{margin:0;font-size:24px}
   .hero p{margin:4px 0 0;color:var(--muted);font-size:14px}
-  .tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
-  .tabs::-webkit-scrollbar{display:none}
-  .tabs .chip{white-space:nowrap;font-size:14px}
+  /* 메뉴는 옆으로 밀지 않아도 다 보이게: 휴대폰은 2칸 바둑판, 넓은 화면은 한 줄 */
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 4px}
+  .tabs .chip{font-size:14px;text-align:center;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media (min-width:760px){ .tabs{display:flex;flex-wrap:wrap} }
+  .grpname{margin:14px 0 8px;font-size:13.5px;color:var(--muted);font-weight:600}
+  .soon{color:var(--muted);font-size:13px;padding:12px 14px;border:1px dashed var(--line);border-radius:14px}
   .sub{margin:18px 0 8px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
   .sub i{width:8px;height:8px;border-radius:50%;display:inline-block}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
@@ -39,7 +42,7 @@
 <body>
 <div class="hero">
   <h1>최과학 과학</h1>
-  <p>플래시카드 · 움직이는 그림 · 공부 도구</p>
+  <p>플래시카드 · 움직이는 그림 · 타이머 · 메모장</p>
   <div class="tabs" id="tabs"></div>
 </div>
 <div class="wrap">
@@ -57,20 +60,24 @@
   try{ data = await (await fetch("apps.json", {cache:"no-cache"})).json(); }
   catch(e){ document.getElementById("list").innerHTML = '<div class="muted center" style="padding:30px">목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; return; }
   const tabs = document.getElementById("tabs"), list = document.getElementById("list");
-  let cur = CS.store.get("homeTab", "all");
+  // 메뉴(과목) 하나를 누르면 그 안의 과목 칸(groups)이 보임. 마지막에 누른 메뉴를 기억
+  let cur = CS.store.get("homeTab", "");
+  if(!data.subjects.some(s => s.id === cur)) cur = data.subjects[0].id;
+  const tile = (s, a) => `<a class="tile" style="--sc:${s.color}" href="${a.path}"><div class="ic">${a.icon}</div><div><b>${a.title}</b><span>${a.desc}</span></div></a>`;
   function render(){
     tabs.innerHTML = "";
-    [{id:"all", name:"전체"}].concat(data.subjects).forEach(s => {
+    data.subjects.forEach(s => {
       const c = document.createElement("span");
       c.className = "chip" + (cur === s.id ? " on" : "");
-      c.textContent = s.name.replace(/ \(.*\)/, "");
+      c.textContent = s.tab || s.name;
       c.onclick = () => { cur = s.id; CS.store.set("homeTab", cur); render(); };
       tabs.appendChild(c);
     });
-    list.innerHTML = data.subjects.filter(s => cur === "all" || s.id === cur).map(s =>
-      `<div class="sub"><i style="background:${s.color}"></i>${s.name}</div><div class="grid">` +
-      s.apps.map(a => `<a class="tile" style="--sc:${s.color}" href="${a.path}"><div class="ic">${a.icon}</div><div><b>${a.title}</b><span>${a.desc}</span></div></a>`).join("") +
-      `</div>`).join("");
+    const s = data.subjects.find(x => x.id === cur);
+    const groups = s.groups || [{ name: "", apps: s.apps || [] }];
+    list.innerHTML = `<div class="sub"><i style="background:${s.color}"></i>${s.name}</div>` +
+      groups.map(g => (g.name ? `<div class="grpname">${g.name}</div>` : "") +
+        (g.apps.length ? `<div class="grid">${g.apps.map(a => tile(s, a)).join("")}</div>` : `<div class="soon">준비 중이에요</div>`)).join("");
   }
   render();
 

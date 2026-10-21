@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>내 공부 노트 · 최과학 과학</title>
+<title>암기 메모장 · 최과학 과학</title>
 <link rel="stylesheet" href="../common/common.css">
 <style>
   #app{max-width:820px;margin:0 auto}
@@ -47,7 +47,7 @@
 </style>
 </head>
 <body>
-<header class="top"><a class="back" href="../" id="home">‹ 홈</a><h1 id="ttl">내 공부 노트<small>용어 · 공식 · 헷갈린 것 — 적어 두고 다시 찾아보기</small></h1></header>
+<header class="top"><a class="back" href="../" id="home">‹ 홈</a><h1 id="ttl">암기 메모장<small>용어 · 공식 · 헷갈린 것 — 적어 두고 다시 찾아보기</small></h1></header>
 <div class="wrap" id="app">
 
   <!-- 목록 -->
@@ -309,7 +309,7 @@ $("#home").onclick = e => { if($("#vList").classList.contains("hide")){ e.preven
 // ---- 파일로 저장 · 불러오기 ----
 $("#expBtn").onclick = () => {
   if(!notes.length){ CS.toast("저장할 노트가 없어요"); return; }
-  const d = new Date(), name = `내공부노트_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
+  const d = new Date(), name = `암기메모장_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
   const url = URL.createObjectURL(new Blob([JSON.stringify({ app: "choisci-notes", v: 1, notes }, null, 1)], { type: "application/json" }));
   const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000); CS.toast("파일로 저장했어요");

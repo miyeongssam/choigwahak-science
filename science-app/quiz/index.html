@@ -115,7 +115,7 @@ async function init(){
   BOOKS = d.books.filter(b => !SUBJ || b.id === SUBJ || b.subject === SUBJ);
   if(SUBJ === "tong") $("#ttl").firstChild.textContent = "통합과학 플래시카드";
   else if(BOOKS.length === 1) $("#ttl").firstChild.textContent = BOOKS[0].name + " 플래시카드";
-  if(WRONG_ONLY) $("#ttl").firstChild.textContent = "오답 노트";
+  if(WRONG_ONLY) $("#ttl").firstChild.textContent = "틀린 문제 다시 풀기";
   await Promise.all(BOOKS.flatMap(b => b.units.map(async u => {
     try{ u._count = ((await loadUnit(u.file)).cards || []).filter(c => inPart(u, c)).length; }catch(e){ u._count = 0; }
   })));
