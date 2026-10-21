@@ -21,8 +21,9 @@
   .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 4px}
   .tabs .chip{font-size:14px;text-align:center;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   @media (min-width:760px){ .tabs{display:flex;flex-wrap:wrap} }
-  .grpname{margin:14px 0 8px;font-size:13.5px;color:var(--muted);font-weight:600}
-  .soon{color:var(--muted);font-size:13px;padding:12px 14px;border:1px dashed var(--line);border-radius:14px}
+  .grpname{margin:12px 0 6px;font-size:13.5px;color:var(--muted);font-weight:600}
+  .tile.off{opacity:.45;border-style:dashed;cursor:default}
+  .tile.off:active{transform:none}
   .sub{margin:18px 0 8px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
   .sub i{width:8px;height:8px;border-radius:50%;display:inline-block}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
@@ -60,10 +61,13 @@
   try{ data = await (await fetch("apps.json", {cache:"no-cache"})).json(); }
   catch(e){ document.getElementById("list").innerHTML = '<div class="muted center" style="padding:30px">목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; return; }
   const tabs = document.getElementById("tabs"), list = document.getElementById("list");
-  // 메뉴(과목) 하나를 누르면 그 안의 과목 칸(groups)이 보임. 마지막에 누른 메뉴를 기억
+  // 마지막에 누른 메뉴를 기억
   let cur = CS.store.get("homeTab", "");
   if(!data.subjects.some(s => s.id === cur)) cur = data.subjects[0].id;
-  const tile = (s, a) => `<a class="tile" style="--sc:${s.color}" href="${a.path}"><div class="ic">${a.icon}</div><div><b>${a.title}</b><span>${a.desc}</span></div></a>`;
+  // 메뉴 안: 제목 한 줄 → 플래시카드(과목마다 작은 글씨 + 카드) → 학습 앱(그 메뉴의 앱 전부)
+  const tile = (s, a) => a.path
+    ? `<a class="tile" style="--sc:${s.color}" href="${a.path}"><div class="ic">${a.icon}</div><div><b>${a.title}</b><span>${a.desc}</span></div></a>`
+    : `<div class="tile off" style="--sc:${s.color}"><div class="ic">${a.icon}</div><div><b>${a.title}</b><span>${a.desc}</span></div></div>`;
   function render(){
     tabs.innerHTML = "";
     data.subjects.forEach(s => {
@@ -74,10 +78,10 @@
       tabs.appendChild(c);
     });
     const s = data.subjects.find(x => x.id === cur);
-    const groups = s.groups || [{ name: "", apps: s.apps || [] }];
+    const cards = s.cards || [], apps = s.apps || [];
     list.innerHTML = `<div class="sub"><i style="background:${s.color}"></i>${s.name}</div>` +
-      groups.map(g => (g.name ? `<div class="grpname">${g.name}</div>` : "") +
-        (g.apps.length ? `<div class="grid">${g.apps.map(a => tile(s, a)).join("")}</div>` : `<div class="soon">준비 중이에요</div>`)).join("");
+      (cards.length ? `<div class="grid">${cards.map(c => `<div><div class="grpname">${c.label}</div>${tile(s, c)}</div>`).join("")}</div>` : "") +
+      (apps.length ? (s.appsLabel ? `<div class="grpname" style="margin-top:22px">${s.appsLabel}</div>` : "") + `<div class="grid">${apps.map(a => tile(s, a)).join("")}</div>` : "");
   }
   render();
 
