@@ -36,7 +36,7 @@
     <div class="panel">
       <h2 id="hType">3. 유형</h2>
       <div class="row" id="typeChips"></div>
-      <div class="note" style="margin-top:6px">OX는 O/X, 단답형은 ①~⑤ 고르기, 모두고르기는 맞는 것 전부 누르고 확인, 서술형은 정답 보고 스스로 채점</div>
+      <div class="note" style="margin-top:6px">여러 개를 함께 고를 수 있어요(예: OX + 모두고르기). OX는 O/X, 단답형은 ①~⑤ 고르기, 모두고르기는 맞는 것 전부 누르고 확인, 서술형은 정답 보고 스스로 채점</div>
       <h2 style="margin-top:14px" id="hCnt">4. 한 번에 풀 문제 수</h2>
       <div class="row" id="cntChips"></div>
     </div>
@@ -70,9 +70,17 @@ const saveWrong = () => CS.store.set(WKEY, [...wrong]);
 const cardId = c => c._book + "|" + c._file + "|" + c.번호;
 
 // ---- 선택 칩 ----
-const TYPES = ["전체", "OX", "단답형", "모두고르기", "서술형"];
-const COUNTS = [10, 20, 0];
-let sel = { type: CS.store.get("qType", "전체"), cnt: CS.store.get("qCnt", 10) };
+// 유형은 여러 개를 함께 고른다(2026-10-21 원장 — 학교 시험이 선택형 · 단답 · 서술을 섞어 내므로). 「전체」는 네 가지를 한꺼번에 켜고 끈다
+const KINDS = ["OX", "단답형", "모두고르기", "서술형"];
+const TYPES = ["전체"].concat(KINDS);
+const COUNTS = [10, 20, 30, 50, 100, 0];
+const oldType = CS.store.get("qType", "전체");
+let sel = { types: CS.store.get("qTypes", oldType === "전체" ? KINDS.slice() : [oldType]).filter(t => KINDS.includes(t)), cnt: CS.store.get("qCnt", 10) };
+function pickType(t){
+  if(t === "전체") sel.types = sel.types.length === KINDS.length ? [] : KINDS.slice();
+  else sel.types = sel.types.includes(t) ? sel.types.filter(x => x !== t) : KINDS.filter(x => x === t || sel.types.includes(x));
+  CS.store.set("qTypes", sel.types); drawChips(); stat();
+}
 function chips(box, items, cur, label, onPick){
   box.innerHTML = "";
   items.forEach(it => {
@@ -84,10 +92,13 @@ function chips(box, items, cur, label, onPick){
   });
 }
 function drawChips(){
-  chips($("#typeChips"), TYPES, sel.type, t => t, t => { sel.type = t; CS.store.set("qType", t); drawChips(); stat(); });
+  chips($("#typeChips"), TYPES, null, t => t, pickType);
+  [...$("#typeChips").children].forEach((c, i) => c.classList.toggle("on", TYPES[i] === "전체" ? sel.types.length === KINDS.length : sel.types.includes(TYPES[i])));
   chips($("#cntChips"), COUNTS, sel.cnt, n => n ? n + "문제" : "전부", n => { sel.cnt = n; CS.store.set("qCnt", n); drawChips(); });
 }
 
+// 한 파일을 두 단원으로 나눠 보일 때(books.json 의 단원에 "갈래") 그 갈래 카드만. 카드 번호 · 파일은 그대로라 틀린 기록이 이어진다
+const inPart = (u, c) => !u.갈래 || c.갈래 === u.갈래;
 async function loadUnit(file){
   if(cache[file]) return cache[file];
   const r = await fetch("data/" + file, {cache:"no-cache"});
@@ -106,7 +117,7 @@ async function init(){
   else if(BOOKS.length === 1) $("#ttl").firstChild.textContent = BOOKS[0].name + " 플래시카드";
   if(WRONG_ONLY) $("#ttl").firstChild.textContent = "오답 노트";
   await Promise.all(BOOKS.flatMap(b => b.units.map(async u => {
-    try{ u._count = ((await loadUnit(u.file)).cards || []).length; }catch(e){ u._count = 0; }
+    try{ u._count = ((await loadUnit(u.file)).cards || []).filter(c => inPart(u, c)).length; }catch(e){ u._count = 0; }
   })));
   const on = CS.store.get("qBooks_" + (SUBJ || "all"), null);
   BOOKS.forEach((b, i) => b._on = on ? on.includes(b.id) : true);
@@ -143,13 +154,16 @@ async function gather(all){
   const out = [];
   for(const {b, u} of picks){
     const d = await loadUnit(u.file);
-    (d.cards || []).forEach(c => out.push(Object.assign({}, c, {_book: b.id, _file: u.file, _unit: u.소단원})));
+    (d.cards || []).filter(c => inPart(u, c)).forEach(c => out.push(Object.assign({}, c, {_book: b.id, _file: u.file, _unit: u.소단원})));
   }
   return out;
 }
-const typeOk = c => sel.type === "전체" || c.유형 === sel.type;
+const typeOk = c => sel.types.includes(c.유형);
+let statSeq = 0;   // 빠르게 여러 번 누르면 늦게 끝난 옛 계산이 숫자를 덮지 않게
 async function stat(){
-  const cards = WRONG_ONLY ? (await gather(true)).filter(c => wrong.has(cardId(c))) : (await gather(false)).filter(typeOk);
+  const my = ++statSeq;
+  const cards =WRONG_ONLY ? (await gather(true)).filter(c => wrong.has(cardId(c))) : (await gather(false)).filter(typeOk);
+  if(my !== statSeq) return;
   $("#poolStat").textContent = WRONG_ONLY ? `틀린 문제 ${cards.filter(typeOk).length}개` : `출제 대상 ${cards.length}문제 · 틀린 문제 누적 ${wrong.size}개`;
 }
 
@@ -207,6 +221,7 @@ function toQuestion(c, pool){
 
 let POOL = [], ALL = [];
 async function begin(onlyWrong){
+  if(!sel.types.length){ CS.toast("유형을 하나 이상 골라 주세요"); return; }
   ALL = WRONG_ONLY || onlyWrong ? await gather(WRONG_ONLY) : await gather(false);
   POOL = ALL.filter(typeOk);
   if(onlyWrong || WRONG_ONLY) POOL = POOL.filter(c => wrong.has(cardId(c)));
