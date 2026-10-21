@@ -40,6 +40,10 @@
   .lab{font-size:12px;color:var(--muted);margin:10px 0 5px}
   .empty{text-align:center;color:var(--muted);padding:30px 10px;line-height:1.8}
   .bar{display:flex;gap:8px;flex-wrap:wrap}
+  details.move summary{cursor:pointer;color:var(--muted);font-size:14px;list-style:none}
+  details.move summary::-webkit-details-marker{display:none}
+  details.move summary::after{content:" ▸"}
+  details.move[open] summary::after{content:" ▾"}
 </style>
 </head>
 <body>
@@ -56,16 +60,16 @@
     <div class="chips" id="bookChips"></div>
     <div class="chips" id="tagChips"></div>
     <div id="results"></div>
-    <div class="panel" style="margin-top:18px">
-      <h2>노트 저장 · 옮기기</h2>
-      <div class="note">노트는 <b>이 휴대폰(이 브라우저) 안에만</b> 저장돼요. 휴대폰을 바꾸거나 인터넷 기록을 지우면 사라지니, 가끔 「파일로 저장」해 두세요. 새 휴대폰에서는 「파일에서 불러오기」로 옮겨요.</div>
+    <details class="panel move" style="margin-top:18px">
+      <summary>📱 휴대폰을 바꿀 때 (노트 옮기기)</summary>
+      <div class="note" style="margin-top:10px">평소에는 누를 필요 없어요. 노트는 <b>이 휴대폰 안에</b> 저장돼요.<br>휴대폰을 바꿀 때만 ① 지금 휴대폰에서 「파일로 저장」 → ② 그 파일을 새 휴대폰으로 보내기 → ③ 새 휴대폰에서 「파일에서 불러오기」를 눌러요.</div>
       <div class="bar" style="margin-top:10px">
         <button class="btn ghost sm" id="expBtn">⬇ 파일로 저장</button>
         <button class="btn ghost sm" id="impBtn">⬆ 파일에서 불러오기</button>
         <input type="file" id="impFile" accept=".json,application/json" class="hide">
       </div>
       <div class="note" id="count" style="margin-top:8px"></div>
-    </div>
+    </details>
   </div>
 
   <!-- 읽기 -->
