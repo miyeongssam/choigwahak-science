@@ -179,7 +179,8 @@ function optionsInQuestion(c){
 }
 function toQuestion(c, pool){
   const exp = c.해설 ? CS.esc(c.해설) : "";
-  const tag = `<div class="tagline"><span>${CS.esc(c._unit)}</span><span>${c.유형}</span>${c.출처 ? `<span>${CS.esc(c.출처)}</span>` : ""}</div>`;
+  // 출처(시험 이름)는 화면에 보이지 않음 — 데이터에만 둠(원장 2026-10-22)
+  const tag = `<div class="tagline"><span>${CS.esc(c._unit)}</span><span>${c.유형}</span></div>`;
   const q = tag + CS.esc(c.문제);
   const base = { id: cardId(c), _c: c };
   // 「카드 넘기기」 방식은 없앰(2026-10-20 원장) — 서술형만 정답 보고 스스로 채점
