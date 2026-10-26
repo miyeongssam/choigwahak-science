@@ -482,6 +482,17 @@ window.addEventListener("message", e => {
 });
 poke();
 
+/* 화면 켜짐 유지 — 모니터가 한동안 안 만지면 화면을 꺼서(10/26 원장) 브라우저에 화면을 끄지 말라고 요청한다. 지원 안 하는 브라우저면 그냥 넘어간다 */
+let wake = null;
+async function keepAwake(){
+  try { if ("wakeLock" in navigator && document.visibilityState === "visible" && !wake) {
+    wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", () => { wake = null; });
+  } } catch (e) { wake = null; }
+}
+keepAwake();
+document.addEventListener("visibilitychange", keepAwake);
+["pointerdown", "touchstart"].forEach(t => window.addEventListener(t, keepAwake, { passive:true }));
+
 /* 미리보기용: 주소 끝 #g1 · #g2 · #g3 · #y1 · #fee · #talk · #w1~#w6 */
 const h = location.hash.slice(1);
 if (DATA.timetable[h]) openTT(h); else if (h === "fee" || h === "talk") show(h); else if (/^w[1-6]$/.test(h)) openWay(+h[1] - 1);
