@@ -141,13 +141,21 @@
   .wd-nav{display:flex;gap:calc(1.6*var(--u));align-items:center}
 
   /* 상담 */
-  .talk{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:calc(3.4*var(--u))}
+  .talk{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:1fr 1fr 2fr;gap:calc(3.4*var(--u))}
   .tk{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:calc(4*var(--u))}
   .tk .num{font-size:calc(1.7*var(--u));font-weight:800;color:var(--blue);background:var(--blue2);border-radius:999px;padding:calc(.5*var(--u)) calc(1.5*var(--u))}
   .tk h3{font-size:calc(2.8*var(--u));font-weight:800;margin-top:calc(1.2*var(--u))}
   .tk .desc{font-size:calc(1.9*var(--u));color:var(--ink2);margin-top:calc(.6*var(--u))}
   .tk .qr{width:calc(21*var(--u));height:calc(21*var(--u))}
-  .form{align-items:stretch;text-align:left;padding-top:calc(3.6*var(--u))}
+  .form{flex-direction:row;align-items:stretch;gap:calc(3*var(--u));text-align:left;padding-top:calc(3.6*var(--u))}
+  .form .fl{flex:1;min-width:0;display:flex;flex-direction:column}
+  /* 전화번호 숫자판 — 모니터 화면 키보드(아래 가로 한 줄) 대신 카드 안에서 (원장 10/26) */
+  .pad{flex:none;width:calc(30*var(--u));display:grid;grid-template-columns:repeat(3,1fr);gap:calc(1.1*var(--u));align-content:center}
+  .pad button{height:calc(8.4*var(--u));border-radius:calc(1.4*var(--u));background:linear-gradient(180deg,#FFFFFF 0%,#EEF3FF 100%);border:1.5px solid #B9CCF5;
+    font-size:calc(3.4*var(--u));font-weight:800;box-shadow:var(--lift2)}
+  .pad button:active{background:var(--blue3);border-color:var(--blue)}
+  .pad .fn{font-size:calc(2*var(--u));color:var(--ink2)}
+  .form input[readonly]{background:#fff;cursor:default}
   .form .num{align-self:flex-start}
   .form label{font-size:calc(1.9*var(--u));font-weight:700;color:var(--ink);margin-top:calc(2*var(--u))}
   .form input[type=text],.form input[type=tel]{height:calc(6.2*var(--u));margin-top:calc(.8*var(--u));border:1.5px solid #CBD3DF;border-radius:calc(1.2*var(--u));
@@ -235,11 +243,19 @@
       <div class="box tk"><div class="num">방법 1</div><h3>카카오톡 채널</h3><div class="desc">QR을 비추면 채팅으로 상담</div><div class="qr" id="qr-kakao"></div></div>
       <div class="box tk"><div class="num">방법 2</div><h3>네이버 예약</h3><div class="desc">QR을 비추면 상담 시간 예약</div><div class="qr" id="qr-naver"></div></div>
       <div class="box tk form">
-        <div class="num">방법 3</div><h3>여기서 바로 신청</h3>
-        <label for="f-name">이름</label><input id="f-name" type="text" autocomplete="off" placeholder="학부모님 또는 학생 이름">
-        <label for="f-tel">전화번호</label><input id="f-tel" type="tel" inputmode="numeric" autocomplete="off" placeholder="010-0000-0000">
-        <label class="agree"><input id="f-ok" type="checkbox">상담 연락을 위해 이름과 전화번호를 받습니다. 상담이 끝나면 파기합니다.</label>
-        <button class="btn main" id="f-send" disabled>상담 신청</button>
+        <div class="fl">
+          <div class="num">방법 3</div><h3>여기서 바로 신청</h3>
+          <label for="f-name">이름</label><input id="f-name" type="text" autocomplete="off" placeholder="학부모님 또는 학생 이름">
+          <label for="f-tel">전화번호 (옆 숫자판으로)</label><input id="f-tel" type="tel" inputmode="none" readonly autocomplete="off" placeholder="010-0000-0000">
+          <label class="agree"><input id="f-ok" type="checkbox">상담 연락을 위해 이름과 전화번호를 받습니다. 상담이 끝나면 파기합니다.</label>
+          <button class="btn main" id="f-send" disabled>상담 신청</button>
+        </div>
+        <div class="pad" id="pad">
+          <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+          <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+          <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+          <button class="fn" data-key="clear">전체 지움</button><button data-key="0">0</button><button class="fn" data-key="back">← 지우기</button>
+        </div>
       </div>
     </div>
   </main>
@@ -389,6 +405,15 @@ document.addEventListener("click", e => {
 const fName = $("#f-name"), fTel = $("#f-tel"), fOk = $("#f-ok"), fSend = $("#f-send");
 const ready = () => fSend.disabled = !(fName.value.trim() && fTel.value.replace(/\D/g, "").length >= 9 && fOk.checked);
 [fName, fTel].forEach(el => el.addEventListener("input", ready)); fOk.addEventListener("change", ready);
+/* 숫자판: 010-1234-5678 꼴로 자동 하이픈, 11자리까지 */
+const telFmt = d => d.length < 4 ? d : d.length < 8 ? `${d.slice(0,3)}-${d.slice(3)}` : `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+$("#pad").addEventListener("click", e => {
+  const k = e.target.closest("button")?.dataset.key; if (!k) return;
+  fName.blur();                                   // 이름 칠 때 뜬 모니터 키보드를 닫는다
+  let d = fTel.value.replace(/\D/g, "");
+  d = k === "back" ? d.slice(0, -1) : k === "clear" ? "" : (d + k).slice(0, 11);
+  fTel.value = telFmt(d); ready();
+});
 function clearForm(){ fName.value = ""; fTel.value = ""; fOk.checked = false; ready(); }
 function doneMsg(ok){
   $("#done b").textContent = ok ? "신청되었습니다" : "전송이 안 됐어요";
