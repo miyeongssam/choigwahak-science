@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>안내 데스크 | 최과학 과학전문학원</title>
+<!-- 최과학 데스크 키오스크 — 디자인 원본 2판 (2026-10-26 Claude, 원장 피드백 반영)
+     · 가로 16:9 터치 모니터(LG 스윙 32인치) 기준. 크기는 화면 높이(vh) 비율 → 1920×1080 · 4K 같은 모양
+     · 바탕 · 카드 · 선의 대비를 크게(흰 바탕에 흰 카드 금지), 연한 회색 글씨 금지, 과목마다 색
+     · 값은 맨 아래 DATA 한 곳에만. 원본: 반시간표 B-001~B-012 · 기본값 V-005 · V-010 · V-024 · 결정 D-247 · D-249 · D-250 · 링크 L-001 · L-009 · L-011 · L-115 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  /* 3판 — 학원앱처럼: 검정 · 파랑 두 색, 아주 연한 바탕, 흰 카드가 그림자로 떠 보이게 (원장 10/26) */
+  :root{
+    --u:1vh;
+    --bg:#E1E7F0; --bg2:#D2DBE7;
+    --card:#FFFFFF; --edge:#C9D2DF;
+    --ink:#111827; --ink2:#4B5563;
+    --line:#E5E9F0;
+    --blue:#2F6BFF; --blue2:#EEF3FF; --blue3:#DCE7FF;
+    --red:#E03131; --red2:#FFF0F0;
+    --lift:0 calc(.3*var(--u)) calc(.8*var(--u)) rgba(17,24,39,.07), 0 calc(1.2*var(--u)) calc(3.2*var(--u)) rgba(30,60,140,.16);
+    --lift2:0 calc(.2*var(--u)) calc(.6*var(--u)) rgba(17,24,39,.06), 0 calc(.8*var(--u)) calc(2*var(--u)) rgba(47,107,255,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;color:var(--ink);background:linear-gradient(180deg,#F8FAFD 0%,#EBEFF5 40%,var(--bg2) 100%);
+    font-family:"Pretendard",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;user-select:none}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  .screen{position:fixed;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+
+  .top{height:calc(9*var(--u));flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 calc(4*var(--u));
+    background:rgba(255,255,255,.92);border-bottom:1px solid var(--edge)}
+  .brand{display:flex;align-items:center;gap:calc(1.2*var(--u))}
+  .logo{width:calc(4.8*var(--u));height:calc(4.8*var(--u));border-radius:calc(1.2*var(--u));background:var(--blue);color:#fff;font-weight:800;font-size:calc(2.6*var(--u));display:grid;place-items:center}
+  .brand b{font-size:calc(2.6*var(--u));font-weight:800}
+  .brand span{font-size:calc(2*var(--u));color:var(--ink2);font-weight:500}
+  .tel{font-size:calc(1.8*var(--u));color:var(--ink2);font-weight:500;display:flex;align-items:center;gap:calc(1*var(--u))}
+  .tel b{font-size:calc(2.2*var(--u));color:var(--ink);font-weight:800}
+  .back{display:flex;align-items:center;gap:calc(.8*var(--u));height:calc(5.2*var(--u));padding:0 calc(2.2*var(--u));
+    border:1px solid var(--edge);border-radius:calc(1.2*var(--u));font-size:calc(2.1*var(--u));font-weight:700;background:#fff;box-shadow:var(--lift2)}
+  .back:active{background:var(--blue2)}
+
+  /* 첫 화면 */
+  .home{flex:1;display:grid;grid-template-columns:1fr calc(38*var(--u));grid-template-rows:auto auto 1fr;column-gap:calc(5*var(--u));row-gap:calc(4*var(--u));padding:calc(4*var(--u)) calc(5*var(--u));align-items:start}
+  .home .left{display:contents}
+  .hello{grid-column:1;grid-row:1}
+  .hello h1{font-size:calc(4*var(--u));font-weight:800;letter-spacing:-.03em}
+  .hello h1 em{font-style:normal;color:var(--blue)}
+  .hello p{font-size:calc(2.1*var(--u));color:var(--ink2);margin-top:calc(.8*var(--u))}
+  .grid{grid-column:1;grid-row:2;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(4.8*var(--u));padding-right:calc(2*var(--u))}
+  .card{height:calc(27.6*var(--u));background:linear-gradient(180deg,#FFFFFF 0%,#F7F9FE 100%);border:1px solid var(--edge);border-radius:calc(2.2*var(--u));
+    box-shadow:var(--lift);padding:calc(3*var(--u));display:flex;flex-direction:column;text-align:left;position:relative;transition:transform .08s}
+  .card:active{transform:translateY(calc(.3*var(--u)));box-shadow:var(--lift2);border-color:var(--blue3)}
+  .card .ico{width:calc(4.8*var(--u));height:calc(4.8*var(--u));border-radius:calc(1.2*var(--u));background:var(--blue2);display:grid;place-items:center}
+  .card .ico svg{width:calc(2.6*var(--u));height:calc(2.6*var(--u));stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .card h2{font-size:calc(3*var(--u));font-weight:800;margin-top:calc(1.8*var(--u));letter-spacing:-.02em}
+  .card ul{list-style:none;margin-top:calc(1*var(--u));display:flex;flex-direction:column;gap:calc(.5*var(--u))}
+  .card li{font-size:calc(2*var(--u));color:var(--ink2);font-weight:500}
+  .card li b{color:var(--ink);font-weight:700}
+  .card .more{margin-top:auto;font-size:calc(1.9*var(--u));font-weight:700;color:var(--blue)}
+  .card .tag{position:absolute;top:calc(3*var(--u));right:calc(3*var(--u));display:flex;flex-direction:column;align-items:flex-end;gap:calc(.6*var(--u))}
+  .pill{display:inline-flex;align-items:center;height:calc(3.2*var(--u));padding:0 calc(1.3*var(--u));border-radius:999px;font-size:calc(1.7*var(--u));font-weight:700;white-space:nowrap}
+  .pill.red{background:var(--red2);color:var(--red)} .pill.blue{background:var(--blue2);color:var(--blue)}
+
+  .side{background:#fff;border:1px solid var(--edge);border-radius:calc(2.2*var(--u));box-shadow:var(--lift);grid-column:2;grid-row:2;align-self:stretch;
+    padding:calc(3*var(--u)) calc(3*var(--u));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .side h3{font-size:calc(2.6*var(--u));font-weight:800}
+  .side .sub{font-size:calc(1.8*var(--u));color:var(--ink2);margin-top:calc(.6*var(--u))}
+  .qr{width:calc(19*var(--u));height:calc(19*var(--u));margin:calc(2.2*var(--u)) 0;padding:calc(1.2*var(--u));background:#fff;border:1px solid var(--edge);border-radius:calc(1.4*var(--u))}
+  .qr svg{width:100%;height:100%}
+  .btn{width:100%;height:calc(6.2*var(--u));border-radius:calc(1.4*var(--u));font-size:calc(2.2*var(--u));font-weight:800;margin-top:calc(2*var(--u));box-shadow:var(--lift2)}
+  .btn.main{background:var(--blue);color:#fff} .btn.main:active{background:#2458D6}
+  .btn.sub2{background:#fff;color:var(--blue);border:1.5px solid var(--blue)} .btn.sub2:active{background:var(--blue2)}
+
+  /* 하위 화면 공통 */
+  .body{flex:1;padding:calc(4*var(--u)) calc(5*var(--u));display:flex;flex-direction:column;align-items:center;overflow:hidden}
+  .head{width:min(100%,calc(170*var(--u)));display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:calc(3.6*var(--u))}
+  .head h1{font-size:calc(4.2*var(--u));font-weight:800;letter-spacing:-.03em}
+  .head p{font-size:calc(2.1*var(--u));color:var(--ink2);margin-top:calc(.8*var(--u))}
+  .notice{font-size:calc(2.1*var(--u));font-weight:700;color:var(--blue);background:var(--blue2);border-radius:999px;padding:calc(1.1*var(--u)) calc(2.2*var(--u))}
+
+  /* 시간표: 과목 카드 (색 없이, 폭은 적당히, 세로 줄 간격 넉넉히) */
+  .cols{display:grid;gap:calc(3.4*var(--u));justify-content:center;align-items:stretch;max-width:none!important}
+  .sc{width:calc(52*var(--u));background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFE 100%);border:1px solid var(--edge);border-radius:calc(2.2*var(--u));box-shadow:var(--lift);overflow:hidden;display:flex;flex-direction:column}
+  .cols.four .sc{width:calc(40*var(--u))}
+  .sc .hd{padding:calc(3*var(--u)) calc(3*var(--u)) calc(2.2*var(--u));border-bottom:1px solid var(--line)}
+  .sc .hd b{display:block;font-size:calc(3.1*var(--u));font-weight:800;letter-spacing:-.02em}
+  .sc .hd span{display:block;line-height:1.45;font-size:calc(1.9*var(--u));font-weight:600;color:var(--blue);margin-top:calc(.6*var(--u))}
+  .row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:calc(1.6*var(--u));padding:calc(2.8*var(--u)) calc(3*var(--u))}
+  .row + .row{border-top:1px solid var(--line)}
+  .row .cls{font-size:calc(2*var(--u));font-weight:700;color:var(--blue);background:var(--blue2);border-radius:calc(.9*var(--u));padding:calc(.6*var(--u)) calc(1.1*var(--u))}
+  .row .tm{font-size:calc(2.6*var(--u));font-weight:800;letter-spacing:-.01em}
+  .row .tm small{display:block;font-size:calc(1.8*var(--u));font-weight:500;color:var(--ink2);margin-top:calc(.4*var(--u))}
+  .row.soon{grid-template-columns:1fr} .row.soon .tm{font-size:calc(2*var(--u));font-weight:600;color:var(--ink2)}
+  .sc .ft{margin-top:auto;border-top:1px solid var(--line);padding:calc(2.4*var(--u)) calc(3*var(--u));display:flex;flex-direction:column;gap:calc(1.8*var(--u))}
+  .sc .book{font-size:calc(1.9*var(--u));color:var(--ink);font-weight:500;line-height:1.5}
+  .sc .book b{display:block;font-size:calc(1.6*var(--u));font-weight:700;color:var(--ink2);margin-bottom:calc(.3*var(--u))}
+  .plan{align-self:flex-start;height:calc(5*var(--u));padding:0 calc(2.2*var(--u));border-radius:calc(1.2*var(--u));background:#fff;border:1.5px solid var(--blue);color:var(--blue);font-size:calc(1.9*var(--u));font-weight:800;box-shadow:var(--lift2)}
+  .plan:active{background:var(--blue2)}
+
+  /* 수강료 */
+  .fee{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:0.85fr 1.6fr;gap:calc(3.4*var(--u))}
+  .box{background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFE 100%);border:1px solid var(--edge);border-radius:calc(2.2*var(--u));box-shadow:var(--lift);padding:calc(3.6*var(--u))}
+  .price{display:flex;flex-direction:column;justify-content:center}
+  .price .k{font-size:calc(2.3*var(--u));font-weight:700;color:var(--ink2)}
+  .price .v{font-size:calc(6.6*var(--u));font-weight:800;color:var(--blue);letter-spacing:-.04em;line-height:1.1;margin-top:calc(1*var(--u))}
+  .price .v small{font-size:calc(2.8*var(--u));margin-left:calc(.6*var(--u))}
+  .pay{margin-top:calc(3*var(--u));border-top:1px solid var(--line);padding-top:calc(2.6*var(--u))}
+  .pay h4{font-size:calc(1.9*var(--u));font-weight:700;color:var(--ink2)}
+  .pay p{font-size:calc(2.4*var(--u));font-weight:800;margin-top:calc(.8*var(--u))}
+  .pay .warn{margin-top:calc(1.8*var(--u));font-size:calc(1.9*var(--u));font-weight:700;color:var(--red);background:var(--red2);border-radius:calc(1.1*var(--u));padding:calc(1.2*var(--u)) calc(1.6*var(--u))}
+  .way h3{font-size:calc(2.7*var(--u));font-weight:800;margin-bottom:calc(2.2*var(--u))}
+  .way ol{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:calc(1.8*var(--u))}
+  .way li{display:flex;gap:calc(1.4*var(--u));align-items:flex-start;background:#fff;border:1px solid var(--edge);border-radius:calc(1.4*var(--u));padding:calc(2*var(--u));box-shadow:0 calc(.2*var(--u)) calc(.6*var(--u)) rgba(17,24,39,.04)}
+  .way li i{flex:none;font-style:normal;width:calc(3.8*var(--u));height:calc(3.8*var(--u));border-radius:50%;background:var(--blue2);color:var(--blue);font-weight:800;font-size:calc(1.9*var(--u));display:grid;place-items:center}
+  .way li b{display:block;font-size:calc(2.2*var(--u));font-weight:800}
+  .way li span{display:block;font-size:calc(1.8*var(--u));color:var(--ink2);margin-top:calc(.4*var(--u));line-height:1.4}
+
+  /* 상담 */
+  .talk{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:calc(3.4*var(--u))}
+  .tk{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:calc(4*var(--u))}
+  .tk .num{font-size:calc(1.7*var(--u));font-weight:800;color:var(--blue);background:var(--blue2);border-radius:999px;padding:calc(.5*var(--u)) calc(1.5*var(--u))}
+  .tk h3{font-size:calc(2.8*var(--u));font-weight:800;margin-top:calc(1.2*var(--u))}
+  .tk .desc{font-size:calc(1.9*var(--u));color:var(--ink2);margin-top:calc(.6*var(--u))}
+  .tk .qr{width:calc(21*var(--u));height:calc(21*var(--u))}
+  .form{align-items:stretch;text-align:left;padding-top:calc(3.6*var(--u))}
+  .form .num{align-self:flex-start}
+  .form label{font-size:calc(1.9*var(--u));font-weight:700;color:var(--ink);margin-top:calc(2*var(--u))}
+  .form input[type=text],.form input[type=tel]{height:calc(6.2*var(--u));margin-top:calc(.8*var(--u));border:1.5px solid #CBD3DF;border-radius:calc(1.2*var(--u));
+    font:inherit;font-size:calc(2.4*var(--u));padding:0 calc(2*var(--u));color:var(--ink);background:#fff}
+  .form input::placeholder{color:#8A94A3}
+  .form input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 calc(.4*var(--u)) var(--blue2)}
+  .agree{display:flex;gap:calc(1.2*var(--u));align-items:flex-start;margin-top:calc(2*var(--u));font-size:calc(1.8*var(--u));font-weight:500;color:var(--ink);line-height:1.5}
+  .agree input{width:calc(2.8*var(--u));height:calc(2.8*var(--u));flex:none;accent-color:var(--blue)}
+  .form .btn{margin-top:calc(3*var(--u))}
+  .form .btn:disabled{background:#A9BFF5;box-shadow:none}
+  .done{display:none;position:fixed;inset:0;background:rgba(17,24,39,.45);place-items:center;z-index:5}
+  .done.on{display:grid}
+  .done div{background:#fff;border-radius:calc(2.4*var(--u));padding:calc(5*var(--u)) calc(7*var(--u));text-align:center;box-shadow:var(--lift)}
+  .done b{display:block;font-size:calc(3.4*var(--u));font-weight:800} .done span{font-size:calc(2.2*var(--u));color:var(--ink2)}
+  .frame{flex:1;border:0;width:100%;background:#fff}
+
+</style>
+</head>
+<body>
+
+<section class="screen on" id="home">
+  <header class="top">
+    <div class="brand"><div class="logo">최</div><b>최과학</b><span>과학전문학원</span></div>
+    <div class="tel">상담 전화 <b data-k="tel"></b></div>
+  </header>
+  <main class="home">
+    <div class="left">
+      <div class="hello"><h1>무엇이 <em>궁금하신가요?</em></h1><p>원하시는 항목을 눌러 확인해 보세요.</p></div>
+      <div class="grid" id="cards"></div>
+    </div>
+    <aside class="side">
+      <h3>최과학 학원앱</h3>
+      <div class="sub">수업 자료 · 영상 · 점수를 휴대폰으로</div>
+      <div class="qr" id="qr-app"></div>
+      <div class="sub">휴대폰 카메라로 QR을 비춰 보세요</div>
+      <button class="btn main" data-open="app">학원앱 바로가기</button>
+      <button class="btn sub2" data-open="study">학습앱 바로가기</button>
+    </aside>
+  </main>
+</section>
+
+<section class="screen" id="tt">
+  <header class="top"><button class="back" data-home>← 처음으로</button><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
+  <main class="body">
+    <div class="head"><div><h1 id="tt-title"></h1><p id="tt-sub"></p></div><div id="tt-note"></div></div>
+    <div class="cols" id="tt-cols"></div>
+  </main>
+</section>
+
+<section class="screen" id="fee">
+  <header class="top"><button class="back" data-home>← 처음으로</button><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
+  <main class="body">
+    <div class="head"><div><h1>수강료 안내</h1></div></div>
+    <div class="fee">
+      <div class="box price">
+        <div class="k">한 달 4회 기준 · 과목당</div>
+        <div class="v">250,000<small>원</small></div>
+        <div class="pay">
+          <h4>결제 방법</h4>
+          <p>결제선생 또는 계좌이체</p>
+          <div class="warn">학원에서 현장 결제는 받지 않습니다</div>
+        </div>
+      </div>
+      <div class="box way">
+        <h3>최과학 수업 방식</h3>
+        <ol id="way"></ol>
+      </div>
+    </div>
+  </main>
+</section>
+
+<section class="screen" id="talk">
+  <header class="top"><button class="back" data-home>← 처음으로</button><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
+  <main class="body">
+    <div class="head"><div><h1>상담 예약</h1><p>편한 방법 하나를 골라 주세요.</p></div></div>
+    <div class="talk">
+      <div class="box tk"><div class="num">방법 1</div><h3>카카오톡 채널</h3><div class="desc">QR을 비추면 채팅으로 상담</div><div class="qr" id="qr-kakao"></div></div>
+      <div class="box tk"><div class="num">방법 2</div><h3>네이버 예약</h3><div class="desc">QR을 비추면 상담 시간 예약</div><div class="qr" id="qr-naver"></div></div>
+      <div class="box tk form">
+        <div class="num">방법 3</div><h3>여기서 바로 신청</h3>
+        <label for="f-name">이름</label><input id="f-name" type="text" autocomplete="off" placeholder="학부모님 또는 학생 이름">
+        <label for="f-tel">전화번호</label><input id="f-tel" type="tel" inputmode="numeric" autocomplete="off" placeholder="010-0000-0000">
+        <label class="agree"><input id="f-ok" type="checkbox">상담 연락을 위해 이름과 전화번호를 받습니다. 상담이 끝나면 파기합니다.</label>
+        <button class="btn main" id="f-send" disabled>상담 신청</button>
+      </div>
+    </div>
+  </main>
+  <div class="done" id="done"><div><b>신청되었습니다</b><span>곧 연락드릴게요.</span></div></div>
+</section>
+
+<section class="screen" id="win">
+  <header class="top"><button class="back" data-home>← 처음으로</button><div class="brand"><b id="win-title"></b></div><div class="tel">2분 동안 누르지 않으면 처음 화면으로 돌아갑니다</div></header>
+  <iframe class="frame" id="win-frame" title="바로가기"></iframe>
+</section>
+
+<script>
+/* ═══ 값은 여기 한 곳에만 ═══ */
+const C = { phy:["var(--phy)","var(--phy2)"], chem:["var(--chem)","var(--chem2)"], bio:["var(--bio)","var(--bio2)"], int:["var(--int)","var(--int2)"], sat:["var(--sat)","var(--sat2)"] };
+const DATA = {
+  tel: "02-761-7477",                                                       // V-005
+  links: { app:"https://app.choisci.com",                                   // L-001
+           study:"https://miyeongssam.github.io/choigwahak-science/science-app/", // L-115
+           kakao:"http://pf.kakao.com/_ximxdfG/chat",                       // L-009
+           naver:"https://naver.me/5CC4AJql" },                             // L-011
+  consultApi: "https://app.choisci.com/api/kiosk/consult",                 // 상담 받는 주소 (레플릿이 만듦 — D-254)
+  timetable: {
+    g1: { title:"고1 시간표", sub:"통합과학 — 학교별 내신 특화반", note:"", subjects:[
+      { color:"int", name:"여의도고반", sub:"통합과학 2학기 기말대비", plan:"/course/go1-yeouido",
+        book:"하이탑 통합과학2 · 교과서(비상) · 자체 학습지",
+        rows:[ {cls:"토요반", time:"토 12:00 ~ 15:30", start:"10.17 개강", st:"마감"},     // B-002
+               {cls:"일요반", time:"일 18:00 ~ 21:30", start:"10.18 개강", st:"마감"} ]},  // B-003
+      { color:"int", name:"여의도여고반", sub:"통합과학 2학기 기말대비", plan:"/course/go1-yeouido-girls",
+        book:"하이탑 통합과학2 · 교과서(미래엔) · 자체 학습지",
+        rows:[ {cls:"일요반", time:"일 15:00 ~ 18:30", start:"10.11 개강", st:""} ]} ]}, // B-001
+    g2: { title:"고2 시간표", sub:"과학탐구 2학기 기말대비 — 학교 구분 없이 함께", note:"", subjects:[
+      { color:"phy", name:"물리학", sub:"역학과 에너지", plan:"/course/go2-physics", book:"완자 역학과 에너지 · 자체 학습지",
+        rows:[ {cls:"월요반", time:"월 15:15 ~ 18:45", start:"", st:"마감"} ]},           // B-004
+      { color:"chem", name:"화학", sub:"물질과 에너지", plan:"/course/go2-chemistry", book:"완자 물질과 에너지 · 자체 학습지",
+        rows:[ {cls:"금요반", time:"금 15:15 ~ 18:45", start:"", st:"마감"},              // B-005
+               {cls:"토요반", time:"토 18:00 ~ 21:30", start:"", st:"마감"} ]},           // B-006
+      { color:"bio", name:"생명과학", sub:"세포와 물질대사", plan:"/course/go2-biology", book:"완자 세포와 물질대사 · 자체 학습지",
+        rows:[ {cls:"목요반", time:"목 16:15 ~ 19:45", start:"", st:"마감"} ]} ]},        // B-007
+    g3: { title:"고3 시간표", sub:"2027 수능 통합과학 · 1학기 진로선택 내신", note:"", subjects:[
+      { color:"sat", name:"수능 통합과학", sub:"1월 개강", plan:"/course/go3-suneung",
+        book:"EBS 수능특강 · 수능완성 통합과학 · 기출 모의고사 · 자체 학습지",
+        rows:[ {cls:"토요반", time:"토 18:00 ~ 21:30", start:"1.2 개강", st:""},          // B-011
+               {cls:"일요반", time:"일 15:00 ~ 18:30", start:"1.3 개강", st:""} ]},       // B-012
+      { color:"phy", name:"물리학", sub:"전자기와 양자 · 12월 25일 개강", plan:"", book:"완자 전자기와 양자", rows:[] },      // go3-physics(준비 중)
+      { color:"chem", name:"화학", sub:"화학 반응의 세계 · 12월 25일 개강", plan:"", book:"완자 화학 반응의 세계", rows:[] },  // go3-chemistry(준비 중)
+      { color:"bio", name:"생명과학", sub:"생물의 유전 · 12월 25일 개강", plan:"", book:"완자 생물의 유전", rows:[] } ]},     // go3-biology(준비 중)
+    y1: { title:"예비고1 개강 안내", sub:"겨울방학 특강 — 진학 학교와 관계없이", note:"수강신청 마감 10월 31일(토)", subjects:[  // V-024
+      { color:"int", name:"통합과학 특강", sub:"4개월<br>통합과학 1 · 2 전 과정", plan:"/course/yebigo1-science",
+        book:"EBS 개념완성 통합과학 1 · 2",
+        rows:[ {cls:"토요반", time:"토 15:00 ~ 18:30", start:"11.7 개강", st:"모집 중"},   // B-008
+               {cls:"일요반", time:"일 12:00 ~ 15:30", start:"11.8 개강", st:"마감"} ]},  // B-009
+      { color:"phy", name:"물리 · 화학 특강", sub:"자연계열 진학 예정<br>물리 90분 + 화학 90분", plan:"/course/yebigo1-physchem",
+        book:"EBS 개념완성 물리학 · 화학",
+        rows:[ {cls:"월요반", time:"월 18:30 ~ 21:30", start:"11.9 개강", st:"모집 중"} ]} ]} // B-010
+  },
+  way: [
+    ["매 수업 학습지 · 손풀이 답지", "학원앱 자료실에서 PDF로 언제든"],
+    ["수업 영상 다시보기", "유튜브 수업 영상 · 팟캐스트"],
+    ["매 수업 테스트 · OMR", "휴대폰으로 입력하면 점수가 바로 기록"],
+    ["학부모님께 수업 문자", "수업 내용 · 숙제 · 테스트 점수를 매 수업 안내"],
+    ["일요일 조교 클리닉", "매주 일요일 오후 3~7시 질문 · 보충"],        // V-010
+    ["학습앱 · 질문 게시판", "과목별 플래시카드 · 노트북LM · 질문 답변"]
+  ],
+  // 첫 화면 카드 — 요일 · 날짜는 쓰지 않는다(해가 바뀌어도 그대로 쓰게 — 원장 10/26). 배지만 바꾼다
+  cards: [
+    { go:"g1",   c:"int",  icon:"cal",  title:"고1 시간표",  lines:["통합과학 1 · 2"], tags:[["남고1 마감","red"]] },
+    { go:"g2",   c:"phy",  icon:"cal",  title:"고2 시간표",  lines:["물리학 · 화학 · 생명과학"], tags:[["물화생 마감","red"]] },
+    { go:"g3",   c:"sat",  icon:"cal",  title:"고3 시간표",  lines:["수능 통합과학", "물리학 · 화학 · 생명과학"], tags:[["2027년 1월 개강","blue"]] },
+    { go:"fee",  c:"phy",  icon:"won",  title:"수강료 안내", lines:["<b>한 달 4회 250,000원</b>", "과목당 · 결제선생 · 계좌이체"], tags:[] },
+    { go:"talk", c:"bio",  icon:"chat", title:"상담 예약",   lines:["카카오톡 · 네이버 예약", "여기서 바로 신청"], tags:[] },
+    { go:"y1",   c:"chem", icon:"cap",  title:"예비고1 개강", lines:["통합과학 특강", "물리 · 화학 특강"], tags:[["일요반 마감","red"],["10/31 마감","blue"]] }
+  ]
+};
+
+const ICON = {
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  won:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg>',
+  chat:'<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>',
+  cap:'<svg viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg>'
+};
+const $ = s => document.querySelector(s);
+document.querySelectorAll('[data-k="tel"]').forEach(e => e.textContent = DATA.tel);
+function qr(el, url){
+  if (typeof qrcode !== "function") { el.textContent = url; return; }
+  const q = qrcode(0, "M"); q.addData(url); q.make(); el.innerHTML = q.createSvgTag({ cellSize:6, margin:0, scalable:true });
+}
+qr($("#qr-app"), DATA.links.app); qr($("#qr-kakao"), DATA.links.kakao); qr($("#qr-naver"), DATA.links.naver);
+const pill = st => st === "마감" ? '<span class="pill red">마감</span>' : st ? `<span class="pill blue">${st}</span>` : "";
+
+$("#cards").innerHTML = DATA.cards.map(c => `
+  <button class="card" data-go="${c.go}">
+    <div class="tag">${c.tags.map(t => `<span class="pill ${t[1]}">${t[0]}</span>`).join("")}</div>
+    <div class="ico">${ICON[c.icon]}</div>
+    <h2>${c.title}</h2>
+    <ul>${c.lines.map(l => `<li>${l}</li>`).join("")}</ul>
+    <div class="more">자세히 보기 →</div>
+  </button>`).join("");
+$("#way").innerHTML = DATA.way.map((w, i) => `<li><i>${i + 1}</i><div><b>${w[0]}</b><span>${w[1]}</span></div></li>`).join("");
+
+function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
+function home(){ show("home"); $("#win-frame").src = "about:blank"; clearForm(); }
+function openTT(key){
+  const t = DATA.timetable[key];
+  $("#tt-title").textContent = t.title; $("#tt-sub").textContent = t.sub;
+  $("#tt-note").innerHTML = t.note ? `<div class="notice">${t.note}</div>` : "";
+  const n = t.subjects.length;
+  $("#tt-cols").style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+  $("#tt-cols").style.maxWidth = n === 1 ? "calc(90*var(--u))" : "";
+  $("#tt-cols").classList.toggle("four", n === 4);
+  $("#tt-cols").innerHTML = t.subjects.map(s => `
+    <div class="sc">
+      <div class="hd"><b>${s.name}</b><span>${s.sub}</span></div>
+      ${s.rows.length ? s.rows.map(r => `<div class="row"><div class="cls">${r.cls}</div><div class="tm">${r.time}${r.start ? `<small>${r.start}</small>` : ""}</div><div>${pill(r.st)}</div></div>`).join("") : `<div class="row soon"><div class="tm">시간표는 확정되면 안내드립니다</div></div>`}
+      <div class="ft"><div class="book"><b>교재</b>${s.book}</div>${s.plan ? `<button class="plan" data-plan="${s.plan}">강의계획서 보기</button>` : ""}</div>
+    </div>`).join("");
+  show("tt");
+}
+function openWin(title, url){ $("#win-title").textContent = title; $("#win-frame").src = url; show("win"); }
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.home !== undefined) return home();
+  if (b.dataset.go) return DATA.timetable[b.dataset.go] ? openTT(b.dataset.go) : show(b.dataset.go);
+  if (b.dataset.open === "app") return openWin("최과학 학원앱", DATA.links.app);
+  if (b.dataset.open === "study") return openWin("최과학 학습앱", DATA.links.study);
+  if (b.dataset.plan) return openWin("강의계획서", DATA.links.app + b.dataset.plan);
+});
+
+/* 상담 신청 — 학원앱(레플릿) 상담 받는 주소로 보낸다 → 학원앱 저장 + 슬랙 「[키오스크] 상담 신청」 (D-249 · D-254) */
+const fName = $("#f-name"), fTel = $("#f-tel"), fOk = $("#f-ok"), fSend = $("#f-send");
+const ready = () => fSend.disabled = !(fName.value.trim() && fTel.value.replace(/\D/g, "").length >= 9 && fOk.checked);
+[fName, fTel].forEach(el => el.addEventListener("input", ready)); fOk.addEventListener("change", ready);
+function clearForm(){ fName.value = ""; fTel.value = ""; fOk.checked = false; ready(); }
+function doneMsg(ok){
+  $("#done b").textContent = ok ? "신청되었습니다" : "전송이 안 됐어요";
+  $("#done span").textContent = ok ? "곧 연락드릴게요." : "카카오톡이나 전화(02-761-7477)로 문의해 주세요.";
+  $("#done").classList.add("on"); setTimeout(() => { $("#done").classList.remove("on"); home(); }, ok ? 3000 : 6000);
+}
+fSend.addEventListener("click", async () => {
+  if (fSend.disabled) return;
+  const body = JSON.stringify({ name: fName.value.trim(), phone: fTel.value.trim(), consent: true, source: "kiosk" });
+  fSend.disabled = true; fSend.textContent = "보내는 중…";
+  let ok = false;
+  try {
+    const r = await fetch(DATA.consultApi, { method: "POST", headers: { "Content-Type": "application/json" }, body });
+    ok = r.ok;
+  } catch (e) { ok = false; }
+  fSend.textContent = "상담 신청"; clearForm(); doneMsg(ok);   // 성공 · 실패 모두 입력 칸은 바로 지움
+});
+
+/* 2분 동안 조작이 없으면 첫 화면 (학습앱 창 안의 터치는 kiosk-activity 신호 — D-250) */
+let idle; const IDLE = 120 * 1000;
+const poke = () => { clearTimeout(idle); idle = setTimeout(home, IDLE); };
+["pointerdown", "keydown", "touchstart"].forEach(t => window.addEventListener(t, poke, { passive:true }));
+window.addEventListener("message", e => {
+  if ((e.origin === "https://miyeongssam.github.io" || e.origin === "https://app.choisci.com") && e.data && e.data.type === "kiosk-activity" && e.source === $("#win-frame").contentWindow) poke();
+});
+poke();
+
+/* 미리보기용: 주소 끝 #g1 · #g2 · #g3 · #y1 · #fee · #talk */
+const h = location.hash.slice(1);
+if (DATA.timetable[h]) openTT(h); else if (h === "fee" || h === "talk") show(h);
+</script>
+</body>
+</html>
