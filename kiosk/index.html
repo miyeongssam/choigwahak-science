@@ -112,12 +112,33 @@
   .pay h4{font-size:calc(1.9*var(--u));font-weight:700;color:var(--ink2)}
   .pay p{font-size:calc(2.4*var(--u));font-weight:800;margin-top:calc(.8*var(--u))}
   .pay .warn{margin-top:calc(1.8*var(--u));font-size:calc(1.9*var(--u));font-weight:700;color:var(--red);background:var(--red2);border-radius:calc(1.1*var(--u));padding:calc(1.2*var(--u)) calc(1.6*var(--u))}
-  .way h3{font-size:calc(2.7*var(--u));font-weight:800;margin-bottom:calc(2.2*var(--u))}
-  .way ol{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:calc(1.8*var(--u))}
-  .way li{display:flex;gap:calc(1.4*var(--u));align-items:flex-start;background:#fff;border:1px solid var(--edge);border-radius:calc(1.4*var(--u));padding:calc(2*var(--u));box-shadow:0 calc(.2*var(--u)) calc(.6*var(--u)) rgba(17,24,39,.04)}
-  .way li i{flex:none;font-style:normal;width:calc(3.8*var(--u));height:calc(3.8*var(--u));border-radius:50%;background:var(--blue2);color:var(--blue);font-weight:800;font-size:calc(1.9*var(--u));display:grid;place-items:center}
-  .way li b{display:block;font-size:calc(2.2*var(--u));font-weight:800}
-  .way li span{display:block;font-size:calc(1.8*var(--u));color:var(--ink2);margin-top:calc(.4*var(--u));line-height:1.4}
+  /* 수업 방식 6가지 = 누르는 단추 (원장 10/26 — 그라데이션 · 글씨 크게 · 단추 크게) */
+  .way h3{font-size:calc(2.9*var(--u));font-weight:800;margin-bottom:calc(2.2*var(--u))}
+  .way h3 small{font-size:calc(1.9*var(--u));font-weight:600;color:var(--ink2);margin-left:calc(1.2*var(--u))}
+  .way ol{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:calc(2*var(--u))}
+  .wb{width:100%;min-height:calc(15.5*var(--u));display:flex;gap:calc(1.8*var(--u));align-items:center;text-align:left;
+    background:linear-gradient(135deg,#FFFFFF 0%,#EEF3FF 55%,#D6E3FF 100%);border:1.5px solid #B9CCF5;border-radius:calc(1.8*var(--u));
+    padding:calc(2.2*var(--u)) calc(2.4*var(--u));box-shadow:var(--lift2)}
+  .wb:active{background:linear-gradient(135deg,#EEF3FF 0%,#D6E3FF 100%);border-color:var(--blue);transform:translateY(calc(.2*var(--u)))}
+  .wb i{flex:none;font-style:normal;width:calc(5*var(--u));height:calc(5*var(--u));border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:calc(2.4*var(--u));display:grid;place-items:center}
+  .wb div{flex:1}
+  .wb b{display:block;font-size:calc(2.8*var(--u));font-weight:800;letter-spacing:-.02em}
+  .wb span{display:block;font-size:calc(2.1*var(--u));color:var(--ink2);margin-top:calc(.6*var(--u));line-height:1.4}
+  .wb em{flex:none;font-style:normal;font-size:calc(3.4*var(--u));font-weight:800;color:var(--blue)}
+
+  /* 수업 방식 자세히 (그림은 학원앱 학원소개 /about 의 그림 — img/) */
+  .wd{width:min(100%,calc(170*var(--u)));flex:1;min-height:0;display:flex;flex-direction:column;gap:calc(2.4*var(--u))}
+  .wd .pics{flex:1;min-height:0;display:grid;gap:calc(3*var(--u))}
+  .wd figure{min-height:0;display:flex;flex-direction:column;gap:calc(1.6*var(--u))}
+  .wd figure b{font-size:calc(2.6*var(--u));font-weight:800;letter-spacing:-.02em}
+  .wd figure span{font-size:calc(2*var(--u));color:var(--ink2);line-height:1.45}
+  .wd .ph{flex:1;min-height:0;background:#fff;border:1px solid var(--edge);border-radius:calc(1.8*var(--u));box-shadow:var(--lift);position:relative;overflow:hidden}
+  .wd .ph img{position:absolute;inset:calc(1.6*var(--u));width:calc(100% - 3.2*var(--u));height:calc(100% - 3.2*var(--u));object-fit:contain}
+  .wd .facts{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(3*var(--u));align-content:center}
+  .wd .facts div{background:linear-gradient(135deg,#FFFFFF 0%,#EEF3FF 60%,#D6E3FF 100%);border:1.5px solid #B9CCF5;border-radius:calc(2*var(--u));box-shadow:var(--lift);padding:calc(5*var(--u)) calc(3*var(--u));text-align:center}
+  .wd .facts b{display:block;font-size:calc(4.4*var(--u));font-weight:800;color:var(--blue);letter-spacing:-.03em}
+  .wd .facts span{display:block;font-size:calc(2.2*var(--u));color:var(--ink2);margin-top:calc(1.2*var(--u))}
+  .wd-nav{display:flex;gap:calc(1.6*var(--u));align-items:center}
 
   /* 상담 */
   .talk{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:calc(3.4*var(--u))}
@@ -179,7 +200,7 @@
 <section class="screen" id="fee">
   <header class="top"><button class="back" data-home>← 처음으로</button><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
   <main class="body">
-    <div class="head"><div><h1>수강료 안내</h1></div></div>
+    <div class="head"><div><h1>수강료 안내 및 수업 방식</h1></div></div>
     <div class="fee">
       <div class="box price">
         <div class="k">한 달 4회 기준 · 과목당</div>
@@ -191,10 +212,18 @@
         </div>
       </div>
       <div class="box way">
-        <h3>최과학 수업 방식</h3>
+        <h3>최과학 수업 방식<small>눌러서 자세히 보기</small></h3>
         <ol id="way"></ol>
       </div>
     </div>
+  </main>
+</section>
+
+<section class="screen" id="wd">
+  <header class="top"><div class="wd-nav"><button class="back" data-home>← 처음으로</button><button class="back" data-go="fee">수강료 안내 및 수업 방식</button></div><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
+  <main class="body">
+    <div class="head"><div><h1 id="wd-title"></h1><p id="wd-sub"></p></div></div>
+    <div class="wd" id="wd-body"></div>
   </main>
 </section>
 
@@ -266,20 +295,29 @@ const DATA = {
         book:"EBS 개념완성 물리학 · 화학",
         rows:[ {cls:"월요반", time:"월 18:30 ~ 21:30", start:"11.9 개강", st:"모집 중"} ]} ]} // B-010
   },
+  // 수업 방식 6가지 — 단추 [제목, 한 줄] + 자세히 화면(그림 · 글은 학원앱 학원소개 /about 에서 가져옴, 2026-10-26)
   way: [
-    ["매 수업 학습지 · 손풀이 답지", "학원앱 자료실에서 PDF로 언제든"],
-    ["수업 영상 다시보기", "유튜브 수업 영상 · 팟캐스트"],
-    ["매 수업 테스트 · OMR", "휴대폰으로 입력하면 점수가 바로 기록"],
-    ["학부모님께 수업 문자", "수업 내용 · 숙제 · 테스트 점수를 매 수업 안내"],
-    ["일요일 조교 클리닉", "매주 일요일 오후 3~7시 질문 · 보충"],        // V-010
-    ["학습앱 · 질문 게시판", "과목별 플래시카드 · 노트북LM · 질문 답변"]
+    ["매 수업 학습지 · 손풀이 답지", "학원앱 자료실에서 PDF로 언제든", [
+      ["img/w1a.webp", "차시별로 수업 PDF · 교재 · 숙제가 앱에 정리됩니다", "그날 수업 영상, 자료, 테스트, 숙제가 한 줄에 모여 있어 찾을 필요가 없습니다."],
+      ["img/w1b.webp", "학교 시험 범위에 맞춘 자체 교재로 수업합니다", "여의도고 · 여의도여고 · 숭의여고 · 영등포고 · 수도여고 · 성남고 교과서와 5개년 기출을 반영합니다."] ]],
+    ["수업 영상 다시보기", "유튜브 수업 영상 · 팟캐스트", [
+      ["img/w2a.webp", "모든 수업은 유튜브로 실시간 송출되고, 끝나면 자동 녹화됩니다", "결석한 날도 같은 시간에 집에서 참여하고, 복습할 때는 다시보기로 봅니다."],
+      ["img/w2b.webp", "영상마다 챕터 타임라인이 있습니다", "개념 · 문제 단위로 필요한 부분만 골라 봅니다."] ]],
+    ["매 수업 테스트 · OMR", "휴대폰으로 입력하면 점수가 바로 기록", [
+      ["img/w3a.webp", "매주 OMR 테스트로 그 주에 배운 것을 확인합니다", "앱에서 바로 응시하고, 채점 결과와 오답이 즉시 기록됩니다."] ]],
+    ["학부모님께 수업 문자", "수업 내용 · 숙제 · 테스트 점수를 매 수업 안내", [
+      ["img/w4a.webp", "결과는 학생 · 학부모님께 문자로 보내 드립니다", "테스트 점수 · 숙제 · 그날 배운 내용을 매 수업 안내합니다."] ]],
+    ["일요일 조교 클리닉", "매주 일요일 오후 3~7시 질문 · 보충", "facts"],        // V-010 — 그림 없음(클리닉 사진이 생기면 바꿈)
+    ["학습앱 · 질문 게시판", "과목별 플래시카드 · 노트북LM · 질문 답변", [
+      ["img/w6a.webp", "개념을 직접 조작하며 배우는 학습앱", "평형 시뮬레이터 · 주기율표 · 볼록렌즈 · 고1 · 고2 암기 플래시카드 등 최과학이 직접 만들었습니다."],
+      ["img/w6b.webp", "플래시카드로 반복해서 암기합니다", "모르는 것은 질문 게시판에 남기면 선생님이 직접 답합니다."] ]]
   ],
   // 첫 화면 카드 — 요일 · 날짜는 쓰지 않는다(해가 바뀌어도 그대로 쓰게 — 원장 10/26). 배지만 바꾼다
   cards: [
     { go:"g1",   c:"int",  icon:"cal",  title:"고1 시간표",  lines:["통합과학 1 · 2"], tags:[["남고1 마감","red"]] },
     { go:"g2",   c:"phy",  icon:"cal",  title:"고2 시간표",  lines:["물리학 · 화학 · 생명과학"], tags:[["물화생 마감","red"]] },
     { go:"g3",   c:"sat",  icon:"cal",  title:"고3 시간표",  lines:["수능 통합과학", "물리학 · 화학 · 생명과학"], tags:[["2027년 1월 개강","blue"]] },
-    { go:"fee",  c:"phy",  icon:"won",  title:"수강료 안내", lines:["한 달 4회 기준 · 과목당", "결제선생 · 계좌이체"], tags:[] },
+    { go:"fee",  c:"phy",  icon:"won",  title:"수강료 안내 및 수업 방식", lines:["한 달 4회 기준 · 과목당", "학습지 · 영상 · 테스트 · 클리닉"], tags:[] },
     { go:"talk", c:"bio",  icon:"chat", title:"상담 예약",   lines:["카카오톡 · 네이버 예약", "여기서 바로 신청"], tags:[] },
     { go:"y1",   c:"chem", icon:"cap",  title:"예비고1 개강", lines:["통합과학 특강", "물리 · 화학 특강"], tags:[["일요반 마감","red"],["10/31 마감","blue"]] }
   ]
@@ -308,7 +346,15 @@ $("#cards").innerHTML = DATA.cards.map(c => `
     <ul>${c.lines.map(l => `<li>${l}</li>`).join("")}</ul>
     <div class="more">자세히 보기 →</div>
   </button>`).join("");
-$("#way").innerHTML = DATA.way.map((w, i) => `<li><i>${i + 1}</i><div><b>${w[0]}</b><span>${w[1]}</span></div></li>`).join("");
+$("#way").innerHTML = DATA.way.map((w, i) => `<li><button class="wb" data-way="${i}"><i>${i + 1}</i><div><b>${w[0]}</b><span>${w[1]}</span></div><em>›</em></button></li>`).join("");
+function openWay(i){
+  const w = DATA.way[i];
+  $("#wd-title").textContent = w[0]; $("#wd-sub").textContent = w[1];
+  $("#wd-body").innerHTML = w[2] === "facts"
+    ? `<div class="facts"><div><b>매주 일요일</b><span>조교 클리닉</span></div><div><b>오후 3~7시</b><span>개별 질문 · 보충 시간</span></div><div><b>질문 · 보충</b><span>이해할 때까지 다시</span></div></div>`
+    : `<div class="pics" style="grid-template-columns:repeat(${w[2].length},1fr)">${w[2].map(p => `<figure><b>${p[1]}</b><span>${p[2]}</span><div class="ph"><img src="${p[0]}" alt="${p[1]}"></div></figure>`).join("")}</div>`;
+  show("wd");
+}
 
 function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
 function home(){ show("home"); $("#win-frame").src = "about:blank"; clearForm(); }
@@ -335,6 +381,7 @@ document.addEventListener("click", e => {
   if (b.dataset.go) return DATA.timetable[b.dataset.go] ? openTT(b.dataset.go) : show(b.dataset.go);
   if (b.dataset.open === "app") return openWin("최과학 학원앱", DATA.links.app);
   if (b.dataset.open === "study") return openWin("최과학 학습앱", DATA.links.study);
+  if (b.dataset.way) return openWay(+b.dataset.way);
   if (b.dataset.plan) return openWin("강의계획서", DATA.links.app + b.dataset.plan);
 });
 
@@ -369,9 +416,9 @@ window.addEventListener("message", e => {
 });
 poke();
 
-/* 미리보기용: 주소 끝 #g1 · #g2 · #g3 · #y1 · #fee · #talk */
+/* 미리보기용: 주소 끝 #g1 · #g2 · #g3 · #y1 · #fee · #talk · #w1~#w6 */
 const h = location.hash.slice(1);
-if (DATA.timetable[h]) openTT(h); else if (h === "fee" || h === "talk") show(h);
+if (DATA.timetable[h]) openTT(h); else if (h === "fee" || h === "talk") show(h); else if (/^w[1-6]$/.test(h)) openWay(+h[1] - 1);
 </script>
 </body>
 </html>
