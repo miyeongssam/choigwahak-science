@@ -139,6 +139,11 @@
   .wd .facts b{display:block;font-size:calc(4.4*var(--u));font-weight:800;color:var(--blue);letter-spacing:-.03em}
   .wd .facts span{display:block;font-size:calc(2.2*var(--u));color:var(--ink2);margin-top:calc(1.2*var(--u))}
   .wd-nav{display:flex;gap:calc(1.6*var(--u));align-items:center}
+  .qrbig{margin:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:calc(5*var(--u)) calc(9*var(--u))}
+  .qrbig h1{font-size:calc(4.2*var(--u));font-weight:800;letter-spacing:-.03em}
+  .qrbig p{font-size:calc(2.4*var(--u));color:var(--ink2);margin-top:calc(1*var(--u))}
+  .qrbig .qr{width:calc(40*var(--u));height:calc(40*var(--u));margin:calc(3.4*var(--u)) 0}
+  .qrbig .how{font-size:calc(2.6*var(--u));font-weight:800;color:var(--blue);background:var(--blue2);border-radius:calc(1.4*var(--u));padding:calc(1.4*var(--u)) calc(2.6*var(--u))}
 
   /* 상담 */
   .talk{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:1fr 1fr 2fr;gap:calc(3.4*var(--u))}
@@ -260,6 +265,19 @@
     </div>
   </main>
   <div class="done" id="done"><div><b>신청되었습니다</b><span>곧 연락드릴게요.</span></div></div>
+</section>
+
+<!-- 학원앱(app.choisci.com) 페이지는 이 모니터 브라우저에서 창 안으로 열리지 않아(10/26 원장 시험 — 「인터넷 연결을 확인해주세요」) 휴대폰 QR로 보여 준다 -->
+<section class="screen" id="qrs">
+  <header class="top"><div class="wd-nav"><button class="back" data-home>← 처음으로</button><button class="back" id="qrs-back" data-go="">← 뒤로</button></div><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
+  <main class="body">
+    <div class="qrbig box">
+      <h1 id="qrs-title"></h1>
+      <p id="qrs-sub"></p>
+      <div class="qr" id="qrs-qr"></div>
+      <div class="how">휴대폰 카메라로 QR을 비추면 휴대폰에서 바로 열립니다</div>
+    </div>
+  </main>
 </section>
 
 <section class="screen" id="win">
@@ -386,19 +404,24 @@ function openTT(key){
     <div class="sc">
       <div class="hd"><b>${s.name}</b><span>${s.sub}</span></div>
       ${s.rows.length ? s.rows.map(r => `<div class="row"><div class="cls">${r.cls}</div><div class="tm">${r.time}${r.start ? `<small>${r.start}</small>` : ""}</div><div>${pill(r.st)}</div></div>`).join("") : `<div class="row soon"><div class="tm">시간표는 확정되면 안내드립니다</div></div>`}
-      <div class="ft"><div class="book"><b>교재</b>${s.book}</div>${s.plan ? `<button class="plan" data-plan="${s.plan}">강의계획서 보기</button>` : ""}</div>
+      <div class="ft"><div class="book"><b>교재</b>${s.book}</div>${s.plan ? `<button class="plan" data-plan="${s.plan}" data-name="${s.name}">강의계획서 보기</button>` : ""}</div>
     </div>`).join("");
   show("tt");
+}
+function openQR(title, sub, url, back){
+  $("#qrs-title").textContent = title; $("#qrs-sub").textContent = sub; qr($("#qrs-qr"), url);
+  const bk = $("#qrs-back"); bk.style.display = back === "home" ? "none" : ""; bk.dataset.go = back === "home" ? "" : back;
+  show("qrs");
 }
 function openWin(title, url){ $("#win-title").textContent = title; $("#win-frame").src = url; show("win"); }
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.home !== undefined) return home();
   if (b.dataset.go) return DATA.timetable[b.dataset.go] ? openTT(b.dataset.go) : show(b.dataset.go);
-  if (b.dataset.open === "app") return openWin("최과학 학원앱", DATA.links.app);
+  if (b.dataset.open === "app") return openQR("최과학 학원앱", "수업 자료 · 영상 · 점수 · 강좌 안내를 휴대폰으로", DATA.links.app, "home");
   if (b.dataset.open === "study") return openWin("최과학 학습앱", DATA.links.study);
   if (b.dataset.way) return openWay(+b.dataset.way);
-  if (b.dataset.plan) return openWin("강의계획서", DATA.links.app + b.dataset.plan);
+  if (b.dataset.plan) return openQR(b.dataset.name + " 강의계획서", "차시별 수업 내용 · 시험 대비 일정 — 휴대폰으로 가져가 보세요", DATA.links.app + b.dataset.plan, "tt");
 });
 
 /* 상담 신청 — 학원앱(레플릿) 상담 받는 주소로 보낸다 → 학원앱 저장 + 슬랙 「[키오스크] 상담 신청」 (D-249 · D-254) */
