@@ -162,13 +162,13 @@ CS.makeChoices = function(answer, distractors, n){
   const all = CS.shuffle([answer].concat(pool));
   return { choices: all, answer: all.findIndex(x => String(x) === String(answer)) };
 };
-// 학원 데스크 키오스크(app.choisci.com/kiosk) 안에서 열렸을 때만: 누를 때마다 키오스크에 알림
+// 학원 데스크 키오스크(miyeongssam.github.io/choigwahak-science/kiosk/) 안에서 열렸을 때만: 누를 때마다 키오스크에 알림
 // → 키오스크가 「마지막 터치 뒤 2분」 자동 복귀 시간을 다시 잰다. 키오스크 밖(휴대폰 · 일반 브라우저)에서는 아무 일도 안 함
 if (window.parent !== window) {
   let last = 0;
   const ping = () => {
     const now = Date.now(); if (now - last < 1000) return; last = now;
-    try { window.parent.postMessage({ type: "kiosk-activity" }, "https://app.choisci.com"); } catch (e) {}
+    try { window.parent.postMessage({ type: "kiosk-activity" }, "https://miyeongssam.github.io"); } catch (e) {}
   };
   ["pointerdown", "touchstart", "keydown", "wheel"].forEach(t => window.addEventListener(t, ping, { passive: true, capture: true }));
 }
