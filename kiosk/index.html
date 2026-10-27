@@ -205,11 +205,16 @@
   .hi-tel{position:absolute;bottom:calc(4*var(--u));left:0;right:0;text-align:center;font-size:calc(2.6*var(--u));font-weight:600;color:var(--ink2)}
   .hi-tel b{color:var(--ink);font-weight:800}
 
+  /* 소리 켜기 · 끄기 단추 (원장 10/27 음성 안내) */
+  #mute{position:fixed;left:calc(2.4*var(--u));bottom:calc(2.4*var(--u));z-index:50;height:calc(4.6*var(--u));padding:0 calc(1.8*var(--u));
+    border-radius:999px;border:1px solid var(--edge);background:#fff;box-shadow:var(--lift2);font-size:calc(1.8*var(--u));font-weight:700;color:var(--ink2)}
+  #mute.off{color:var(--ink3,#9AA3B2)}
 </style>
 </head>
 <body>
 
 <!-- 대기 화면: 영상은 img/hi.mp4 (대기영상_만들기.py 로 만듦, 12초 반복). 누르면 첫 화면 -->
+<button id="mute" style="display:none">🔊 소리 켜짐</button>
 <section class="screen on" id="hi">
   <video id="hi-vid" src="img/hi.mp4" poster="img/hi.jpg" muted loop autoplay playsinline preload="auto"></video>
   <div class="hi-in">
@@ -386,6 +391,24 @@ const DATA = {
       ["img/w6a.webp", "개념을 직접 조작하며 배우는 학습앱", "평형 시뮬레이터 · 주기율표 · 볼록렌즈 · 고1 · 고2 · 고3 암기 플래시카드 등 최과학이 직접 만들었습니다."],
       ["img/w6b.webp", "플래시카드로 반복해서 암기합니다", "모르는 것은 질문 게시판에 남기면 선생님이 직접 답합니다."] ]]
   ],
+  // 음성 안내 멘트 — 화면을 열 때 한 번 읽는다(원장 10/27). 고치면 「음성_만들기.py」를 돌려 voice/키.mp3를 다시 만든다. 시간 · 날짜는 말하지 않고 「화면을 확인해 주세요」
+  voice: /*VOICE*/{
+    "home": "안녕하세요, 최과학 과학전문학원입니다. 궁금하신 항목을 눌러 주세요.",
+    "g1": "고1 통합과학 시간표입니다. 여의도고등학교 반은 토요반과 일요반, 여의도여자고등학교 반은 일요반이 있습니다. 자세한 수업 일정은 강의계획서 보기 버튼을 눌러 주세요.",
+    "g2": "고2 과학탐구 시간표입니다. 물리학, 화학, 생명과학 수업이 학교 구분 없이 함께 진행됩니다. 자세한 수업 일정은 강의계획서 보기 버튼을 눌러 주세요.",
+    "g3": "고3 시간표입니다. 수능 통합과학 반과, 1학기 내신 물리학, 화학, 생명과학 반이 있습니다. 개강 일정은 화면을 확인해 주세요.",
+    "y1": "예비 고1 겨울방학 특강 안내입니다. 통합과학 특강과 물리 화학 특강이 있습니다. 개강일과 수강 신청 마감일은 화면을 확인해 주세요.",
+    "fee": "수강료 및 수업 방식 안내입니다. 수강료는 한 달 4회 기준, 과목당 금액입니다. 화면에서 확인해 주세요. 오른쪽에는 최과학의 수업 방식 여섯 가지가 있습니다. 각 버튼을 누르면 자세한 안내가 나옵니다.",
+    "talk": "상담 예약 안내입니다. 카카오톡 채널이나 네이버 예약 QR을 휴대폰으로 찍어 주시거나, 여기서 이름과 전화번호를 남겨 주시면 연락드리겠습니다.",
+    "w1": "매 수업 학습지와 손풀이 답지를 학원앱 자료실에서 PDF로 언제든 볼 수 있습니다.",
+    "w2": "모든 수업은 유튜브로 송출되고 녹화되어, 결석한 날이나 복습할 때 다시 볼 수 있습니다.",
+    "w3": "매 수업 테스트를 휴대폰 OMR로 보고, 점수가 바로 기록됩니다.",
+    "w4": "수업 내용과 숙제, 테스트 점수를 매 수업 학부모님께 문자로 안내해 드립니다.",
+    "w5": "매주 일요일 오후 3시부터 7시까지 조교 클리닉에서 문제 해설과 개념 보충, 숙제 검사를 도와 드립니다.",
+    "w6": "최과학이 직접 만든 학습앱과 질문 게시판으로 언제든 복습하고 질문할 수 있습니다.",
+    "app": "휴대폰 카메라로 QR을 비추시면 최과학 학원앱이 열립니다.",
+    "plan": "휴대폰 카메라로 QR을 비추시면 강의계획서를 보실 수 있습니다."
+  }/*/VOICE*/,
   // 첫 화면 카드 — 요일 · 날짜는 쓰지 않는다(해가 바뀌어도 그대로 쓰게 — 원장 10/26). 배지만 바꾼다
   cards: [
     { go:"g1",   c:"int",  icon:"cal",  title:"고1 시간표",  lines:["통합과학 1 · 2"], tags:[["남고1 마감","red"]] },
@@ -435,16 +458,23 @@ function openWay(i){
   $("#wd-body").innerHTML = w[2] === "clinic"
     ? `<div class="clinic"><div class="ci time"><small>조교 클리닉</small><b>매주 일요일</b><b>오후 3~7시</b><span>학원에서 조교 선생님이 도와 드립니다</span></div>${CLINIC.map(c => `<div class="ci"><i>${c[0]}</i><b>${c[1]}</b><span>${c[2]}</span></div>`).join("")}</div>`
     :`<div class="pics" style="grid-template-columns:repeat(${w[2].length},1fr)">${w[2].map(p => `<figure><b>${p[1]}</b><span>${p[2]}</span><div class="ph"><img src="${p[0]}" alt="${p[1]}"></div></figure>`).join("")}</div>`;
-  show("wd");
+  show("wd"); say("w" + (i + 1));
 }
 
-function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
-function home(){ show("home"); $("#win-frame").src = "about:blank"; clearForm(); hiVid.pause(); }
+/* 음성 안내 — 화면을 열면 그 화면 멘트(voice/키.mp3)를 읽고, 다른 단추를 누르면 바로 끊는다 (원장 10/27) */
+const voice = new Audio(); voice.preload = "auto";
+let muted = false; try { muted = localStorage.getItem("kioskMute") === "1"; } catch (e) {}
+function hush(){ try { voice.pause(); voice.currentTime = 0; } catch (e) {} }
+function say(key){ hush(); if (muted || !DATA.voice[key]) return; voice.src = "voice/" + key + ".mp3"; try { const p = voice.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} }
+function setMute(m){ muted = m; try { localStorage.setItem("kioskMute", m ? "1" : "0"); } catch (e) {} if (m) hush();
+  const b = $("#mute"); b.classList.toggle("off", m); b.innerHTML = m ? "🔇 소리 꺼짐" : "🔊 소리 켜짐"; }
+function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); $("#mute").style.display = id === "hi" ? "none" : ""; }
+function home(){ hush(); show("home"); $("#win-frame").src = "about:blank"; clearForm(); hiVid.pause(); }
 /* 대기 화면(영상) — 처음 켤 때와 2분 동안 안 만졌을 때. 누르면 첫 화면 (10/27 원장) */
 const hiVid = $("#hi-vid");
 const playHi = () => { try { const p = hiVid.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
-function toHi(){ home(); show("hi"); playHi(); }
-$("#hi").addEventListener("click", home);
+function toHi(){ home(); hush(); show("hi"); playHi(); }
+$("#hi").addEventListener("click", () => { home(); say("home"); });
 function openTT(key){
   const t = DATA.timetable[key];
   $("#tt-title").textContent = t.title; $("#tt-sub").textContent = t.sub;
@@ -459,22 +489,23 @@ function openTT(key){
       ${s.rows.length ? s.rows.map(r => `<div class="row"><div class="cls">${r.cls}</div><div class="tm">${r.time}${r.start ? `<small>${r.start}</small>` : ""}</div><div>${pill(r.st)}</div></div>`).join("") : `<div class="row soon"><div class="tm">시간표는 확정되면 안내드립니다</div></div>`}
       <div class="ft"><div class="book"><b>교재</b>${s.book}</div>${s.plan ? `<button class="plan" data-plan="${s.plan}" data-name="${s.name}">강의계획서 보기</button>` : ""}</div>
     </div>`).join("");
-  show("tt");
+  show("tt"); say(key);
 }
 function openQR(title, sub, url, back){
   $("#qrs-title").textContent = title; $("#qrs-sub").textContent = sub; qr($("#qrs-qr"), url);
   const bk = $("#qrs-back"); bk.style.display = back === "home" ? "none" : ""; bk.dataset.go = back === "home" ? "" : back;
   show("qrs");
 }
-function openWin(title, url){ $("#win-title").textContent = title; $("#win-frame").src = url; show("win"); }
+function openWin(title, url){ hush(); $("#win-title").textContent = title; $("#win-frame").src = url; show("win"); }
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.home !== undefined) return home();
-  if (b.dataset.go) return DATA.timetable[b.dataset.go] ? openTT(b.dataset.go) : show(b.dataset.go);
-  if (b.dataset.open === "app") return openQR("최과학 학원앱", "수업 자료 · 영상 · 점수 · 강좌 안내를 휴대폰으로", DATA.links.app, "home");
+  if (b.id === "mute") return setMute(!muted);
+  if (b.dataset.go) { const from = document.querySelector(".screen.on").id; if (DATA.timetable[b.dataset.go]) return openTT(b.dataset.go); hush(); show(b.dataset.go); if (from === "home") say(b.dataset.go); return; }
+  if (b.dataset.open === "app") { openQR("최과학 학원앱", "수업 자료 · 영상 · 점수 · 강좌 안내를 휴대폰으로", DATA.links.app, "home"); return say("app"); }
   if (b.dataset.open === "study") return openWin("최과학 학습앱", DATA.links.study);
   if (b.dataset.way) return openWay(+b.dataset.way);
-  if (b.dataset.plan) return openQR(b.dataset.name + " 강의계획서", "차시별 수업 내용 · 시험 대비 일정 — 휴대폰으로 가져가 보세요", DATA.links.app + b.dataset.plan, "tt");
+  if (b.dataset.plan) { openQR(b.dataset.name + " 강의계획서", "차시별 수업 내용 · 시험 대비 일정 — 휴대폰으로 가져가 보세요", DATA.links.app + b.dataset.plan, "tt"); return say("plan"); }
 });
 
 /* 상담 신청 — 학원앱(레플릿) 상담 받는 주소로 보낸다 → 학원앱 저장 + 슬랙 「[키오스크] 상담 신청」 (D-249 · D-254) */
@@ -527,6 +558,8 @@ async function keepAwake(){
 keepAwake(); playHi();
 document.addEventListener("visibilitychange", () => { keepAwake(); if ($("#hi").classList.contains("on")) playHi(); });
 ["pointerdown", "touchstart"].forEach(t => window.addEventListener(t, keepAwake, { passive:true }));
+
+setMute(muted); $("#mute").style.display = "none";
 
 /* 미리보기용: 주소 끝 #home · #g1 · #g2 · #g3 · #y1 · #fee · #talk · #w1~#w6 */
 const h = location.hash.slice(1);
