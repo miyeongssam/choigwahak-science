@@ -518,6 +518,7 @@ const DATA = {
     "study": "최과학 학습앱입니다. 위쪽에서 통합과학, 물리학, 화학, 생명과학, 수능 통합과학 가운데 과목을 누르면, 그 과목의 플래시카드와 학습 앱이 나옵니다. 플래시카드를 누르면 단원별로 정오형, 낚시형, 단답형, 모두 고르기 문제를 풀 수 있습니다. 모든 공부의 기본은 암기입니다. 이동하는 시간이나 쉬는 시간에 틈틈이 플래시카드로 연습하면, 지루하지 않게 반복하며 자연스럽게 익숙해집니다. 모두 고르기 문제는 답이 두 개인지, 세 개인지 직접 골라 보는 연습이라, 고등학교 내신의 합답형 선택 문제에 대비하기 좋습니다. 타이머, 메모장, 오답 메뉴에서는 나만의 메모장에 외울 내용이나 공식을 적어 두고 휴대폰으로 언제든 꺼내 볼 수 있고, 틀린 문제만 섞어서 매일 열 문제나 스무 문제씩 다시 풀 수 있습니다. 이렇게 매일 조금씩 활용하면 학습에 큰 도움이 됩니다.",
     "way": "최과학의 수업 방식 여섯 가지입니다. 학습지와 손풀이 답지, 수업 영상, 매 수업 테스트, 수업 문자, 일요일 조교 클리닉, 학습앱까지, 각 버튼을 누르면 자세한 안내와 음성 설명이 나옵니다.",
     "login": "학원앱 로그인 방법입니다. 학원앱을 열고 재원생 로그인을 누른 뒤, 내가 쓰는 구글 계정으로 로그인합니다. 그다음 학생 이름과 학생 전화번호, 학부모님 전화번호를 적으면 됩니다. 학생 전화번호가 없으면 학부모님 번호만 적어도 됩니다. 한 번만 로그인해 두면 다음부터는 다시 로그인할 필요가 없고, 학원앱 안의 수업 영상과 피디에프 자료, OMR 테스트, 질문 게시판을 모두 쓸 수 있습니다. 로그인이 안 되면 먼저 이름과 전화번호에 오타가 없는지 확인해 주세요. 그래도 안 되면, 예전에 다른 구글 계정으로 재원생 등록을 해 두었기 때문일 수 있습니다. 이럴 때는 데스크에 말씀해 주시면 확인하고 승인해 드립니다.",
+    "talk_m": "상담 예약 안내입니다. 카카오톡으로 상담 버튼을 누르시면 바로 채팅으로 상담할 수 있고, 네이버로 상담 예약 버튼을 누르시면 원하는 시간에 상담을 예약하실 수 있습니다. 아래에 이름과 전화번호를 남겨 주셔도 연락드리겠습니다.",
     "plan": "휴대폰 카메라로 QR을 비추시면 강의계획서를 보실 수 있습니다."
   }/*/VOICE*/,
   // 첫 화면 카드 — 요일 · 날짜는 쓰지 않는다(해가 바뀌어도 그대로 쓰게 — 원장 10/26). 배지만 바꾼다
@@ -603,7 +604,7 @@ function openWay(i){
 }
 
 /* 음성 안내 — 화면을 열면 그 화면 멘트(voice/키.mp3)를 읽고, 다른 단추를 누르면 바로 끊는다 (원장 10/27) */
-const VOICE_VER = 21;   // 음성 파일을 다시 만들면 1 올린다(모니터에 옛 소리가 남지 않게)
+const VOICE_VER = 22;   // 음성 파일을 다시 만들면 1 올린다(모니터에 옛 소리가 남지 않게)
 const voice = new Audio(); voice.preload = "auto";
 let muted = false; try { muted = localStorage.getItem("kioskMute") === "1"; } catch (e) {}
 function hush(){ try { voice.pause(); voice.currentTime = 0; } catch (e) {} }
@@ -643,7 +644,7 @@ document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.home !== undefined) return home();
   if (b.id === "mute") return setMute(!muted);
-  if (b.dataset.go) { const from = document.querySelector(".screen.on").id; if (DATA.timetable[b.dataset.go]) return openTT(b.dataset.go); hush(); show(b.dataset.go); if (from === "home") say(MOBILE && b.dataset.go === "fee" ? "way" : b.dataset.go); return; }
+  if (b.dataset.go) { const from = document.querySelector(".screen.on").id; if (DATA.timetable[b.dataset.go]) return openTT(b.dataset.go); hush(); show(b.dataset.go); if (from === "home") say(MOBILE && b.dataset.go === "fee" ? "way" : MOBILE && b.dataset.go === "talk" ? "talk_m" : b.dataset.go); return; }
   if (MOBILE && b.dataset.open === "app") return void window.open(DATA.links.app, "_blank");
   if (MOBILE && b.dataset.plan) return void window.open(DATA.links.app + b.dataset.plan, "_blank");
   if (b.dataset.open === "app") { openQR("최과학 학원앱", "수업 자료 · 영상 · 점수 · 강좌 안내를 휴대폰으로", DATA.links.app, "home"); return say("app"); }
