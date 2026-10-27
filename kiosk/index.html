@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>안내 데스크 | 최과학 과학전문학원</title>
-<!-- 최과학 데스크 키오스크 — 디자인 원본 2판 (2026-10-26 Claude, 원장 피드백 반영)
+<!-- 최과학 데스크 키오스크 — 디자인 원본 2판 (2026-10-26 Claude, 원장 피드백 반영 · 10/27 대기 화면 영상 더함)
      · 가로 16:9 터치 모니터(LG 스윙 32인치) 기준. 크기는 화면 높이(vh) 비율 → 1920×1080 · 4K 같은 모양
      · 바탕 · 카드 · 선의 대비를 크게(흰 바탕에 흰 카드 금지), 연한 회색 글씨 금지, 과목마다 색
      · 값은 맨 아래 DATA 한 곳에만. 원본: 반시간표 B-001~B-012 · 기본값 V-005 · V-010 · V-024 · 결정 D-247 · D-249 · D-250 · 링크 L-001 · L-009 · L-011 · L-115 -->
@@ -187,11 +187,41 @@
   .done b{display:block;font-size:calc(3.4*var(--u));font-weight:800} .done span{font-size:calc(2.2*var(--u));color:var(--ink2)}
   .frame{flex:1;border:0;width:100%;background:#fff}
 
+  /* 대기 화면 — 움직이는 영상 + 인사말 (10/27 원장: 정지 화면이 오래 있으면 모니터가 화면을 끈다 → 첫 화면을 영상으로) */
+  #hi{background:#EEF2F8 url(img/hi.jpg) center/cover;cursor:pointer}
+  #hi video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .hi-in{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:calc(2.4*var(--u))}
+  .hi-in .brand{gap:calc(1.6*var(--u))}
+  .hi-in .logo{width:calc(7.6*var(--u));height:calc(7.6*var(--u));border-radius:calc(1.9*var(--u));font-size:calc(4.2*var(--u))}
+  .hi-in .brand b{font-size:calc(4.2*var(--u))} .hi-in .brand span{font-size:calc(3*var(--u))}
+  .hi-in h1{font-size:calc(9.4*var(--u));font-weight:800;letter-spacing:-.04em;line-height:1.15;margin-top:calc(1.4*var(--u))}
+  .hi-in h1 em{font-style:normal;color:var(--blue)}
+  .hi-in .say{font-size:calc(3.4*var(--u));font-weight:600;color:var(--ink2)}
+  .touch{margin-top:calc(5*var(--u));display:flex;flex-direction:column;align-items:center;gap:calc(1*var(--u));
+    background:var(--blue);color:#fff;border-radius:calc(3*var(--u));padding:calc(2.6*var(--u)) calc(7*var(--u));box-shadow:var(--lift);animation:beat 2.4s ease-in-out infinite}
+  .touch b{font-size:calc(4.4*var(--u));font-weight:800;letter-spacing:-.02em}
+  .touch span{font-size:calc(2.6*var(--u));font-weight:600;opacity:.92}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  .hi-tel{position:absolute;bottom:calc(4*var(--u));left:0;right:0;text-align:center;font-size:calc(2.6*var(--u));font-weight:600;color:var(--ink2)}
+  .hi-tel b{color:var(--ink);font-weight:800}
+
 </style>
 </head>
 <body>
 
-<section class="screen on" id="home">
+<!-- 대기 화면: 영상은 img/hi.mp4 (대기영상_만들기.py 로 만듦, 12초 반복). 누르면 첫 화면 -->
+<section class="screen on" id="hi">
+  <video id="hi-vid" src="img/hi.mp4" poster="img/hi.jpg" muted loop autoplay playsinline preload="auto"></video>
+  <div class="hi-in">
+    <div class="brand"><div class="logo">최</div><b>최과학</b><span>과학전문학원</span></div>
+    <h1>어서 오세요,<br><em>반갑습니다!</em></h1>
+    <div class="say">최과학 과학전문학원입니다</div>
+    <div class="touch"><b>화면을 눌러 주세요</b><span>시간표 · 수강료 안내 · 상담 예약이 나옵니다</span></div>
+  </div>
+  <div class="hi-tel">상담 전화 <b data-k="tel"></b></div>
+</section>
+
+<section class="screen" id="home">
   <header class="top">
     <div class="brand"><div class="logo">최</div><b>최과학</b><span>과학전문학원</span></div>
     <div class="tel">상담 전화 <b data-k="tel"></b></div>
@@ -295,8 +325,6 @@
   <iframe class="frame" id="win-frame" title="바로가기"></iframe>
 </section>
 
-<!-- 화면 켜짐 유지용 무음 영상(반복 재생) — webOS는 「전체 화면 크기 영상 재생 중」일 때만 화면 보호(꺼짐)를 하지 않는다(10/26 2픽셀은 안 됨 → 화면 크기로, 맨 뒤에 깔고 거의 투명). 영상은 NoSleep.js(MIT, richtr)에 든 것 -->
-<video id="keep" muted loop playsinline autoplay style="position:fixed;inset:0;width:100vw;height:100vh;object-fit:cover;z-index:-1;opacity:.01;pointer-events:none" src="data:video/mp4;base64,AAAAHGZ0eXBNNFYgAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAGF21kYXTeBAAAbGliZmFhYyAxLjI4AABCAJMgBDIARwAAArEGBf//rdxF6b3m2Ui3lizYINkj7u94MjY0IC0gY29yZSAxNDIgcjIgOTU2YzhkOCAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMTQgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0wIHJlZj0zIGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDE6MHgxMTEgbWU9aGV4IHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02IGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCB2YnZfbWF4cmF0ZT03NjggdmJ2X2J1ZnNpemU9MzAwMCBjcmZfbWF4PTAuMCBuYWxfaHJkPW5vbmUgZmlsbGVyPTAgaXBfcmF0aW89MS40MCBhcT0xOjEuMDAAgAAAAFZliIQL8mKAAKvMnJycnJycnJycnXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXiEASZACGQAjgCEASZACGQAjgAAAAAdBmjgX4GSAIQBJkAIZACOAAAAAB0GaVAX4GSAhAEmQAhkAI4AhAEmQAhkAI4AAAAAGQZpgL8DJIQBJkAIZACOAIQBJkAIZACOAAAAABkGagC/AySEASZACGQAjgAAAAAZBmqAvwMkhAEmQAhkAI4AhAEmQAhkAI4AAAAAGQZrAL8DJIQBJkAIZACOAAAAABkGa4C/AySEASZACGQAjgCEASZACGQAjgAAAAAZBmwAvwMkhAEmQAhkAI4AAAAAGQZsgL8DJIQBJkAIZACOAIQBJkAIZACOAAAAABkGbQC/AySEASZACGQAjgCEASZACGQAjgAAAAAZBm2AvwMkhAEmQAhkAI4AAAAAGQZuAL8DJIQBJkAIZACOAIQBJkAIZACOAAAAABkGboC/AySEASZACGQAjgAAAAAZBm8AvwMkhAEmQAhkAI4AhAEmQAhkAI4AAAAAGQZvgL8DJIQBJkAIZACOAAAAABkGaAC/AySEASZACGQAjgCEASZACGQAjgAAAAAZBmiAvwMkhAEmQAhkAI4AhAEmQAhkAI4AAAAAGQZpAL8DJIQBJkAIZACOAAAAABkGaYC/AySEASZACGQAjgCEASZACGQAjgAAAAAZBmoAvwMkhAEmQAhkAI4AAAAAGQZqgL8DJIQBJkAIZACOAIQBJkAIZACOAAAAABkGawC/AySEASZACGQAjgAAAAAZBmuAvwMkhAEmQAhkAI4AhAEmQAhkAI4AAAAAGQZsAL8DJIQBJkAIZACOAAAAABkGbIC/AySEASZACGQAjgCEASZACGQAjgAAAAAZBm0AvwMkhAEmQAhkAI4AhAEmQAhkAI4AAAAAGQZtgL8DJIQBJkAIZACOAAAAABkGbgCvAySEASZACGQAjgCEASZACGQAjgAAAAAZBm6AnwMkhAEmQAhkAI4AhAEmQAhkAI4AhAEmQAhkAI4AhAEmQAhkAI4AAAAhubW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAABDcAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAzB0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA+kAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAALAAAACQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAPpAAAAAAABAAAAAAKobWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAB1MAAAdU5VxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAACU21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAhNzdGJsAAAAr3N0c2QAAAAAAAAAAQAAAJ9hdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAALAAkABIAAAASAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGP//AAAALWF2Y0MBQsAN/+EAFWdCwA3ZAsTsBEAAAPpAADqYA8UKkgEABWjLg8sgAAAAHHV1aWRraEDyXyRPxbo5pRvPAyPzAAAAAAAAABhzdHRzAAAAAAAAAAEAAAAeAAAD6QAAABRzdHNzAAAAAAAAAAEAAAABAAAAHHN0c2MAAAAAAAAAAQAAAAEAAAABAAAAAQAAAIxzdHN6AAAAAAAAAAAAAAAeAAADDwAAAAsAAAALAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAAiHN0Y28AAAAAAAAAHgAAAEYAAANnAAADewAAA5gAAAO0AAADxwAAA+MAAAP2AAAEEgAABCUAAARBAAAEXQAABHAAAASMAAAEnwAABLsAAATOAAAE6gAABQYAAAUZAAAFNQAABUgAAAVkAAAFdwAABZMAAAWmAAAFwgAABd4AAAXxAAAGDQAABGh0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAACAAAAAAAABDcAAAAAAAAAAAAAAAEBAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAQkAAADcAABAAAAAAPgbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAC7gAAAykBVxAAAAAAALWhkbHIAAAAAAAAAAHNvdW4AAAAAAAAAAAAAAABTb3VuZEhhbmRsZXIAAAADi21pbmYAAAAQc21oZAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAADT3N0YmwAAABnc3RzZAAAAAAAAAABAAAAV21wNGEAAAAAAAAAAQAAAAAAAAAAAAIAEAAAAAC7gAAAAAAAM2VzZHMAAAAAA4CAgCIAAgAEgICAFEAVBbjYAAu4AAAADcoFgICAAhGQBoCAgAECAAAAIHN0dHMAAAAAAAAAAgAAADIAAAQAAAAAAQAAAkAAAAFUc3RzYwAAAAAAAAAbAAAAAQAAAAEAAAABAAAAAgAAAAIAAAABAAAAAwAAAAEAAAABAAAABAAAAAIAAAABAAAABgAAAAEAAAABAAAABwAAAAIAAAABAAAACAAAAAEAAAABAAAACQAAAAIAAAABAAAACgAAAAEAAAABAAAACwAAAAIAAAABAAAADQAAAAEAAAABAAAADgAAAAIAAAABAAAADwAAAAEAAAABAAAAEAAAAAIAAAABAAAAEQAAAAEAAAABAAAAEgAAAAIAAAABAAAAFAAAAAEAAAABAAAAFQAAAAIAAAABAAAAFgAAAAEAAAABAAAAFwAAAAIAAAABAAAAGAAAAAEAAAABAAAAGQAAAAIAAAABAAAAGgAAAAEAAAABAAAAGwAAAAIAAAABAAAAHQAAAAEAAAABAAAAHgAAAAIAAAABAAAAHwAAAAQAAAABAAAA4HN0c3oAAAAAAAAAAAAAADMAAAAaAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAACMc3RjbwAAAAAAAAAfAAAALAAAA1UAAANyAAADhgAAA6IAAAO+AAAD0QAAA+0AAAQAAAAEHAAABC8AAARLAAAEZwAABHoAAASWAAAEqQAABMUAAATYAAAE9AAABRAAAAUjAAAFPwAABVIAAAVuAAAFgQAABZ0AAAWwAAAFzAAABegAAAX7AAAGFwAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTUuMzMuMTAw"></video>
 <script>
 /* ═══ 값은 여기 한 곳에만 ═══ */
 const C = { phy:["var(--phy)","var(--phy2)"], chem:["var(--chem)","var(--chem2)"], bio:["var(--bio)","var(--bio2)"], int:["var(--int)","var(--int2)"], sat:["var(--sat)","var(--sat2)"] };
@@ -411,7 +439,12 @@ function openWay(i){
 }
 
 function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
-function home(){ show("home"); $("#win-frame").src = "about:blank"; clearForm(); }
+function home(){ show("home"); $("#win-frame").src = "about:blank"; clearForm(); hiVid.pause(); }
+/* 대기 화면(영상) — 처음 켤 때와 2분 동안 안 만졌을 때. 누르면 첫 화면 (10/27 원장) */
+const hiVid = $("#hi-vid");
+const playHi = () => { try { const p = hiVid.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
+function toHi(){ home(); show("hi"); playHi(); }
+$("#hi").addEventListener("click", home);
 function openTT(key){
   const t = DATA.timetable[key];
   $("#tt-title").textContent = t.title; $("#tt-sub").textContent = t.sub;
@@ -475,32 +508,29 @@ fSend.addEventListener("click", async () => {
   fSend.textContent = "상담 신청"; clearForm(); doneMsg(ok);   // 성공 · 실패 모두 입력 칸은 바로 지움
 });
 
-/* 2분 동안 조작이 없으면 첫 화면 (학습앱 창 안의 터치는 kiosk-activity 신호 — D-250) */
+/* 2분 동안 조작이 없으면 대기 화면 (학습앱 창 안의 터치는 kiosk-activity 신호 — D-250) */
 let idle; const IDLE = 120 * 1000;
-const poke = () => { clearTimeout(idle); idle = setTimeout(home, IDLE); };
+const poke = () => { clearTimeout(idle); idle = setTimeout(toHi, IDLE); };
 ["pointerdown", "keydown", "touchstart"].forEach(t => window.addEventListener(t, poke, { passive:true }));
 window.addEventListener("message", e => {
   if ((e.origin === "https://miyeongssam.github.io" || e.origin === "https://app.choisci.com") && e.data && e.data.type === "kiosk-activity" && e.source === $("#win-frame").contentWindow) poke();
 });
 poke();
 
-/* 화면 켜짐 유지 — 모니터가 한동안 안 만지면 화면을 꺼서(10/26 원장) 브라우저에 화면을 끄지 말라고 요청한다. 지원 안 하는 브라우저면 그냥 넘어간다 */
+/* 화면 켜짐 유지 — 브라우저에 화면을 끄지 말라고도 요청한다(지원 안 하면 넘어감). 10/26 숨긴 영상 방식은 안 돼서 10/27 대기 화면 영상으로 바꿈 */
 let wake = null;
 async function keepAwake(){
   try { if ("wakeLock" in navigator && document.visibilityState === "visible" && !wake) {
     wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", () => { wake = null; });
   } } catch (e) { wake = null; }
 }
-const keepVid = document.getElementById("keep");
-const playKeep = () => { try { const p = keepVid.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
-keepAwake(); playKeep();
-document.addEventListener("visibilitychange", () => { keepAwake(); playKeep(); });
-["pointerdown", "touchstart"].forEach(t => window.addEventListener(t, playKeep, { passive:true }));
+keepAwake(); playHi();
+document.addEventListener("visibilitychange", () => { keepAwake(); if ($("#hi").classList.contains("on")) playHi(); });
 ["pointerdown", "touchstart"].forEach(t => window.addEventListener(t, keepAwake, { passive:true }));
 
-/* 미리보기용: 주소 끝 #g1 · #g2 · #g3 · #y1 · #fee · #talk · #w1~#w6 */
+/* 미리보기용: 주소 끝 #home · #g1 · #g2 · #g3 · #y1 · #fee · #talk · #w1~#w6 */
 const h = location.hash.slice(1);
-if (DATA.timetable[h]) openTT(h); else if (h === "fee" || h === "talk") show(h); else if (/^w[1-6]$/.test(h)) openWay(+h[1] - 1);
+if (h === "home") home(); else if (DATA.timetable[h]) openTT(h); else if (h === "fee" || h === "talk") show(h); else if (/^w[1-6]$/.test(h)) openWay(+h[1] - 1);
 </script>
 </body>
 </html>
