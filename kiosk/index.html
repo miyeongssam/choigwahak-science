@@ -199,8 +199,17 @@
   .frame{flex:1;border:0;width:100%;background:#fff}
 
   /* 대기 화면 — 움직이는 영상 + 인사말 (10/27 원장: 정지 화면이 오래 있으면 모니터가 화면을 끈다 → 첫 화면을 영상으로) */
-  #hi{background:#EEF2F8 url(img/hi.jpg) center/cover;cursor:pointer}
-  #hi video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  /* 10/27 밤: 모니터 브라우저에서 영상이 돌지 않아(원장 — 단추만 움직이고 물방울 · 원자는 멈춤) 배경을 화면 그림(CSS 움직임)으로 바꿈. 영상은 쓰지 않는다 */
+  #hi{background:linear-gradient(180deg,#F6F9FD 0%,#E4EBF5 55%,#D2DCEB 100%);cursor:pointer;overflow:hidden}
+  #hi video{display:none}
+  .fx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .fx .glow{position:absolute;width:70vh;height:70vh;border-radius:50%;background:radial-gradient(circle,rgba(100,140,255,.30),rgba(100,140,255,0) 68%);animation:drift 16s ease-in-out infinite alternate}
+  .fx .bub{position:absolute;bottom:-8vh;border:2px solid rgba(80,118,238,.50);border-radius:50%;animation:rise linear infinite;will-change:transform}
+  .fx .atom{position:absolute;animation:spin linear infinite;will-change:transform}
+  .fx .atom svg{width:100%;height:100%;display:block}
+  @keyframes rise{from{transform:translate(0,0)}50%{transform:translate(2vh,-60vh)}to{transform:translate(0,-125vh)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(20vh,-12vh) scale(1.15)}}
   .hi-in{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:calc(2.4*var(--u))}
   .hi-in .brand{gap:calc(1.6*var(--u))}
   .hi-in .logo{width:calc(7.6*var(--u));height:calc(7.6*var(--u));border-radius:calc(1.9*var(--u));font-size:calc(4.2*var(--u))}
@@ -291,7 +300,8 @@
 <!-- 대기 화면: 영상은 img/hi.mp4 (대기영상_만들기.py 로 만듦, 12초 반복). 누르면 첫 화면 -->
 <button id="mute" style="display:none">🔊 소리 켜짐</button>
 <section class="screen on" id="hi">
-  <video id="hi-vid" src="img/hi.mp4" poster="img/hi.jpg" muted loop autoplay playsinline preload="auto"></video>
+  <video id="hi-vid" muted playsinline preload="none"></video>
+  <div class="fx" id="hi-fx"></div>
   <div class="hi-in">
     <div class="brand"><div class="logo">최</div><b>최과학</b><span>과학전문학원</span></div>
     <h1>어서 오세요,<br><em>반갑습니다!</em></h1>
@@ -615,6 +625,23 @@ function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList
 function home(){ hush(); show("home"); $("#win-frame").src = "about:blank"; clearForm(); hiVid.pause(); }
 /* 대기 화면(영상) — 처음 켤 때와 2분 동안 안 만졌을 때. 누르면 첫 화면 (10/27 원장) */
 const hiVid = $("#hi-vid");
+/* 대기 화면 배경 움직임(CSS) — 퍼지는 파란 빛 2 · 올라가는 물방울 28 · 도는 원자 4 */
+(() => {
+  const fx = $("#hi-fx"); if (!fx) return;
+  const ATOM = '<svg viewBox="-50 -50 100 100"><g fill="none" stroke="#5B83F0" stroke-width="2.6">' +
+    [0, 60, 120].map(a => `<g transform="rotate(${a})"><ellipse rx="46" ry="16"/><circle cx="46" cy="0" r="4" fill="#4B74EE" stroke="none"/></g>`).join("") +
+    '</g><circle r="7" fill="#4B74EE"/></svg>';
+  let h = "";
+  h += '<div class="glow" style="left:8%;top:12%"></div><div class="glow" style="right:6%;bottom:4%;animation-duration:21s;animation-direction:alternate-reverse"></div>';
+  let s = 7; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;   // 늘 같은 배치
+  for (let i = 0; i < 28; i++) {
+    const size = 0.8 + rnd() * 2.6, dur = 14 + rnd() * 16;
+    h += `<div class="bub" style="left:${(rnd() * 98).toFixed(1)}%;width:${size.toFixed(2)}vh;height:${size.toFixed(2)}vh;animation-duration:${dur.toFixed(1)}s;animation-delay:-${(rnd() * dur).toFixed(1)}s"></div>`;
+  }
+  [[8, 60, 15, 26], [27, 10, 9, 18], [65, 76, 11, 22], [82, 12, 17, 30]].forEach(([x, y, sz, dur], i) =>
+    h += `<div class="atom" style="left:${x}%;top:${y}%;width:${sz}vh;height:${sz}vh;animation-duration:${dur}s${i % 2 ? ";animation-direction:reverse" : ""}">${ATOM}</div>`);
+  fx.innerHTML = h;
+})();
 const playHi = () => { try { const p = hiVid.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
 /* 모니터 브라우저는 누가 화면을 한 번 만져야 영상 재생을 허락한다(10/27 원장: 대기 화면 물방울 · 원자가 멈춰 있음).
    그래서 첫 터치 때 영상을 한 번 틀었다 멈춰 「허락」을 받아 두고, 대기 화면이 될 때 그 허락으로 튼다 */
