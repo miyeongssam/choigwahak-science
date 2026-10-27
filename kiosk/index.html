@@ -221,6 +221,63 @@
     border-radius:999px;border:1px solid var(--edge);background:#fff;box-shadow:var(--lift2);font-size:calc(1.8*var(--u));font-weight:700;color:var(--ink2)}
   body.inwin #mute{top:auto;bottom:calc(2.4*var(--u));left:auto;right:calc(2.4*var(--u));transform:none}
   #mute.off{color:var(--ink3,#9AA3B2)}
+
+  /* 학원앱 로그인 방법 (원장 10/27) */
+  .login{width:min(100%,calc(170*var(--u)));display:grid;grid-template-columns:1.5fr 1fr;gap:calc(3.4*var(--u))}
+  .login ol{list-style:none;counter-reset:st;display:flex;flex-direction:column;gap:calc(2.4*var(--u))}
+  .login ol li{counter-increment:st;display:flex;gap:calc(1.8*var(--u));align-items:flex-start;font-size:calc(2.3*var(--u));font-weight:700;line-height:1.45}
+  .login ol li::before{content:counter(st);flex:none;width:calc(4.4*var(--u));height:calc(4.4*var(--u));border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:800}
+  .login ol li small{display:block;font-size:calc(1.9*var(--u));font-weight:500;color:var(--ink2);margin-top:calc(.4*var(--u))}
+  .login h3{font-size:calc(2.6*var(--u));font-weight:800;margin-bottom:calc(2.2*var(--u))}
+  .login .trouble{background:linear-gradient(135deg,#FFFFFF 0%,#EEF3FF 60%,#D6E3FF 100%);border:1.5px solid #B9CCF5}
+  .login .trouble p{font-size:calc(2.1*var(--u));line-height:1.55;margin-top:calc(1.4*var(--u))}
+  .login .trouble p b{color:var(--blue)}
+  a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
+
+  /* ═══ 휴대폰 모드 (?m=g1 · g2 · g3 · y1 · all) — 신규생 · 학부모께 문자로 보내는 안내 (원장 10/27) ═══ */
+  body.m{--u:min(1.95vw,8px);overflow:auto;user-select:auto}
+  html:has(body.m){overflow:auto}
+  body.m .screen{position:relative;min-height:100vh;min-height:100dvh}
+  body.m .top{height:auto;min-height:calc(8*var(--u));padding:calc(1.6*var(--u)) calc(2.4*var(--u));flex-wrap:wrap;gap:calc(1*var(--u));position:sticky;top:0;z-index:10}
+  body.m .tel{font-size:calc(1.7*var(--u))}
+  body.m #mute{top:auto;bottom:calc(2.4*var(--u));left:auto;right:calc(2.4*var(--u));transform:none;height:calc(5.2*var(--u))}
+  body.m #hi{min-height:100vh;min-height:100dvh}
+  body.m #hi video{display:none}
+  body.m .hi-in{padding:calc(6*var(--u)) calc(3*var(--u)) calc(14*var(--u))}
+  body.m .hi-in h1{font-size:calc(7.6*var(--u))}
+  body.m .touch{padding:calc(2.6*var(--u)) calc(4*var(--u))}
+  body.m .home{display:flex;flex-direction:column;gap:calc(3*var(--u));padding:calc(3.4*var(--u)) calc(2.4*var(--u)) calc(10*var(--u))}
+  body.m .grid{grid-template-columns:1fr;gap:calc(2.4*var(--u));padding:0}
+  body.m .card{height:auto;min-height:calc(21*var(--u))}
+  body.m .card .more{margin-top:calc(2*var(--u))}
+  body.m .side{padding:calc(3*var(--u))}
+  body.m #qr-app, body.m #qr-app + .sub{display:none}
+  body.m .body{padding:calc(3*var(--u)) calc(2.4*var(--u)) calc(10*var(--u));overflow:visible}
+  body.m .head{width:100%;flex-wrap:wrap;gap:calc(1.4*var(--u))}
+  body.m #tt-cols{grid-template-columns:1fr!important;width:100%}
+  body.m .sc, body.m .cols.four .sc{width:100%}
+  body.m .fee, body.m .talk, body.m .login{grid-template-columns:1fr;width:100%}
+  body.m .fee .price{display:none}
+  body.m .way ol{grid-template-columns:1fr}
+  body.m .way h3{display:none}
+  body.m .wb{min-height:0}
+  body.m .wb b{font-size:calc(2.5*var(--u))}
+  body.m .wb span{font-size:calc(1.9*var(--u))}
+  body.m .wd{flex:none;width:100%}
+  body.m .wd .pics{grid-template-columns:1fr!important;flex:none}
+  body.m .wd .ph{flex:none;height:62vw}
+  body.m .wd .ph:has(ol.steps){height:auto}
+  body.m .wd .ph ol.steps{position:static;gap:calc(2.4*var(--u))}
+  body.m .clinic{grid-template-columns:1fr;grid-template-rows:none;flex:none}
+  body.m .ask{grid-template-columns:1fr}
+  body.m .ask div{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:calc(1.6*var(--u))}
+  body.m .tk{padding-top:calc(3*var(--u))}
+  body.m .tk .qr{width:auto;height:auto;border:0;padding:0;margin:calc(1.6*var(--u)) 0 0;align-self:stretch}
+  body.m .form{flex-direction:column}
+  body.m .pad{display:none}
+  body.m .qrbig{padding:calc(4*var(--u)) calc(3*var(--u))}
+  body.m #win .tel{display:none}
+  body.m .frame{min-height:85vh}
 </style>
 </head>
 <body>
@@ -337,6 +394,30 @@
   </main>
 </section>
 
+<section class="screen" id="login">
+  <header class="top"><button class="back" data-home>← 처음으로</button><div class="tel">상담 전화 <b data-k="tel"></b></div></header>
+  <main class="body">
+    <div class="head"><div><h1>학원앱 로그인 방법</h1><p>한 번만 로그인해 두면 다음부터는 바로 열립니다.</p></div></div>
+    <div class="login">
+      <div class="box">
+        <ol>
+          <li><div>학원앱을 열고 <b>「재원생 로그인」</b>을 누릅니다<small>아래 「학원앱 열기」를 누르면 바로 열립니다</small></div></li>
+          <li><div>내가 쓰는 <b>구글 계정</b>으로 로그인합니다<small>구글 계정이 여러 개라면, 늘 쓰는 계정 하나로만</small></div></li>
+          <li><div>학생 이름 · 학생 전화번호 · 학부모 전화번호를 적습니다<small>학생 전화번호가 없으면 학부모 번호만 적어도 됩니다</small></div></li>
+          <li><div>한 번 로그인하면 끝 — 다음부터는 다시 로그인하지 않아도 됩니다</div></li>
+          <li><div>수업 영상 · 수업 PDF · OMR 테스트 · 질문 게시판을 모두 쓸 수 있습니다</div></li>
+        </ol>
+        <a class="btn main" id="login-open" target="_blank" rel="noopener">학원앱 열기</a>
+      </div>
+      <div class="box trouble">
+        <h3>로그인이 안 되면</h3>
+        <p><b>① 오타 확인</b><br>이름 · 전화번호에 틀린 글자가 없는지 먼저 확인해 주세요.</p>
+        <p><b>② 다른 구글 계정</b><br>그래도 안 되면, 예전에 <b>다른 구글 계정</b>으로 재원생 등록을 해 둔 경우입니다. 데스크에 말씀해 주시면 확인하고 승인해 드립니다.</p>
+      </div>
+    </div>
+  </main>
+</section>
+
 <section class="screen" id="win">
   <header class="top"><button class="back" data-home>← 처음으로</button><div class="brand"><b id="win-title"></b></div><div class="tel">2분 동안 누르지 않으면 처음 화면으로 돌아갑니다</div></header>
   <iframe class="frame" id="win-frame" title="바로가기"></iframe>
@@ -429,6 +510,8 @@ const DATA = {
     "w6": "최과학이 직접 만든 학습앱이 있습니다. 평형 시뮬레이터나 중화 반응 실험처럼 개념을 직접 조작하며 배우는 앱이 있고, 단원별, 과목별 플래시카드로 정오형, 낚시형, 단답형, 모두 고르기 문제를 풀 수 있습니다. 틀린 문제만 모아 섞어서 다시 풀 수 있고, 나만의 메모장도 쓸 수 있습니다. 이동하는 시간이나 쉬는 시간에도 틈틈이 열어 보며 과학을 습관처럼 반복해서 만나면, 익숙해지고 오래 기억하는 데 큰 도움이 됩니다. 모르는 것은 질문 게시판에 남기면 선생님이 직접 답해 드립니다.",
     "app": "휴대폰 카메라로 QR을 비추시면 최과학 학원앱이 열립니다.",
     "study": "최과학 학습앱입니다. 위쪽에서 통합과학, 물리학, 화학, 생명과학, 수능 통합과학 가운데 과목을 누르면, 그 과목의 플래시카드와 학습 앱이 나옵니다. 플래시카드를 누르면 단원별로 정오형, 낚시형, 단답형, 모두 고르기 문제를 풀 수 있습니다. 모든 공부의 기본은 암기입니다. 이동하는 시간이나 쉬는 시간에 틈틈이 플래시카드로 연습하면, 지루하지 않게 반복하며 자연스럽게 익숙해집니다. 모두 고르기 문제는 답이 두 개인지, 세 개인지 직접 골라 보는 연습이라, 고등학교 내신의 합답형 선택 문제에 대비하기 좋습니다. 타이머, 메모장, 오답 메뉴에서는 나만의 메모장에 외울 내용이나 공식을 적어 두고 휴대폰으로 언제든 꺼내 볼 수 있고, 틀린 문제만 섞어서 매일 열 문제나 스무 문제씩 다시 풀 수 있습니다. 이렇게 매일 조금씩 활용하면 학습에 큰 도움이 됩니다.",
+    "way": "최과학의 수업 방식 여섯 가지입니다. 학습지와 손풀이 답지, 수업 영상, 매 수업 테스트, 수업 문자, 일요일 조교 클리닉, 학습앱까지, 각 버튼을 누르면 자세한 안내와 음성 설명이 나옵니다.",
+    "login": "학원앱 로그인 방법입니다. 학원앱을 열고 재원생 로그인을 누른 뒤, 내가 쓰는 구글 계정으로 로그인합니다. 그다음 학생 이름과 학생 전화번호, 학부모님 전화번호를 적으면 됩니다. 학생 전화번호가 없으면 학부모님 번호만 적어도 됩니다. 한 번만 로그인해 두면 다음부터는 다시 로그인할 필요가 없고, 학원앱 안의 수업 영상과 피디에프 자료, OMR 테스트, 질문 게시판을 모두 쓸 수 있습니다. 로그인이 안 되면 먼저 이름과 전화번호에 오타가 없는지 확인해 주세요. 그래도 안 되면, 예전에 다른 구글 계정으로 재원생 등록을 해 두었기 때문일 수 있습니다. 이럴 때는 데스크에 말씀해 주시면 확인하고 승인해 드립니다.",
     "plan": "휴대폰 카메라로 QR을 비추시면 강의계획서를 보실 수 있습니다."
   }/*/VOICE*/,
   // 첫 화면 카드 — 요일 · 날짜는 쓰지 않는다(해가 바뀌어도 그대로 쓰게 — 원장 10/26). 배지만 바꾼다
@@ -446,18 +529,42 @@ const ICON = {
   cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   won:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg>',
   chat:'<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>',
-  cap:'<svg viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg>'
+  cap:'<svg viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg>',
+  key:'<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14 9l2 2"/></svg>',
+  book:'<svg viewBox="0 0 24 24"><path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-5a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h6z"/></svg>'
 };
 const $ = s => document.querySelector(s);
+/* 휴대폰 모드 — 주소 끝 ?m=g1 · g2 · g3 · y1 · all. 같은 DATA · 같은 음성을 쓰고, QR 대신 바로 여는 링크 · 수강료 대신 수업 방식 · 로그인 방법 (원장 10/27) */
+const MODE = new URLSearchParams(location.search).get("m") || "";
+const MOBILE = !!MODE;
+if (MOBILE) document.body.classList.add("m");
+function homeCards(){
+  if (!MOBILE) return DATA.cards;
+  const tt = DATA.cards.filter(c => DATA.timetable[c.go] && (MODE === c.go || !DATA.timetable[MODE]));
+  const way = { go:"fee", c:"phy", icon:"book", title:"최과학 수업 방식", lines:["학습지 · 영상 · 테스트 · 수업 문자", "조교 클리닉 · 학습앱"], tags:[] };
+  const login = { go:"login", c:"int", icon:"key", title:"학원앱 로그인 방법", lines:["구글 계정으로 한 번만", "로그인이 안 될 때"], tags:[] };
+  return [...tt, way, login, DATA.cards.find(c => c.go === "talk")];
+}
 document.querySelectorAll('[data-k="tel"]').forEach(e => e.textContent = DATA.tel);
 function qr(el, url){
   if (typeof qrcode !== "function") { el.textContent = url; return; }
   const q = qrcode(0, "M"); q.addData(url); q.make(); el.innerHTML = q.createSvgTag({ cellSize:6, margin:0, scalable:true });
 }
 qr($("#qr-app"), DATA.links.app); qr($("#qr-kakao"), DATA.links.kakao); qr($("#qr-naver"), DATA.links.naver);
+$("#login-open").href = DATA.links.app;
+if (MOBILE) {
+  $("#hi-vid").removeAttribute("src"); $("#hi-vid").load();       // 휴대폰은 데이터 아끼게 영상 대신 그림
+  $(".touch span").textContent = "시간표 · 수업 방식 · 로그인 안내";
+  $("#fee .head h1").textContent = "최과학 수업 방식";
+  $('#wd [data-go="fee"]').textContent = "← 수업 방식";
+  $("#qr-kakao").innerHTML = `<a class="btn main" href="${DATA.links.kakao}" target="_blank" rel="noopener">카카오톡으로 상담</a>`;
+  $("#qr-naver").innerHTML = `<a class="btn sub2" href="${DATA.links.naver}" target="_blank" rel="noopener">네이버로 상담 예약</a>`;
+  document.querySelectorAll("#talk .tk .desc").forEach((d, i) => { if (i < 2) d.textContent = i ? "원하는 상담 시간을 예약" : "채팅으로 바로 상담"; });
+  fTelM();
+}
 const pill = st => st === "마감" ? '<span class="pill red">마감</span>' : st ? `<span class="pill blue">${st}</span>` : "";
 
-$("#cards").innerHTML = DATA.cards.map(c => `
+$("#cards").innerHTML = homeCards().map(c => `
   <button class="card" data-go="${c.go}">
     <div class="tag">${c.tags.map(t => `<span class="pill ${t[1]}">${t[0]}</span>`).join("")}</div>
     <div class="ico">${ICON[c.icon]}</div>
@@ -490,7 +597,7 @@ function openWay(i){
 }
 
 /* 음성 안내 — 화면을 열면 그 화면 멘트(voice/키.mp3)를 읽고, 다른 단추를 누르면 바로 끊는다 (원장 10/27) */
-const VOICE_VER = 20;   // 음성 파일을 다시 만들면 1 올린다(모니터에 옛 소리가 남지 않게)
+const VOICE_VER = 21;   // 음성 파일을 다시 만들면 1 올린다(모니터에 옛 소리가 남지 않게)
 const voice = new Audio(); voice.preload = "auto";
 let muted = false; try { muted = localStorage.getItem("kioskMute") === "1"; } catch (e) {}
 function hush(){ try { voice.pause(); voice.currentTime = 0; } catch (e) {} }
@@ -530,7 +637,9 @@ document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.home !== undefined) return home();
   if (b.id === "mute") return setMute(!muted);
-  if (b.dataset.go) { const from = document.querySelector(".screen.on").id; if (DATA.timetable[b.dataset.go]) return openTT(b.dataset.go); hush(); show(b.dataset.go); if (from === "home") say(b.dataset.go); return; }
+  if (b.dataset.go) { const from = document.querySelector(".screen.on").id; if (DATA.timetable[b.dataset.go]) return openTT(b.dataset.go); hush(); show(b.dataset.go); if (from === "home") say(MOBILE && b.dataset.go === "fee" ? "way" : b.dataset.go); return; }
+  if (MOBILE && b.dataset.open === "app") return void window.open(DATA.links.app, "_blank");
+  if (MOBILE && b.dataset.plan) return void window.open(DATA.links.app + b.dataset.plan, "_blank");
   if (b.dataset.open === "app") { openQR("최과학 학원앱", "수업 자료 · 영상 · 점수 · 강좌 안내를 휴대폰으로", DATA.links.app, "home"); return say("app"); }
   if (b.dataset.open === "study") { openWin("최과학 학습앱", DATA.links.study); return say("study"); }
   if (b.dataset.way) return openWay(+b.dataset.way);
@@ -550,6 +659,11 @@ $("#pad").addEventListener("click", e => {
   d = k === "back" ? d.slice(0, -1) : k === "clear" ? "" : (d + k).slice(0, 11);
   fTel.value = telFmt(d); ready();
 });
+function fTelM(){
+  const el = $("#f-tel"); el.readOnly = false; el.setAttribute("inputmode", "numeric");
+  el.previousElementSibling.textContent = "전화번호";
+  el.addEventListener("input", () => { el.value = telFmt(el.value.replace(/\D/g, "").slice(0, 11)); ready(); });
+}
 function clearForm(){ fName.value = ""; fTel.value = ""; fOk.checked = false; ready(); }
 function doneMsg(ok){
   $("#done b").textContent = ok ? "신청되었습니다" : "전송이 안 됐어요";
@@ -570,7 +684,7 @@ fSend.addEventListener("click", async () => {
 
 /* 2분 동안 조작이 없으면 대기 화면 (학습앱 창 안의 터치는 kiosk-activity 신호 — D-250) */
 let idle; const IDLE = 120 * 1000;
-const poke = () => { clearTimeout(idle); idle = setTimeout(toHi, IDLE); };
+const poke = () => { if (MOBILE) return; clearTimeout(idle); idle = setTimeout(toHi, IDLE); };
 ["pointerdown", "keydown", "touchstart"].forEach(t => window.addEventListener(t, poke, { passive:true }));
 window.addEventListener("message", e => {
   if ((e.origin === "https://miyeongssam.github.io" || e.origin === "https://app.choisci.com") && e.data && e.data.type === "kiosk-activity" && e.source === $("#win-frame").contentWindow) poke();
