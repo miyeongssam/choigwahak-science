@@ -133,6 +133,10 @@
   .wd figure b{font-size:calc(2.6*var(--u));font-weight:800;letter-spacing:-.02em}
   .wd figure span{font-size:calc(2*var(--u));color:var(--ink2);line-height:1.45}
   .wd .ph{flex:1;min-height:0;background:#fff;border:1px solid var(--edge);border-radius:calc(1.8*var(--u));box-shadow:var(--lift);position:relative;overflow:hidden}
+  .wd .ph ol.steps{list-style:none;counter-reset:st;position:absolute;inset:0;padding:calc(2.6*var(--u)) calc(3*var(--u));display:flex;flex-direction:column;justify-content:space-between}
+  .wd .ph ol.steps li{counter-increment:st;display:flex;align-items:center;gap:calc(1.8*var(--u));font-size:calc(2.3*var(--u));font-weight:700}
+  .wd .ph ol.steps li::before{content:counter(st);flex:none;width:calc(4.4*var(--u));height:calc(4.4*var(--u));border-radius:50%;background:var(--blue2);color:var(--blue);display:grid;place-items:center;font-weight:800}
+  .wd .ph ol.steps li:nth-child(n+4)::before{background:var(--blue);color:#fff}
   .wd .ph img{position:absolute;inset:calc(1.6*var(--u));width:calc(100% - 3.2*var(--u));height:calc(100% - 3.2*var(--u));object-fit:contain}
   .wd .facts{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(3*var(--u));align-content:center}
   .wd .facts div{background:linear-gradient(135deg,#FFFFFF 0%,#EEF3FF 60%,#D6E3FF 100%);border:1.5px solid #B9CCF5;border-radius:calc(2*var(--u));box-shadow:var(--lift);padding:calc(5*var(--u)) calc(3*var(--u));text-align:center}
@@ -382,8 +386,11 @@ const DATA = {
     ["수업 영상 다시보기", "유튜브 수업 영상 · 팟캐스트", [
       ["img/w2a.webp", "모든 수업은 유튜브로 실시간 송출되고, 끝나면 자동 녹화됩니다", "결석한 날도 같은 시간에 집에서 참여하고, 복습할 때는 다시보기로 봅니다."],
       ["img/w2b.webp", "영상마다 챕터 타임라인 — 필요한 곳만 바로", "개념 설명 · 문제 풀이가 번호별 챕터로 나뉘어 있어, 모르는 개념이나 틀린 문제 번호만 눌러 그 부분부터 다시 봅니다. 복습 · 자습할 때 처음부터 볼 필요가 없습니다."] ]],
-    ["매 수업 테스트 · OMR", "휴대폰으로 입력하면 점수가 바로 기록", [
-      ["img/w3a.webp", "매주 OMR 테스트로 그 주에 배운 것을 확인합니다", "앱에서 바로 응시하고, 채점 결과와 오답이 즉시 기록됩니다."] ]],
+    ["매 수업 테스트 · OMR", "점수 자동 저장 · 오답 다 고치고 귀가", [   // 원장 10/27: 시험으로 끝나지 않는다 — 남아서 다 고치고 간다
+      ["img/w3a.webp", "앱 OMR로 응시 — 채점 · 오답이 자동으로 저장됩니다", "학생 점수와 반 평균 · 최고점이 학부모님께 문자로 바로 갑니다. 점수는 모두 쌓여 성적 흐름을 볼 수 있습니다."],
+      ["steps", "시험으로 끝나지 않습니다 — 다 고치고 갑니다", "평균에 못 미치면 남아서 틀린 문제를 모두 다시 풉니다.", [
+        "앱 OMR로 테스트 응시", "채점 · 오답 자동 저장", "학부모님께 점수 · 평균 · 최고점 문자",
+        "평균 미달이면 남아서 오답 다시 풀기", "조교 선생님과 오답 확인 · 자습", "모두 고친 뒤 귀가" ]] ]],
     ["학부모님께 수업 문자", "수업 내용 · 숙제 · 테스트 점수를 매 수업 안내", [
       ["img/w4a.webp", "결과는 학생 · 학부모님께 문자로 보내 드립니다", "테스트 점수 · 숙제 · 그날 배운 내용을 매 수업 안내합니다."] ]],
     ["일요일 조교 클리닉", "매주 일요일 오후 3~7시 질문 · 보충", "clinic"],       // V-010 — 조교가 하는 일 5가지(원장 10/26)
@@ -402,7 +409,7 @@ const DATA = {
     "talk": "상담 예약 안내입니다. 카카오톡 채널이나 네이버 예약 QR을 휴대폰으로 찍어 주시거나, 여기서 이름과 전화번호를 남겨 주시면 연락드리겠습니다.",
     "w1": "매 수업 학습지와 손풀이 답지를 학원앱 자료실에서 PDF로 언제든 볼 수 있습니다.",
     "w2": "모든 수업은 유튜브로 송출되고 녹화됩니다. 영상마다 챕터 타임라인이 있어서, 필요한 개념이나 문제 번호만 눌러 그 부분부터 바로 다시 볼 수 있습니다. 복습하거나 자습할 때 처음부터 다 볼 필요가 없습니다.",
-    "w3": "매 수업 테스트를 휴대폰 OMR로 보고, 점수가 바로 기록됩니다.",
+    "w3": "매 수업 테스트는 휴대폰 OMR로 봅니다. 채점과 오답은 자동으로 저장되고, 학생 점수와 반 평균, 최고점이 학부모님께 문자로 바로 갑니다. 평균에 못 미치면 남아서 틀린 문제를 모두 다시 풀고, 조교 선생님과 확인한 뒤 귀가합니다. 시험으로 끝나지 않고, 다 고치고 갑니다.",
     "w4": "수업 내용과 숙제, 테스트 점수를 매 수업 학부모님께 문자로 안내해 드립니다.",
     "w5": "매주 일요일 오후 3시부터 7시까지 조교 클리닉에서 문제 해설과 개념 보충, 숙제 검사를 도와 드립니다.",
     "w6": "최과학이 직접 만든 학습앱과 질문 게시판으로 언제든 복습하고 질문할 수 있습니다.",
@@ -457,12 +464,12 @@ function openWay(i){
   $("#wd-title").textContent = w[0]; $("#wd-sub").textContent = w[1];
   $("#wd-body").innerHTML = w[2] === "clinic"
     ? `<div class="clinic"><div class="ci time"><small>조교 클리닉</small><b>매주 일요일</b><b>오후 3~7시</b><span>학원에서 조교 선생님이 도와 드립니다</span></div>${CLINIC.map(c => `<div class="ci"><i>${c[0]}</i><b>${c[1]}</b><span>${c[2]}</span></div>`).join("")}</div>`
-    :`<div class="pics" style="grid-template-columns:repeat(${w[2].length},1fr)">${w[2].map(p => `<figure><b>${p[1]}</b><span>${p[2]}</span><div class="ph"><img src="${p[0]}" alt="${p[1]}"></div></figure>`).join("")}</div>`;
+    :`<div class="pics" style="grid-template-columns:repeat(${w[2].length},1fr)">${w[2].map(p => `<figure><b>${p[1]}</b><span>${p[2]}</span><div class="ph">${p[0] === "steps" ? `<ol class="steps">${p[3].map(s => `<li>${s}</li>`).join("")}</ol>` : `<img src="${p[0]}" alt="${p[1]}">`}</div></figure>`).join("")}</div>`;
   show("wd"); say("w" + (i + 1));
 }
 
 /* 음성 안내 — 화면을 열면 그 화면 멘트(voice/키.mp3)를 읽고, 다른 단추를 누르면 바로 끊는다 (원장 10/27) */
-const VOICE_VER = 3;   // 음성 파일을 다시 만들면 1 올린다(모니터에 옛 소리가 남지 않게)
+const VOICE_VER = 4;   // 음성 파일을 다시 만들면 1 올린다(모니터에 옛 소리가 남지 않게)
 const voice = new Audio(); voice.preload = "auto";
 let muted = false; try { muted = localStorage.getItem("kioskMute") === "1"; } catch (e) {}
 function hush(){ try { voice.pause(); voice.currentTime = 0; } catch (e) {} }
