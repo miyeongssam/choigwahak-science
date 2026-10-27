@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>학원앱 창 시험</title>
+<!-- 시험용 한 장 (2026-10-27): 키오스크 모니터에서 학원앱이 창(iframe) 안에 열리는지 본다. 진짜 키오스크(index.html)는 건드리지 않는다. 시험이 끝나면 지운다 -->
+<style>
+  :root{--blue:#2F6BFF;--ink:#111827;--line:#C9D2DF}
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%;font-family:system-ui,"Malgun Gothic",sans-serif;color:var(--ink);background:#EEF2F8}
+  body{display:flex;flex-direction:column}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
+  header b{font-size:22px;margin-right:8px}
+  button{font:inherit;font-size:20px;font-weight:700;padding:12px 18px;border-radius:12px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+  button.on{background:var(--blue);color:#fff}
+  #st{font-size:18px;color:#4B5563;margin-left:auto}
+  iframe{flex:1;width:100%;border:0;background:#fff}
+</style>
+</head>
+<body>
+<header>
+  <b>학원앱 창 시험</b>
+  <button data-u="https://app.choisci.com/">학원앱 첫 화면</button>
+  <button data-u="https://app.choisci.com/course/go1-yeouido">고1 강좌</button>
+  <button data-u="https://app.choisci.com/about">수업 방식</button>
+  <button data-u="https://app.choisci.com/tuition">교습비</button>
+  <button id="re">다시 불러오기</button>
+  <button onclick="location.href='./'">← 키오스크로</button>
+  <span id="st">위 단추를 눌러 보세요</span>
+</header>
+<iframe id="f" title="학원앱"></iframe>
+<script>
+const f = document.getElementById("f"), st = document.getElementById("st");
+let cur = "";
+function go(u){
+  cur = u; st.textContent = "여는 중… " + u.replace("https://app.choisci.com", "") ;
+  document.querySelectorAll("[data-u]").forEach(b => b.classList.toggle("on", b.dataset.u === u));
+  f.src = u + (u.includes("?") ? "&" : "?") + "t=" + Date.now();
+}
+f.addEventListener("load", () => { if (cur) st.textContent = "불러옴: " + cur.replace("https://app.choisci.com", "/") + " — 학원앱 화면이 보이면 성공"; });
+document.querySelectorAll("[data-u]").forEach(b => b.addEventListener("click", () => go(b.dataset.u)));
+document.getElementById("re").addEventListener("click", () => cur && go(cur));
+</script>
+</body>
+</html>
