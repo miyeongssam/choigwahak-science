@@ -616,6 +616,18 @@ function home(){ hush(); show("home"); $("#win-frame").src = "about:blank"; clea
 /* 대기 화면(영상) — 처음 켤 때와 2분 동안 안 만졌을 때. 누르면 첫 화면 (10/27 원장) */
 const hiVid = $("#hi-vid");
 const playHi = () => { try { const p = hiVid.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
+/* 모니터 브라우저는 누가 화면을 한 번 만져야 영상 재생을 허락한다(10/27 원장: 대기 화면 물방울 · 원자가 멈춰 있음).
+   그래서 첫 터치 때 영상을 한 번 틀었다 멈춰 「허락」을 받아 두고, 대기 화면이 될 때 그 허락으로 튼다 */
+let hiUnlocked = false;
+const unlockHi = () => {
+  if (hiUnlocked || MOBILE) return;
+  try {
+    const p = hiVid.play();
+    const done = () => { hiUnlocked = true; if (!$("#hi").classList.contains("on")) hiVid.pause(); };
+    if (p && p.then) p.then(done).catch(() => {}); else done();
+  } catch (e) {}
+};
+["pointerdown", "touchstart", "keydown"].forEach(t => window.addEventListener(t, unlockHi, { passive:true }));
 function toHi(){ home(); hush(); show("hi"); playHi(); }
 $("#hi").addEventListener("click", () => { home(); say("home"); });
 function openTT(key){
