@@ -209,6 +209,15 @@
   .fx .atom svg{width:100%;height:100%;display:block}
   @keyframes rise{from{transform:translate(0,0)}50%{transform:translate(2vh,-60vh)}to{transform:translate(0,-125vh)}}
   @keyframes spin{to{transform:rotate(360deg)}}
+  /* 대기 화면 글자도 움직임(10/27 원장) — 9초마다: 로고 들어옴 → 「어서 오세요, 반갑습니다!」 한 글자씩 → 「…입니다」 → 다 같이 사라졌다 다시. 전화번호는 둥실둥실 */
+  #hi .brand{animation:brandIn 9s ease-out infinite}
+  #hi .ch{display:inline-block;white-space:pre;animation:pop 9s ease-out infinite;animation-delay:calc(.35s + var(--i) * .09s)}
+  #hi .say{animation:sayIn 9s ease-out infinite}
+  #hi .hi-tel{animation:bob 3.6s ease-in-out infinite}
+  @keyframes brandIn{0%{opacity:0;transform:translateX(-6vh)}7%,88%{opacity:1;transform:none}97%,100%{opacity:0}}
+  @keyframes pop{0%{opacity:0;transform:translateY(3vh) scale(.7)}6%{opacity:1;transform:translateY(-.6vh) scale(1.08)}9%,84%{opacity:1;transform:none}94%,100%{opacity:0;transform:translateY(-1.5vh)}}
+  @keyframes sayIn{0%,22%{opacity:0;transform:translateY(2vh)}30%,88%{opacity:1;transform:none}97%,100%{opacity:0}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-.8vh)}}
   @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(20vh,-12vh) scale(1.15)}}
   .hi-in{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:calc(2.4*var(--u))}
   .hi-in .brand{gap:calc(1.6*var(--u))}
@@ -641,6 +650,15 @@ const hiVid = $("#hi-vid");
   [[8, 60, 15, 26], [27, 10, 9, 18], [65, 76, 11, 22], [82, 12, 17, 30]].forEach(([x, y, sz, dur], i) =>
     h += `<div class="atom" style="left:${x}%;top:${y}%;width:${sz}vh;height:${sz}vh;animation-duration:${dur}s${i % 2 ? ";animation-direction:reverse" : ""}">${ATOM}</div>`);
   fx.innerHTML = h;
+  /* 「어서 오세요, 반갑습니다!」를 한 글자씩 span 으로 나눠 차례로 나타나게 */
+  let n = 0;
+  const split = el => [...el.childNodes].forEach(nd => {
+    if (nd.nodeType === 3) { const f = document.createDocumentFragment();
+      [...nd.textContent].forEach(c => { const s = document.createElement("span"); s.className = "ch"; s.style.setProperty("--i", n++); s.textContent = c; f.appendChild(s); });
+      nd.replaceWith(f);
+    } else if (nd.nodeType === 1 && nd.tagName !== "BR") split(nd);
+  });
+  const h1 = document.querySelector("#hi h1"); if (h1) split(h1);
 })();
 const playHi = () => { try { const p = hiVid.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
 /* 모니터 브라우저는 누가 화면을 한 번 만져야 영상 재생을 허락한다(10/27 원장: 대기 화면 물방울 · 원자가 멈춰 있음).
