@@ -200,7 +200,7 @@ body.done .after{display:block}
 </style>
 </head>
 <body>
-<div class="top"><div class="in"><a class="logo" href="#/">사이큐브</a><span class="crumb">통합과학 › 자연선택과 진화</span></div></div>
+<div class="top"><div class="in"><a class="logo" href="#/">사이큐브</a><span class="crumb">통합과학 › 진화와 생물다양성</span></div></div>
 <div class="layout">
   <div class="main"><div class="wrap" id="view"></div></div>
   <aside class="panel" id="panel"></aside>
@@ -264,19 +264,23 @@ function home(tab){
           `<a class="chip" data-k="${esc(c['이름'] + ' ' + c['다른이름'])}" href="#/개념/${esc(c['이름'])}">${esc(c['이름'])}<span class="n">${c['문항'].length}</span></a>`).join('') +
         `</div></div>`).join('');
   } else {
+    let lastU = '';
     body = `<div class="rows">` + Q.map(q => {
       const r = res[q.id];
+      const uh = q['소단원'] !== lastU ? `<h2 style="margin:24px 0 8px;font-size:20px">${esc(UNAME(q['소단원']))}</h2>` : ''; lastU = q['소단원'];
       // 출처만으로는 무슨 문제인지 모르니 문제 첫 문장을 함께 보인다(원장 10/28)
       const first = (q['문제'].match(/<p[^>]*>(.*?)<\/p>/) || ['', ''])[1].replace(/<[^>]+>/g, '');
-      return `<a class="row" href="#/문항/${q.id}"><span class="no">${q['순서']}</span><span class="t">${esc(q['출처'])}<span class="pv">${first}</span></span>
+      return uh + `<a class="row" href="#/문항/${q.id}"><span class="no">${q['순서']}</span><span class="t">${esc(q['출처'])}<span class="pv">${first}</span></span>
         <span class="badge">${esc(q['자료유형'])}</span><span class="mark ${r ? (r.ok ? 'ok' : 'bad') : ''}">${r ? (r.ok ? '○' : '✕') : ''}</span><span class="bmk">${loadSet('sc.bm').has(q.id) ? ICON.bm : ''}</span></a>`;
     }).join('') + `</div>`;
   }
-  view.innerHTML = `<h1>자연선택과 진화</h1><div class="sub">통합과학 · 문제 ${Q.length} · 개념 카드 ${Object.keys(C).length} · 푼 문제 ${done}</div>
+  view.innerHTML = `<h1>진화와 생물다양성</h1><div class="sub">통합과학 · 문제 ${Q.length} · 개념 카드 ${Object.keys(C).length} · 푼 문제 ${done}</div>
     <div class="tabs"><a class="tab ${tab !== '개념' ? 'on' : ''}" href="#/">문제</a><a class="tab ${tab === '개념' ? 'on' : ''}" href="#/목록/개념">개념 카드</a></div>${body}`;
   const f = document.getElementById('find');
   if (f) f.oninput = () => document.querySelectorAll('.chip').forEach(ch => ch.style.display = ch.dataset.k.includes(f.value.trim()) ? '' : 'none');
 }
+
+function UNAME(u){ return ({'자연선택과진화': '자연선택과 진화', '생물다양성과보전': '생물다양성과 보전'})[u] || u; }
 
 function problem(id){
   const q = byId[id]; if (!q) return home();
@@ -287,7 +291,7 @@ function problem(id){
   document.body.classList.toggle('done', !!saved);
   const rel = q['관련'].map(r => `<a class="lk" href="#/개념/${esc(r['카드'])}">${esc(r['말'])}</a>`).join(' · ');
   view.innerHTML = `
-    <div class="bar1"><h1>${esc(q['소단원'].replace('자연선택과진화', '자연선택과 진화'))}</h1>
+    <div class="bar1"><h1>${esc(UNAME(q['소단원']))}</h1>
       <div class="nav"><a class="btn btn-s" href="#/">목록</a>
         <a class="ic" ${prev ? `href="#/문항/${prev.id}"` : 'style="color:var(--line)"'}>‹</a><span>${i + 1} / ${Q.length}</span>
         <a class="ic" ${next ? `href="#/문항/${next.id}"` : 'style="color:var(--line)"'}>›</a></div></div>
