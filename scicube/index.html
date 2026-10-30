@@ -205,7 +205,7 @@ body.done .after{display:block}
   <div class="main"><div class="wrap" id="view"></div></div>
   <aside class="panel" id="panel"></aside>
 </div>
-<script src="data.js?v=1793325547"></script>
+<script src="data.js?v=1793325653"></script>
 <script>
 // 사이큐브 화면 틀 1판 — 문제 · 개념 카드 · 링크 이동 (데이터: data.js, scripts/build_app.py 가 만든다)
 const Q = SC['문항'], C = SC['개념'];
@@ -245,7 +245,7 @@ function conceptHTML(c, inPanel){
   const meta = [c['다른이름'] && '다른 이름: ' + esc(c['다른이름']), c['종류'], c['위'] && '위 개념: ' + esc(c['위'])].filter(Boolean).join(' · ');
   const secs = c['절'].map(s => `<h2>${esc(s['제목'])}</h2><div class="x">${s.html}</div>`).join('');
   // 지금 보고 있는 문제는 같은 주소라 눌러도 움직이지 않는다 → 「지금 보는 문제」로 표시하고 누르면 문제 맨 위로(원장 10/30)
-  const cur = decodeURIComponent((location.hash.match(/^#\/문항\/(.+)$/) || [])[1] || '');
+  const cur = (decodeURIComponent(location.hash).match(/^#\/문항\/(.+)$/) || [])[1] || '';
   const qs = c['문항'].map(id => id === cur
     ? `<li><a href="javascript:void(0)" onclick="window.scrollTo({top:0,behavior:'smooth'})"><b>${esc(byId[id]['출처'])}</b><span class="badge">지금 보는 문제 · 맨 위로</span></a></li>`
     : `<li><a href="#/문항/${id}"><b>${esc(byId[id]['출처'])}</b><span class="badge">${esc(byId[id]['자료유형'])}</span></a></li>`).join('');
