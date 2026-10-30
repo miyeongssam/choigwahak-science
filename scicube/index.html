@@ -208,7 +208,7 @@ body.done .after{display:block}
   <div class="main"><div class="wrap" id="view"></div></div>
   <aside class="panel" id="panel"></aside>
 </div>
-<script src="data.js?v=1793328039"></script>
+<script src="data.js?v=1793328580"></script>
 <script>
 // 사이큐브 화면 틀 1판 — 문제 · 개념 카드 · 링크 이동 (데이터: data.js, scripts/build_app.py 가 만든다)
 const Q = SC['문항'], C = SC['개념'];
@@ -262,8 +262,12 @@ function conceptHTML(c, inPanel){
 function loadFilter(){ try { return JSON.parse(localStorage.getItem('sc.filter') || '{}'); } catch(e){ return {}; } }
 function saveFilter(f){ try { localStorage.setItem('sc.filter', JSON.stringify(f)); } catch(e){} }
 function examOf(q){ const m = q['메타'] || {}; return m['출제기관'] === '평가원' ? '평가원' : m['출제기관'] === 'EBS' ? 'EBS' : m['시험종류'] === '학평' ? '학평' : m['시험종류']; }
+function fsel(F, k){ const v = F[k]; return Array.isArray(v) ? v : (v ? [v] : []); }   // 옛 저장 꼴(한 값)도 읽는다
 document.addEventListener('click', e => { const b = e.target.closest('.fch'); if (!b) return;
-  const f = loadFilter(); f[b.dataset.fk] = b.dataset.fv; saveFilter(f); home(); });
+  const f = loadFilter(), k = b.dataset.fk, v = b.dataset.fv;
+  if (v === '') f[k] = [];                                   // 「전체」 = 모두 풀기
+  else { const s = new Set(fsel(f, k)); s.has(v) ? s.delete(v) : s.add(v); f[k] = [...s]; }   // 누를 때마다 넣고 · 빼고
+  saveFilter(f); home(); });
 
 function home(tab){
   const res = loadRes();
@@ -287,9 +291,9 @@ function home(tab){
       시험: [['학평', '학평'], ['평가원', '평가원(모평 · 수능)'], ['EBS', 'EBS']].filter(([k]) => Q.some(q => examOf(q) === k)),
       월: [...new Set(Q.map(q => q['메타']['월']).filter(Boolean))].sort((a, b) => a - b).map(m => [m, m + '월'])};
     const bar = Object.entries(opts).map(([k, list]) => `<div class="fbar"><span class="fk">${k}</span>` +
-      [['', '전체'], ...list].map(([v, t]) => `<button class="fch ${(F[k] || '') === v ? 'on' : ''}" data-fk="${k}" data-fv="${esc(v)}">${esc(t)}</button>`).join('') + `</div>`).join('');
-    const QF = Q.filter(q => (!F['단원'] || q['소단원'] === F['단원']) && (!F['학년'] || q['메타']['학년'] === F['학년']) &&
-      (!F['시험'] || examOf(q) === F['시험']) && (!F['월'] || q['메타']['월'] === F['월']));
+      [['', '전체'], ...list].map(([v, t]) => `<button class="fch ${v === '' ? (fsel(F, k).length ? '' : 'on') : (fsel(F, k).includes(v) ? 'on' : '')}" data-fk="${k}" data-fv="${esc(v)}">${esc(t)}</button>`).join('') + `</div>`).join('');
+    const has = (k, v) => !fsel(F, k).length || fsel(F, k).includes(v);   // 여러 개 고르기 — 같은 칸 안은 「또는」
+    const QF = Q.filter(q => has('단원', q['소단원']) && has('학년', q['메타']['학년']) && has('시험', examOf(q)) && has('월', q['메타']['월']));
     body = `<div class="filters">${bar}<div class="fcount">${QF.length}문항</div></div><div class="rows">` + QF.map(q => {
       const r = res[q.id];
       const uh = q['소단원'] !== lastU ? `<h2 style="margin:24px 0 8px;font-size:20px">${esc(UNAME(q['소단원']))}</h2>` : ''; lastU = q['소단원'];
