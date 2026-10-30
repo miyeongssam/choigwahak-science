@@ -242,9 +242,13 @@ function loadRes(){ try { return JSON.parse(localStorage.getItem('sc.res') || '{
 function saveRes(id, v){ const r = loadRes(); r[id] = v; try { localStorage.setItem('sc.res', JSON.stringify(r)); } catch(e){} }
 
 function conceptHTML(c, inPanel){
-  const meta = [c['다른이름'] && '다른 이름: ' + esc(c['다른이름']), c['종류'], '범위: ' + esc(c['범위']), c['위'] && '위 개념: ' + esc(c['위'])].filter(Boolean).join(' · ');
+  const meta = [c['다른이름'] && '다른 이름: ' + esc(c['다른이름']), c['종류'], c['위'] && '위 개념: ' + esc(c['위'])].filter(Boolean).join(' · ');
   const secs = c['절'].map(s => `<h2>${esc(s['제목'])}</h2><div class="x">${s.html}</div>`).join('');
-  const qs = c['문항'].map(id => `<li><a href="#/문항/${id}"><b>${esc(byId[id]['출처'])}</b><span class="badge">${esc(byId[id]['자료유형'])}</span></a></li>`).join('');
+  // 지금 보고 있는 문제는 같은 주소라 눌러도 움직이지 않는다 → 「지금 보는 문제」로 표시하고 누르면 문제 맨 위로(원장 10/30)
+  const cur = decodeURIComponent((location.hash.match(/^#\/문항\/(.+)$/) || [])[1] || '');
+  const qs = c['문항'].map(id => id === cur
+    ? `<li><a href="javascript:void(0)" onclick="window.scrollTo({top:0,behavior:'smooth'})"><b>${esc(byId[id]['출처'])}</b><span class="badge">지금 보는 문제 · 맨 위로</span></a></li>`
+    : `<li><a href="#/문항/${id}"><b>${esc(byId[id]['출처'])}</b><span class="badge">${esc(byId[id]['자료유형'])}</span></a></li>`).join('');
   const rel = c['관련'].map(r => `<a class="lk" href="#/개념/${esc(r['카드'])}">${esc(r['말'])}</a>`).join(' · ');
   return `<div class="cname">${esc(c['이름'])}</div><div class="cmeta">${meta}</div>${secs}
     <h2>이 개념 관련 문제 풀기 (${c['문항'].length}문항)</h2><ul class="qlist">${qs || '<li class="sub">아직 이 개념이 나오는 문제가 없습니다.</li>'}</ul>
@@ -306,7 +310,7 @@ function problem(id){
         <button class="ic" id="aiBtn" title="AI에게 물어보기">${ICON.ai}</button>
       </span></div>
     <div class="stem x">${q['문제']}</div>
-    <div class="choices">${q['선지'].map((c, k) => `<div class="ch" role="button" data-k="${k + 1}"><button class="oxb cx" title="○ ↔ ✕ 표시(고르는 것과 따로)"></button><span class="num">${k + 1}</span><span class="txt">${esc(c)}</span></div>`).join('')}</div>
+    <div class="choices">${q['선지'].map((c, k) => `<div class="ch" role="button" data-k="${k + 1}"><button class="oxb cx"></button><span class="num">${k + 1}</span><span class="txt">${esc(c)}</span></div>`).join('')}</div>
     <div class="check" id="check"></div>
     <div class="after">
       <div class="result" id="result"></div>
@@ -338,8 +342,7 @@ function problem(id){
   view.querySelectorAll('.bogi > div:not(.bt)').forEach(d => {
     const m = d.textContent.match(/^([ㄱㄴㄷㄹ])\./); if (!m) return;
     d.classList.add('bl'); d.dataset.b = m[1];
-    d.innerHTML = `<button class="oxb" title="누를 때마다 ○(맞음) ↔ ✕(틀림)"></button><span class="bt2">${d.innerHTML}</span>`;
-    d.title = '줄 아무 데나 누르면 ○ ↔ ✕';
+    d.innerHTML = `<button class="oxb"></button><span class="bt2">${d.innerHTML}</span>`;
     d.onclick = () => {   // 칸뿐 아니라 그 줄 아무 데나 눌러도 된다(원장 10/28 — 읽다가 동사 위에서 바로 탁). 두 가지만: 처음 ○, 그다음 ○ ↔ ✕ (맞는 문장이 더 많아 ○ 먼저)
       if (document.body.classList.contains('done')) return;
       bogi[m[1]] = bogi[m[1]] === 'o' ? 'x' : 'o';
