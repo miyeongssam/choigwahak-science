@@ -197,6 +197,9 @@ body.done .after{display:block}
 .qlist li{margin:6px 0}
 .qlist a{display:flex;gap:8px;align-items:center;border:1px solid var(--line-strong);border-radius:8px;padding:10px 14px}
 .qlist a:hover{border-color:var(--primary)}
+.filters{margin:8px 0 4px}.fbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}.fk{font-size:14px;color:#666;width:44px}
+.fch{border:1px solid #CCD6F0;background:#fff;border-radius:16px;padding:4px 12px;font-size:15px;cursor:pointer}.fch.on{background:#2F6BFF;color:#fff;border-color:#2F6BFF}
+.fcount{font-size:14px;color:#666;margin-top:4px}
 </style>
 </head>
 <body>
@@ -205,7 +208,7 @@ body.done .after{display:block}
   <div class="main"><div class="wrap" id="view"></div></div>
   <aside class="panel" id="panel"></aside>
 </div>
-<script src="data.js?v=1793325653"></script>
+<script src="data.js?v=1793326339"></script>
 <script>
 // 사이큐브 화면 틀 1판 — 문제 · 개념 카드 · 링크 이동 (데이터: data.js, scripts/build_app.py 가 만든다)
 const Q = SC['문항'], C = SC['개념'];
@@ -255,6 +258,13 @@ function conceptHTML(c, inPanel){
     <h2>관련 개념</h2><div class="rel">${rel}</div>`;
 }
 
+// 골라 풀기 상태는 이 기기에만(다음에 열어도 그대로)
+function loadFilter(){ try { return JSON.parse(localStorage.getItem('sc.filter') || '{}'); } catch(e){ return {}; } }
+function saveFilter(f){ try { localStorage.setItem('sc.filter', JSON.stringify(f)); } catch(e){} }
+function examOf(q){ const m = q['메타'] || {}; return m['출제기관'] === '평가원' ? '평가원' : m['출제기관'] === 'EBS' ? 'EBS' : m['시험종류'] === '학평' ? '학평' : m['시험종류']; }
+document.addEventListener('click', e => { const b = e.target.closest('.fch'); if (!b) return;
+  const f = loadFilter(); f[b.dataset.fk] = b.dataset.fv; saveFilter(f); home(); });
+
 function home(tab){
   const res = loadRes();
   const done = Object.keys(res).filter(k => byId[k]).length;
@@ -269,7 +279,18 @@ function home(tab){
         `</div></div>`).join('');
   } else {
     let lastU = '';
-    body = `<div class="rows">` + Q.map(q => {
+    // 골라 풀기(원장 10/30 · D-366): 단원 · 학년 · 시험(학평 / 평가원 / EBS) · 월 — 메타데이터는 build_app.py 의 문항메타
+    const F = loadFilter();
+    const opts = {
+      단원: [...new Set(Q.map(q => q['소단원']))].map(u => [u, UNAME(u)]),
+      학년: ['고1', '고2', '고3'].filter(g => Q.some(q => q['메타']['학년'] === g)).map(g => [g, g]),
+      시험: [['학평', '학평'], ['평가원', '평가원(모평 · 수능)'], ['EBS', 'EBS']].filter(([k]) => Q.some(q => examOf(q) === k)),
+      월: [...new Set(Q.map(q => q['메타']['월']).filter(Boolean))].sort((a, b) => a - b).map(m => [m, m + '월'])};
+    const bar = Object.entries(opts).map(([k, list]) => `<div class="fbar"><span class="fk">${k}</span>` +
+      [['', '전체'], ...list].map(([v, t]) => `<button class="fch ${(F[k] || '') === v ? 'on' : ''}" data-fk="${k}" data-fv="${esc(v)}">${esc(t)}</button>`).join('') + `</div>`).join('');
+    const QF = Q.filter(q => (!F['단원'] || q['소단원'] === F['단원']) && (!F['학년'] || q['메타']['학년'] === F['학년']) &&
+      (!F['시험'] || examOf(q) === F['시험']) && (!F['월'] || q['메타']['월'] === F['월']));
+    body = `<div class="filters">${bar}<div class="fcount">${QF.length}문항</div></div><div class="rows">` + QF.map(q => {
       const r = res[q.id];
       const uh = q['소단원'] !== lastU ? `<h2 style="margin:24px 0 8px;font-size:20px">${esc(UNAME(q['소단원']))}</h2>` : ''; lastU = q['소단원'];
       // 출처만으로는 무슨 문제인지 모르니 문제 첫 문장을 함께 보인다(원장 10/28)
