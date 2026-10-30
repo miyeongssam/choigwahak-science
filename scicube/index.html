@@ -208,7 +208,7 @@ body.done .after{display:block}
   <div class="main"><div class="wrap" id="view"></div></div>
   <aside class="panel" id="panel"></aside>
 </div>
-<script src="data.js?v=1793328580"></script>
+<script src="data.js?v=1793329216"></script>
 <script>
 // 사이큐브 화면 틀 1판 — 문제 · 개념 카드 · 링크 이동 (데이터: data.js, scripts/build_app.py 가 만든다)
 const Q = SC['문항'], C = SC['개념'];
@@ -409,7 +409,7 @@ function problem(id){
     const k = +b.dataset.k;
     if (e.target.closest('.cx')){   // ○ ↔ ✕ (처음 ○)
       out[k] = out[k] === 'o' ? 'x' : 'o'; if (out[k] === 'x' && k === q['정답']) outCorrect = true;
-    } else sel = k;
+    } else sel = sel === k ? 0 : k;   // 고른 번호를 한 번 더 누르면 고르기를 푼다(원장 10/30)
     savePick(id, {sel, bogi, out});   // 고른 답은 바로 답안지에 보인다(정답 확인 전에도)
     paint();
   });
