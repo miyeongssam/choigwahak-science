@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>인공위성은 왜 돌까 · 최과학 과학</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#141b33; --line:#2a355e; --text:#eef2ff; --sub:#a9b4d6;
+    --vel:#4dd0e1; --grav:#ff6b6b; --on:#2e7d32; --off:#c62828;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;overflow:hidden}
+  #app{display:grid;grid-template-columns:1fr 380px;grid-template-rows:100%;height:100%}
+  #stage{position:relative;min-height:0;overflow:hidden}
+  canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+  #side{background:var(--panel);border-left:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:11px;overflow:auto}
+  #side>*{flex-shrink:0}
+  h1{font-size:23px;margin:0}
+  .q{font-size:16px;color:var(--sub);line-height:1.45}
+  button{font:inherit;font-size:18px;font-weight:700;border:0;border-radius:11px;padding:11px 10px;cursor:pointer;color:#fff;background:#3b4a80}
+  button:hover{filter:brightness(1.15)}
+  #gravBtn.on{background:var(--on)} #gravBtn.off{background:var(--off)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#0f1630;padding:5px;border-radius:13px}
+  .tabs button{background:transparent;color:var(--sub);font-size:17px;padding:10px 6px}
+  .tabs button.act{background:#f2b632;color:#1b1b1b}
+  .box{background:#0f1630;border:1px solid var(--line);border-radius:12px;padding:11px}
+  .sl{font-size:16px;color:var(--sub);display:block}
+  .sl b{color:var(--text);font-size:19px}
+  input[type=range]{width:100%;height:26px;margin:4px 0 0}
+  #zone{height:12px;border-radius:6px;margin:2px 8px 0}
+  #zoneLab{position:relative;height:18px;margin:2px 8px 0;font-size:13px;color:var(--sub)}
+  #zoneLab span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .mini{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+  .mini button{font-size:15px;padding:8px 4px;background:#2b365f}
+  .chk{display:flex;align-items:center;gap:9px;font-size:16px;cursor:pointer}
+  .chk input{width:20px;height:20px}
+  #msg{font-size:18px;line-height:1.5;min-height:84px}
+  #read{font-size:16px;line-height:1.65;font-variant-numeric:tabular-nums}
+  #read b{font-size:17px}
+  .small{font-size:14px;color:var(--sub)}
+  @media (max-width:900px){#app{grid-template-columns:1fr;grid-template-rows:60vh auto}#side{border-left:0;border-top:1px solid var(--line)}html,body{overflow:auto}}
+  #home{position:absolute;left:10px;top:10px;z-index:5;color:#eef2ff;text-decoration:none;font-size:16px;font-weight:700;background:#141b33cc;border:1px solid #2a355e;border-radius:10px;padding:6px 12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage"><canvas id="cv"></canvas><a id="home" href="../">‹ 홈</a></div>
+  <div id="side">
+    <div>
+      <h1>인공위성은 왜 돌까?</h1>
+      <div class="q">우주정거장 안에는 중력이 있을까, 없을까?</div>
+    </div>
+    <div class="tabs">
+      <button id="tab1" class="act">① 높이</button>
+      <button id="tab2">② 쏘는 속력</button>
+    </div>
+    <div class="box" id="p1">
+      <label class="sl">궤도 반지름 <b id="rv"></b>
+        <input type="range" id="rS" min="1.05" max="3" step="0.05" value="2.2"></label>
+      <div class="small">지구 중심에서 잰 거리(지구 반지름의 몇 배)</div>
+      <label class="chk" style="margin-top:8px"><input type="checkbox" id="cmp" checked> 비교 위성(낮은 궤도) 같이 돌리기</label>
+    </div>
+    <div class="box" id="p2" style="display:none">
+      <label class="sl">쏘는 속력 <b id="kv"></b>
+        <input type="range" id="kS" min="0.5" max="1.6" step="0.01" value="1"></label>
+      <div id="zone"></div>
+      <div id="zoneLab"></div>
+      <div class="mini">
+        <button id="kC">원운동 속력</button>
+        <button id="kE">탈출 속력(√2배)</button>
+      </div>
+      <div class="small" style="margin-top:6px">높이는 그대로, 수평으로 쏘는 속력만 바꿉니다. 앞 궤도는 흐리게 남습니다.</div>
+    </div>
+    <button id="gravBtn" class="on">중력 켜짐 → 끄기</button>
+    <div class="row">
+      <button id="playBtn">⏸ 멈춤</button>
+      <button id="resetBtn">↺ 처음부터</button>
+    </div>
+    <button id="holdBtn" style="background:#6a4c93">정거장을 그 높이에 붙잡아 두면?</button>
+    <div class="box" id="msg"></div>
+    <div class="box" id="read"></div>
+    <label class="chk"><input type="checkbox" id="showTan" checked> 중력이 없었다면 갈 길(점선)</label>
+    <label class="chk"><input type="checkbox" id="showFall" checked> 그사이 떨어진 거리</label>
+    <label class="chk"><input type="checkbox" id="showVec" checked> 속도 · 중력 화살표(길이 = 크기)</label>
+    <label class="sl small">화면 재생 속도(물리와 무관) <input type="range" id="speed" min="0.3" max="3" step="0.1" value="1"></label>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+let W=0,H=0;
+function resize(){const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);}
+window.addEventListener('resize',resize);new ResizeObserver(resize).observe(cv);
+
+// 단위: 지구 반지름 = 1, GM = 1 → 원운동 속력 = 1/√r
+// 실제 값 바꾸기: 속력 1 = 7.91 km/s, 지구 반지름 6371 km, r=1 원궤도 한 바퀴 84.4분
+const KMS=7.91, RE_KM=6371, T1_MIN=84.4, R2=1.3, RC=1.3;
+const vc=r=>1/Math.sqrt(r);
+let mode=1, st, gravity=true, playing=true, held=false, crashed=false;
+let trail=[], oldTrails=[], cmpA=Math.PI/2, Vr=3.4, inner;
+
+function setState(x,y,vx,vy){st={x,y,vx,vy};trail=[[x,y]];crashed=false;}
+function launch(keepAngle){
+  gravity=true; held=false;
+  if(mode===1){
+    const r=+$('rS').value;
+    const th=keepAngle&&st?Math.atan2(st.y,st.x):Math.PI/2;
+    const v=vc(r);
+    setState(r*Math.cos(th),r*Math.sin(th),v*Math.sin(th),-v*Math.cos(th));
+  }else{
+    if(st&&st.k!==undefined&&trail.length>8){oldTrails.push({pts:trail,k:st.k});if(oldTrails.length>4)oldTrails.shift();}
+    const k=+$('kS').value;
+    setState(0,R2,k*vc(R2),0); st.k=k;
+  }
+  inner={astro:{x:-0.18,y:0.05,vy:0},drop:{x:0.2,y:0.10,vy:0}};
+  updUI();
+}
+function fullReset(){oldTrails=[];st=null;cmpA=Math.PI/2;launch(false);}
+
+// ---- 화면 조작 ----
+function setMode(m){
+  mode=m;
+  $('tab1').className=m===1?'act':''; $('tab2').className=m===2?'act':'';
+  $('p1').style.display=m===1?'':'none'; $('p2').style.display=m===2?'':'none';
+  fullReset();
+}
+$('tab1').onclick=()=>setMode(1); $('tab2').onclick=()=>setMode(2);
+$('rS').oninput=()=>{labels();launch(true);};
+$('kS').oninput=()=>{labels();launch(false);};
+$('kC').onclick=()=>{$('kS').value=1;labels();launch(false);};
+$('kE').onclick=()=>{$('kS').value=1.42;labels();launch(false);};
+$('gravBtn').onclick=()=>{gravity=!gravity;if(!gravity)held=false;updUI();};
+$('playBtn').onclick=e=>{playing=!playing;e.target.textContent=playing?'⏸ 멈춤':'▶ 재생';};
+$('resetBtn').onclick=fullReset;
+$('holdBtn').onclick=()=>{
+  if(crashed)return;
+  held=!held;
+  if(held){gravity=true;inner.astro.vy=0;inner.drop.vy=0;}
+  else{const r=Math.hypot(st.x,st.y),v=vc(r);st.vx=st.y/r*v;st.vy=-st.x/r*v;} // 손을 놓으면 그 높이 원운동
+  updUI();
+};
+function labels(){
+  const r=+$('rS').value, k=+$('kS').value;
+  $('rv').textContent=r.toFixed(2)+' 배 · 속력 '+(vc(r)*KMS).toFixed(1)+' km/s';
+  $('kv').textContent=(k*vc(R2)*KMS).toFixed(1)+' km/s (원운동의 '+k.toFixed(2)+'배)';
+}
+// 속력 구간 띠: 추락 | 타원(안) | 원 | 타원(밖) | 탈출
+const K_CRASH=Math.sqrt(2/(R2+1)), K_ESC=Math.SQRT2, KMIN=0.5, KMAX=1.6;
+(function zoneBar(){
+  const p=k=>((k-KMIN)/(KMAX-KMIN)*100).toFixed(1)+'%';
+  $('zone').style.background=`linear-gradient(90deg,#c62828 0 ${p(K_CRASH)},#f2b632 ${p(K_CRASH)} ${p(0.99)},#2e7d32 ${p(0.99)} ${p(1.01)},#f2b632 ${p(1.01)} ${p(K_ESC)},#7e57c2 ${p(K_ESC)} 100%)`;
+  const mid=(a,b)=>p((a+b)/2);
+  $('zoneLab').innerHTML=`<span style="left:${mid(KMIN,K_CRASH)}">추락</span><span style="left:${p(1)};color:#7ddc82;top:-1px">원</span><span style="left:${mid(1.02,K_ESC)}">타원</span><span style="left:${mid(K_ESC,KMAX)}">탈출</span>`;
+})();
+
+function zoneName(k){
+  if(Math.abs(k-1)<0.006) return 'circle';
+  if(k<K_CRASH) return 'crash';
+  if(k<1) return 'inner';
+  if(k<K_ESC) return 'outer';
+  return 'escape';
+}
+function updUI(){
+  const b=$('gravBtn'); b.className=gravity?'on':'off';
+  b.textContent=gravity?'중력 켜짐 → 끄기':'중력 꺼짐 → 켜기';
+  $('holdBtn').textContent=held?'붙잡은 손 놓기':'정거장을 그 높이에 붙잡아 두면?';
+}
+function message(){
+  const m=$('msg');
+  if(held) return m.innerHTML='정거장을 <b>멈춰 세우면</b> 정거장은 안 떨어지는데<br>우주인 · 물방울은 <b style="color:var(--grav)">바닥으로 떨어집니다.</b><br>→ 중력은 있습니다!';
+  if(crashed) return m.innerHTML='<b style="color:var(--grav)">땅에 닿았습니다.</b><br>원운동 속력보다 느리면 지구 쪽으로 더 많이 떨어집니다.';
+  if(!gravity) return m.innerHTML='중력을 끄면 그 순간의 속도 방향<br>= <b style="color:var(--vel)">접선 방향으로 등속 직선 운동</b><br>→ 원을 그리며 도는 이유는 중력';
+  if(mode===1) return m.innerHTML='높을수록 중력이 약해 <b>느리게</b> 돌아야 원운동,<br>낮을수록 <b>빠르게</b> 돌아야 원운동<br><span class="small">원운동 속력 v = √(GM / r) → r가 4배면 v는 ½배</span>';
+  const t={
+    crash:'원운동 속력보다 <b>많이 느림</b><br>→ 떨어지는 만큼 앞으로 못 나가 <b style="color:var(--grav)">땅에 닿음</b>',
+    inner:'원운동 속력보다 <b>조금 느림</b><br>→ 안쪽으로 찌그러진 <b>타원</b>',
+    circle:'<b style="color:#7ddc82">원운동 속력</b><br>→ 떨어지는 만큼 지구 표면도 휘어져<br>높이가 그대로 = 등속 원운동',
+    outer:'원운동 속력보다 <b>빠름</b><br>→ 바깥으로 길어진 <b>타원</b>, 멀수록 느려짐',
+    escape:'<b style="color:#b39ddb">탈출 속력</b>(원운동의 √2배) 이상<br>→ 다시 돌아오지 않음'
+  }[zoneName(st.k)];
+  m.innerHTML=t;
+}
+
+// ---- 물리 ----
+function acc(x,y){if(!gravity)return[0,0];const r=Math.hypot(x,y),a=1/(r*r*r);return[-a*x,-a*y];}
+function integrate(s,dt,n){ // 속도 베를레(에너지가 잘 보존됨)
+  const h=dt/n; let [ax,ay]=acc(s.x,s.y);
+  for(let i=0;i<n;i++){
+    s.vx+=ax*h/2; s.vy+=ay*h/2; s.x+=s.vx*h; s.y+=s.vy*h;
+    [ax,ay]=acc(s.x,s.y); s.vx+=ax*h/2; s.vy+=ay*h/2;
+    if(Math.hypot(s.x,s.y)<=1) return true;
+  }
+  return false;
+}
+function step(dt){
+  if(mode===1) cmpA-=dt*Math.pow(RC,-1.5);
+  const tt=performance.now()/1000;
+  if(held){
+    const g=0.9, iw=insetW(), U=iw*0.9, fl=0.36*iw-28;
+    for(const o of [inner.astro,inner.drop]){
+      o.vy+=g*dt; o.y+=o.vy*dt;
+      const floor=o===inner.astro?(fl-27)/U:(fl-10)/U;
+      if(o.y>floor){o.y=floor;o.vy=0;}
+    }
+    return;
+  }
+  const kk=Math.min(1,dt*3);
+  inner.astro.y+=(0.05+0.02*Math.sin(tt*0.9)-inner.astro.y)*kk;
+  inner.drop.y+=(0.10+0.03*Math.sin(tt*1.3+1)-inner.drop.y)*kk;
+  if(crashed) return;
+  if(integrate(st,dt,12)){
+    crashed=true; const r=Math.hypot(st.x,st.y); st.x/=r; st.y/=r;
+  }
+  const l=trail[trail.length-1];
+  if(Math.hypot(st.x-l[0],st.y-l[1])>0.006){trail.push([st.x,st.y]);if(trail.length>4000)trail.shift();}
+}
+function targetView(){
+  if(mode===1) return 3.4;
+  if(!gravity) return Vr;
+  const r=Math.hypot(st.x,st.y), E=(st.vx*st.vx+st.vy*st.vy)/2-1/r;
+  if(E>=-0.02) return 10;
+  const a=-1/(2*E);
+  return Math.min(10,Math.max(3.4,2*a*1.08));
+}
+
+// ---- 그리기 ----
+function draw(){
+  ctx.fillStyle='#0b1020';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ffffff22';
+  for(let i=0;i<110;i++){const x=(i*137.5)%W,y=(i*89.3+i*i*.7)%H;ctx.fillRect(x,y,1.5,1.5);}
+  Vr+=(targetView()-Vr)*0.04;
+  const S=Math.min(W,H)/2/Vr, cx=W*0.45, cy=H*0.5;
+  const P=(x,y)=>[cx+x*S, cy-y*S];
+
+  if(mode===1){
+    [1.3,2,3].forEach(r=>{
+      ctx.strokeStyle='#ffffff20';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+      ctx.beginPath();ctx.arc(cx,cy,r*S,0,7);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#ffffff66';ctx.font='14px sans-serif';ctx.textAlign='left';
+      ctx.fillText((vc(r)*KMS).toFixed(1)+' km/s',cx+r*S*0.71+4,cy+r*S*0.71+14);
+    });
+    const rr=+$('rS').value;
+    ctx.strokeStyle='#ffd16655';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,rr*S,0,7);ctx.stroke();
+  }else{
+    ctx.strokeStyle='#ffffff20';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+    ctx.beginPath();ctx.arc(cx,cy,R2*S,0,7);ctx.stroke();ctx.setLineDash([]);
+    oldTrails.forEach(o=>{
+      ctx.strokeStyle='#8a93b866';ctx.lineWidth=2;ctx.beginPath();
+      o.pts.forEach(([x,y],i)=>{const [px,py]=P(x,y);i?ctx.lineTo(px,py):ctx.moveTo(px,py);});ctx.stroke();
+      const e=o.pts[Math.min(o.pts.length-1,Math.floor(o.pts.length*0.3))],[ex,ey]=P(e[0],e[1]);
+      ctx.fillStyle='#a9b4d6aa';ctx.font='14px sans-serif';ctx.textAlign='left';ctx.fillText((o.k*vc(R2)*KMS).toFixed(1)+' km/s',ex+6,ey-6);
+    });
+  }
+  // 지구
+  const gr=ctx.createRadialGradient(cx-S*.3,cy-S*.3,S*.2,cx,cy,S);
+  gr.addColorStop(0,'#5b9bff');gr.addColorStop(1,'#1d4ea8');
+  ctx.fillStyle=gr;ctx.beginPath();ctx.arc(cx,cy,S,0,7);ctx.fill();
+  ctx.fillStyle='#3fa66acc';
+  [[-.3,.4,.35,.22],[.35,-.1,.28,.4],[-.2,-.5,.3,.18]].forEach(([x,y,a,b])=>{const [px,py]=P(x,y);ctx.beginPath();ctx.ellipse(px,py,a*S,b*S,0.4,0,7);ctx.fill();});
+  ctx.fillStyle='#fff';ctx.font='bold '+Math.round(Math.max(14,Math.min(22,S*0.16)))+'px sans-serif';ctx.textAlign='center';ctx.fillText('지구',cx,cy+7);
+
+  // 비교 위성(① 모드)
+  if(mode===1&&$('cmp').checked){
+    const [qx,qy]=P(RC*Math.cos(cmpA),RC*Math.sin(cmpA));
+    ctx.globalAlpha=.75;drawStation(qx,qy,-cmpA,0.75,'#b0bec5');ctx.globalAlpha=1;
+    ctx.fillStyle='#cfd8dc';ctx.font='14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('비교 '+(vc(RC)*KMS).toFixed(1)+' km/s',qx,qy-16);
+  }
+  // 자취
+  ctx.strokeStyle='#ffd166aa';ctx.lineWidth=3;ctx.beginPath();
+  trail.forEach(([x,y],i)=>{const [px,py]=P(x,y);i?ctx.lineTo(px,py):ctx.moveTo(px,py);});ctx.stroke();
+
+  const [sx,sy]=P(st.x,st.y);
+  const r=Math.hypot(st.x,st.y), ux=-st.x/r, uy=-st.y/r;
+  const v=Math.hypot(st.vx,st.vy)||1e-9, tx=st.vx/v, ty=st.vy/v;
+
+  if(!crashed&&!held){
+    // 같은 시간 동안: 중력이 없었다면 갈 자리(점선 끝) vs 실제로 갈 자리(실제 궤도를 그대로 계산)
+    const look=0.55*Math.pow(r,1.5);
+    const gx0=st.x+st.vx*look, gy0=st.y+st.vy*look;
+    if($('showTan').checked){
+      ctx.strokeStyle='#8a93b8';ctx.lineWidth=2.5;ctx.setLineDash([8,8]);
+      const L=gravity?look*1.6:40;
+      const [ex,ey]=P(st.x+st.vx*L,st.y+st.vy*L);
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);
+      if(gravity){const [gx,gy]=P(gx0,gy0);ctx.globalAlpha=.55;drawStation(gx,gy,Math.atan2(-ty,tx),0.8,'#8a93b8');ctx.globalAlpha=1;}
+    }
+    if(gravity&&$('showFall').checked){
+      const f={x:st.x,y:st.y,vx:st.vx,vy:st.vy};
+      if(!integrate(f,look,60)){
+        const [gx,gy]=P(gx0,gy0),[bx,by]=P(f.x,f.y);
+        ctx.strokeStyle='#ff6b6b';ctx.lineWidth=3;ctx.setLineDash([3,5]);
+        ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#ffd16699';ctx.beginPath();ctx.arc(bx,by,7,0,7);ctx.fill();
+        const ox=-ux*40, oy=uy*40;
+        ctx.fillStyle='#ff9b9b';ctx.font='bold 17px sans-serif';ctx.textAlign=ox>=0?'left':'right';
+        ctx.fillText('그사이 이만큼 떨어짐',(gx+bx)/2+ox*1.6,(gy+by)/2+oy*1.6);
+      }
+    }
+  }
+  if(held){
+    ctx.strokeStyle='#c9a7ff';ctx.lineWidth=4;ctx.setLineDash([2,6]);
+    const [ex,ey]=P(st.x*(1+0.4/r),st.y*(1+0.4/r));ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#c9a7ff';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText('붙잡음',ex,ey-8);
+  }
+  drawStation(sx,sy,Math.atan2(-ty,tx),1,'#ffd166');
+  if(crashed){ctx.fillStyle='#ff6b6b';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('쿵!',sx,sy-18);}
+  // 화살표: 길이 = 크기 (속도 ∝ v, 중력 ∝ 1/r²)
+  if($('showVec').checked&&!crashed){
+    if(!held) arrow(sx,sy,sx+tx*v*130,sy-ty*v*130,'#4dd0e1','속도');
+    if(gravity){const g=110/(r*r); arrow(sx,sy,sx+ux*g,sy-uy*g,'#ff6b6b','중력');}
+  }
+  if(sx<-40||sx>W+40||sy<-40||sy>H+40){
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText(gravity?'화면 밖으로 멀어졌습니다 → 「처음부터」':'중력이 없으면 한없이 곧게 날아갑니다 → 「처음부터」',W*0.45,40);
+  }
+  drawInset(r);
+  message();
+  reading(r,v);
+}
+function reading(r,v){
+  const g=100/(r*r);
+  let s=`지구 중심 거리 <b>${r.toFixed(2)}</b>배 (높이 ${Math.round((r-1)*RE_KM).toLocaleString()} km)<br>`+
+    `지금 속력 <b style="color:var(--vel)">${(v*KMS).toFixed(2)} km/s</b><br>`+
+    `이 높이 원운동 속력 ${(vc(r)*KMS).toFixed(2)} km/s<br>`+
+    `이 높이 탈출 속력 ${(vc(r)*KMS*Math.SQRT2).toFixed(2)} km/s<br>`+
+    `중력 크기 <b style="color:var(--grav)">지표의 ${g.toFixed(0)}%</b>`+
+    // 1초 동안: 중력이 없을 때 직선으로 갈 거리 vs 그사이 지구 쪽으로 떨어진 거리 ½·g(r)·1² (g(r) = 9.8 / r²)
+    `<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line)"><b>1초 동안</b> 앞으로 <b style="color:var(--vel)">${(v*KMS).toFixed(2)} km</b> · `+
+    `지구 쪽으로 <b style="color:var(--grav)">${(0.5*9.8/(r*r)).toFixed(2)} m</b> 떨어짐<br>`+
+    `<span class="small">지표면 바로 위: 앞으로 7.9 km · 4.9 m 떨어짐</span></div>`;
+  if(mode===1){const T=T1_MIN*Math.pow(r,1.5);s+=`한 바퀴 약 <b>${T<120?Math.round(T)+'분':(T/60).toFixed(1)+'시간'}</b>`;}
+  $('read').innerHTML=s;
+}
+function drawStation(x,y,rot,s,c){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(s,s);
+  ctx.fillStyle='#4a5a8a';ctx.fillRect(-34,-6,24,12);ctx.fillRect(10,-6,24,12);
+  ctx.strokeStyle='#9fb3ff';ctx.lineWidth=1;
+  for(let i=-32;i<-10;i+=6){ctx.beginPath();ctx.moveTo(i,-6);ctx.lineTo(i,6);ctx.stroke();}
+  for(let i=12;i<34;i+=6){ctx.beginPath();ctx.moveTo(i,-6);ctx.lineTo(i,6);ctx.stroke();}
+  ctx.fillStyle=c;ctx.fillRect(-10,-9,20,18);
+  ctx.restore();
+}
+function arrow(x1,y1,x2,y2,c,label){
+  if(Math.hypot(x2-x1,y2-y1)<6)return;
+  ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=5;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-15*Math.cos(a-.4),y2-15*Math.sin(a-.4));ctx.lineTo(x2-15*Math.cos(a+.4),y2-15*Math.sin(a+.4));ctx.closePath();ctx.fill();
+  ctx.font='bold 19px sans-serif';ctx.textAlign='center';ctx.fillText(label,x2+26*Math.cos(a),y2+26*Math.sin(a)+7);
+}
+function insetW(){return Math.min(320,W*0.36);}
+function drawInset(r){
+  const w=insetW(), h=w*0.72, x0=W-w-14, y0=H-h-14;
+  ctx.fillStyle='#0f1630ee';ctx.strokeStyle='#ffd166';ctx.lineWidth=3;
+  roundRect(x0,y0,w,h,14);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffd166';ctx.font='bold 17px sans-serif';ctx.textAlign='left';
+  ctx.fillText('정거장 안 (아래 = 지구 쪽)',x0+12,y0+25);
+  ctx.fillStyle=held||crashed?'#ff9b9b':'#a9f0b0';ctx.font='bold 16px sans-serif';
+  ctx.fillText(held?'바닥으로 떨어짐!':crashed?'땅에 닿음':(gravity?'모두 함께 낙하 → 떠 보임':'중력 없음 → 떠 있음'),x0+12,y0+48);
+  const cx=x0+w/2, cy=y0+h/2+14, U=w*0.9;
+  ctx.strokeStyle='#ffffff55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0+10,y0+h-14);ctx.lineTo(x0+w-10,y0+h-14);ctx.stroke();
+  ctx.fillStyle='#ffffff88';ctx.font='14px sans-serif';ctx.fillText('바닥',x0+14,y0+h-20);
+  const ax=cx+inner.astro.x*U, ay=cy+inner.astro.y*U;
+  drawAstro(ax,ay,held?0:Math.sin(performance.now()/1400)*0.3);
+  const dx=cx+inner.drop.x*U, dy=cy+inner.drop.y*U;
+  ctx.fillStyle='#6ec6ff';ctx.beginPath();ctx.arc(dx,dy,10,0,7);ctx.fill();
+  ctx.fillStyle='#ffffffaa';ctx.beginPath();ctx.arc(dx-3,dy-3,3,0,7);ctx.fill();
+  ctx.fillStyle='#cfe8ff';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('물방울',dx,dy-16);
+  if(gravity&&$('showVec').checked){
+    const L=Math.max(8,40/(r*r)*1.69); // 중력이 약해지면 짧아짐(r=1.3에서 40px)
+    const pts=held?[[x0+w-36,y0+h*0.45]]:[[ax,ay+30],[dx,dy+12],[x0+w-36,y0+h*0.45]];
+    pts.forEach(([px,py])=>{
+      ctx.strokeStyle='#ff6b6b';ctx.fillStyle='#ff6b6b';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py+L);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(px,py+L+8);ctx.lineTo(px-6,py+L-2);ctx.lineTo(px+6,py+L-2);ctx.closePath();ctx.fill();
+    });
+    ctx.fillStyle='#ff9b9b';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('정거장도',x0+w-36,y0+h*0.45-6);
+  }
+}
+function drawAstro(x,y,rot){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);
+  ctx.fillStyle='#f5f5f5';ctx.strokeStyle='#888';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(0,-22,11,0,7);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#2b3a67';ctx.beginPath();ctx.ellipse(0,-22,7,5,0,0,7);ctx.fill();
+  ctx.fillStyle='#f5f5f5';roundRect(-10,-11,20,24,5);ctx.fill();ctx.stroke();
+  ctx.fillRect(-17,-9,6,16);ctx.fillRect(11,-9,6,16);ctx.fillRect(-9,13,7,14);ctx.fillRect(2,13,7,14);
+  ctx.restore();
+  ctx.fillStyle='#ddd';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('우주인',x,y-40);
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(playing) step(dt*0.6*(+$('speed').value));
+  draw();requestAnimationFrame(loop);
+}
+resize();labels();fullReset();requestAnimationFrame(loop);
+</script>
+<script src="../common/common.js"></script>
+</body>
+</html>
