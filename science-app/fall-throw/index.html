@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>수평 던지기와 자유낙하 · 최과학 과학</title>
+<style>
+  :root{--bg:#0b1020;--panel:#141b33;--line:#2a355e;--text:#eef2ff;--sub:#a9b4d6;--a:#ff9f43;--b:#4dd0e1}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;overflow:hidden}
+  #app{display:grid;grid-template-columns:1fr 400px;grid-template-rows:100%;height:100%}
+  #stage{position:relative;min-height:0;overflow:hidden}
+  canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+  #side{background:var(--panel);border-left:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+  #side>*{flex-shrink:0}
+  h1{font-size:22px;margin:0}
+  button{font:inherit;font-size:18px;font-weight:700;border:0;border-radius:11px;padding:11px 8px;cursor:pointer;color:#fff;background:#3b4a80}
+  button:hover{filter:brightness(1.15)}
+  #goBtn{background:#2e7d32;font-size:20px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .pre{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .pre button{font-size:15px;padding:9px 4px;background:#2b365f}
+  .pre button.act{background:#f2b632;color:#1b1b1b}
+  .ball{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#0f1630}
+  .ball h3{margin:0 0 2px;font-size:17px}
+  .sl{font-size:14px;color:var(--sub);display:grid;grid-template-columns:78px 1fr 92px;align-items:center;gap:6px}
+  .sl b{color:var(--text);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;height:22px;margin:0}
+  .chk{display:flex;align-items:center;gap:9px;font-size:15px;cursor:pointer}
+  .chk input{width:19px;height:19px}
+  #read{font-size:16px;line-height:1.6;background:#0f1630;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-variant-numeric:tabular-nums}
+  #fit{background:#5b4a9e;font-size:15px}
+  .ca{color:var(--a)} .cb{color:var(--b)} .small{font-size:13px;color:var(--sub)}
+  @media (max-width:900px){#app{grid-template-columns:1fr;grid-template-rows:60vh auto}#side{border-left:0;border-top:1px solid var(--line)}html,body{overflow:auto}}
+  #home{position:absolute;left:10px;top:10px;z-index:5;color:#eef2ff;text-decoration:none;font-size:16px;font-weight:700;background:#141b33cc;border:1px solid #2a355e;border-radius:10px;padding:6px 12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage"><canvas id="cv"></canvas><a id="home" href="../">‹ 홈</a></div>
+  <div id="side">
+    <h1>수평으로 던진 물체 · 자유낙하</h1>
+    <div class="pre">
+      <button data-p="1" class="act">① 같은 높이에서</button>
+      <button data-p="2">② 높이를 다르게</button>
+      <button data-p="3">③ 공중에서 충돌</button>
+      <button data-p="4">④ 같은 곳에 떨어지기</button>
+    </div>
+    <div class="row">
+      <button id="goBtn">▶ 출발</button>
+      <button id="pauseBtn">⏸ 멈춤</button>
+    </div>
+    <div class="ball">
+      <h3 class="ca">공 A</h3>
+      <label class="sl">출발 위치<input type="range" id="Ax" min="-20" max="80" step="0.01"><b id="Axv"></b></label>
+      <label class="sl">높이<input type="range" id="Ah" min="5" max="100" step="1"><b id="Ahv"></b></label>
+      <label class="sl">수평 속력<input type="range" id="Av" min="-20" max="20" step="0.01"><b id="Avv"></b></label>
+      <label class="sl">질량<input type="range" id="Am" min="1" max="10" step="1"><b id="Amv"></b></label>
+    </div>
+    <div class="ball">
+      <h3 class="cb">공 B</h3>
+      <label class="sl">출발 위치<input type="range" id="Bx" min="-20" max="80" step="0.01"><b id="Bxv"></b></label>
+      <label class="sl">높이<input type="range" id="Bh" min="5" max="100" step="1"><b id="Bhv"></b></label>
+      <label class="sl">수평 속력<input type="range" id="Bv" min="-20" max="20" step="0.01"><b id="Bvv"></b></label>
+      <label class="sl">질량<input type="range" id="Bm" min="1" max="10" step="1"><b id="Bmv"></b></label>
+    </div>
+    <button id="fit">B 출발 위치를 「A와 같은 곳에 떨어지게」 맞추기</button>
+    <div class="small">속력 + = 오른쪽, − = 왼쪽, 0 = 가만히 놓음 · g = 10 m/s² · 공기 저항 없음</div>
+    <label class="sl" style="grid-template-columns:78px 1fr 60px">느리게 보기<input type="range" id="slow" min="0.1" max="1" step="0.05" value="0.4"><b id="slv"></b></label>
+    <label class="chk"><input type="checkbox" id="strobe" checked> 일정한 시간마다 찍기</label>
+    <label class="chk"><input type="checkbox" id="vec" checked> 속도 화살표(수평 · 연직)</label>
+    <label class="chk"><input type="checkbox" id="keep"> 앞 자국 남기기</label>
+    <div id="read"></div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');let W=0,H=0;
+function resize(){const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);}
+window.addEventListener('resize',resize);new ResizeObserver(resize).observe(cv);
+const g=10;
+const PRESETS={
+  1:{A:[-3,20,0,1],B:[0,20,10,5]},           // 같은 높이: A 자유낙하, B 수평 던지기
+  2:{A:[-3,20,0,1],B:[0,45,10,5]},           // 높이 다르게
+  3:{A:[0,100,5,2],B:[20,100,0,2]},          // 공중 충돌(A 수평 5 m/s, 20 m 떨어진 B 자유낙하)
+  4:{A:[0,20,5,2],B:[30,40,-5*Math.SQRT2,2]} // h · v 와 2h · √2v 반대로 → 같은 곳
+};
+let t=0,running=false,paused=false,sim=null,oldRuns=[],view=null;
+const ids=['x','h','v','m'];
+function readBall(k){const o={};ids.forEach(i=>o[i]=+$(k+i).value);o.T=Math.sqrt(2*o.h/g);return o;}
+function setPreset(n){
+  document.querySelectorAll('.pre button').forEach(b=>b.className=b.dataset.p==n?'act':'');
+  const p=PRESETS[n];
+  ['A','B'].forEach(k=>ids.forEach((i,j)=>$(k+i).value=p[k][j]));
+  oldRuns=[];newSim();
+}
+function fmt(v,u){const r=Math.round(v*100)/100;return (Number.isInteger(r)?r:r.toFixed(2))+' '+u;}
+function vtxt(v){if(Math.abs(v)<0.005)return '0 (놓음)';return (v>0?'→ ':'← ')+fmt(Math.abs(v),'m/s');}
+function labels(){
+  ['A','B'].forEach(k=>{
+    $(k+'xv').textContent=fmt(+$(k+'x').value,'m');$(k+'hv').textContent=fmt(+$(k+'h').value,'m');
+    $(k+'vv').textContent=vtxt(+$(k+'v').value);$(k+'mv').textContent=$(k+'m').value+' kg';
+  });
+  $('slv').textContent='× '+(+$('slow').value).toFixed(2);
+}
+function collisionTime(A,B){ // 같은 높이에서 동시에 출발해야만 공중에서 만날 수 있다
+  if(Math.abs(A.h-B.h)>1e-6||Math.abs(A.v-B.v)<1e-9) return null;
+  const tc=(B.x-A.x)/(A.v-B.v);
+  if(tc>1e-6&&tc<=Math.min(A.T,B.T)+1e-9) return tc;
+  return null;
+}
+function newSim(){
+  labels();
+  if(sim&&t>0&&$('keep').checked&&!oldRuns.includes(sim)) oldRuns.push(sim);
+  const A=readBall('A'),B=readBall('B'),tc=collisionTime(A,B);
+  sim={A,B,tc,end:tc!==null?tc:Math.max(A.T,B.T)};
+  t=0;running=false;paused=false;$('goBtn').textContent='▶ 출발';$('pauseBtn').textContent='⏸ 멈춤';
+  view=makeView();
+}
+function pos(b,tt,s){const tc=Math.min(tt,b.T,s?s.end:1e9);return{x:b.x+b.v*tc,y:b.h-0.5*g*tc*tc,vy:g*tc,landed:tt>=b.T-1e-9};}
+function makeView(){
+  const xs=[];[sim,...oldRuns].forEach(s=>{xs.push(s.A.x,s.B.x,s.A.x+s.A.v*s.A.T,s.B.x+s.B.v*s.B.T);});
+  const hmax=Math.max(...[sim,...oldRuns].map(s=>Math.max(s.A.h,s.B.h)));
+  let x0=Math.min(...xs)-4,x1=Math.max(...xs)+4;
+  if(x1-x0<20){const c=(x0+x1)/2;x0=c-10;x1=c+10;}
+  return{x0,x1,y1:hmax*1.08+3};
+}
+document.querySelectorAll('.pre button').forEach(b=>b.onclick=()=>setPreset(+b.dataset.p));
+['Ax','Ah','Av','Am','Bx','Bh','Bv','Bm'].forEach(id=>$(id).addEventListener('input',()=>{
+  document.querySelectorAll('.pre button').forEach(b=>b.className='');newSim();}));
+$('slow').addEventListener('input',labels);
+$('goBtn').onclick=()=>{if(t>0)newSim();running=true;paused=false;$('goBtn').textContent='↺ 다시';};
+$('pauseBtn').onclick=()=>{if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'▶ 계속':'⏸ 멈춤';};
+$('keep').onchange=()=>{if(!$('keep').checked){oldRuns=[];view=makeView();}};
+$('fit').onclick=()=>{
+  const A=readBall('A'),B=readBall('B');
+  const land=A.x+A.v*A.T; $('Bx').value=(land-B.v*B.T).toFixed(2);
+  if(Math.abs(+$('Bx').value-(land-B.v*B.T))>0.01) alert('범위(−20~80 m)를 벗어납니다. 속력이나 높이를 줄여 주세요.');
+  newSim();
+};
+
+function geom(){
+  const padL=70,padR=30,padT=64,padB=112;
+  // 가로 · 세로 눈금을 따로 맞춤(교과서 그림처럼 화면을 꽉 채움)
+  const sx=(W-padL-padR)/(view.x1-view.x0), sy=(H-padT-padB)/view.y1, oy=H-padB;
+  return{s:Math.min(sx,sy),X:x=>padL+(x-view.x0)*sx,Y:y=>oy-y*sy};
+}
+function niceStep(range,n){const raw=range/n;const p=Math.pow(10,Math.floor(Math.log10(raw)));for(const m of [1,2,5,10])if(m*p>=raw)return m*p;return 10*p;}
+function ballR(m){return 9+m*1.3;}
+
+function draw(){
+  ctx.fillStyle='#0b1020';ctx.fillRect(0,0,W,H);
+  if(!sim)return;
+  const {s,X,Y}=geom(), A=sim.A, B=sim.B;
+  // 땅 · 눈금
+  ctx.fillStyle='#22301f';ctx.fillRect(0,Y(0),W,H-Y(0));
+  ctx.strokeStyle='#6fbf73';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,Y(0));ctx.lineTo(W,Y(0));ctx.stroke();
+  ctx.fillStyle='#a9b4d6';ctx.font='14px sans-serif';
+  const sx=niceStep(view.x1-view.x0,10);ctx.textAlign='center';
+  for(let x=Math.ceil(view.x0/sx)*sx;x<=view.x1;x+=sx){ctx.fillRect(X(x)-1,Y(0),2,7);ctx.fillText(Math.round(x)+'',X(x),Y(0)+22);}
+  const sy=niceStep(view.y1,6);ctx.textAlign='right';
+  for(let y=0;y<=view.y1;y+=sy){ctx.fillRect(64,Y(y)-1,7,2);ctx.fillText(y+' m',58,Y(y)+5);}
+  ctx.textAlign='right';ctx.fillText('(m)',W-6,Y(0)+22);
+  // 출발대 / 놓는 손
+  [[A,'#ff9f43'],[B,'#4dd0e1']].forEach(([b,c])=>{
+    const R=ballR(b.m);
+    if(Math.abs(b.v)>0.005){ctx.fillStyle='#3a3f5c';const w=26;const px=X(b.x)-(b.v>0?w-R*0.6:R*0.6);ctx.fillRect(px,Y(b.h)+R,w,Y(0)-Y(b.h)-R);}
+    else{ctx.strokeStyle=c+'88';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X(b.x)-14,Y(b.h)-R-6);ctx.lineTo(X(b.x)+14,Y(b.h)-R-6);ctx.stroke();
+      ctx.fillStyle=c;ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('놓음',X(b.x),Y(b.h)-R-12);}
+  });
+  // 앞 자국
+  oldRuns.forEach(o=>[[o.A,'rgba(255,159,67,.35)'],[o.B,'rgba(77,208,225,.35)']].forEach(([b,c])=>{
+    ctx.strokeStyle=c;ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.beginPath();
+    for(let k=0;k<=50;k++){const p=pos(b,Math.min(b.T,o.end)*k/50);k?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y));}
+    ctx.stroke();ctx.setLineDash([]);
+  }));
+  // 일정한 시간마다 찍기
+  const dts=niceStep(sim.end,10);
+  if($('strobe').checked){
+    for(let ts=0;ts<=t+1e-9;ts+=dts){
+      const a=pos(A,ts,sim),b=pos(B,ts,sim);
+      if(Math.abs(A.h-B.h)<1e-6&&ts<=Math.min(A.T,B.T)){ctx.strokeStyle='#ffffff30';ctx.lineWidth=1.5;ctx.setLineDash([4,5]);
+        ctx.beginPath();ctx.moveTo(Math.min(X(a.x),X(b.x))-20,Y(a.y));ctx.lineTo(Math.max(X(a.x),X(b.x))+20,Y(a.y));ctx.stroke();ctx.setLineDash([]);}
+      if(ts<=A.T+1e-9){ctx.fillStyle='rgba(255,159,67,.45)';ctx.beginPath();ctx.arc(X(a.x),Y(a.y),ballR(A.m)*.65,0,7);ctx.fill();}
+      if(ts<=B.T+1e-9){ctx.fillStyle='rgba(77,208,225,.45)';ctx.beginPath();ctx.arc(X(b.x),Y(b.y),ballR(B.m)*.65,0,7);ctx.fill();}
+    }
+  }
+  const a=pos(A,t,sim),b=pos(B,t,sim);
+  // 같은 높이 선 / 높이 차
+  if(Math.abs(A.h-B.h)<1e-6){
+    if(t>0&&!a.landed){ctx.strokeStyle='#ffd166';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(X(a.x),Y(a.y));ctx.lineTo(X(b.x),Y(b.y));ctx.stroke();}
+  }else if(!a.landed&&!b.landed){
+    const mx=Math.max(X(a.x),X(b.x))+34;
+    ctx.strokeStyle='#ffd166';ctx.lineWidth=2;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(X(a.x),Y(a.y));ctx.lineTo(mx,Y(a.y));ctx.moveTo(X(b.x),Y(b.y));ctx.lineTo(mx,Y(b.y));ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(mx,Y(a.y));ctx.lineTo(mx,Y(b.y));ctx.stroke();
+    ctx.fillStyle='#ffd166';ctx.font='bold 15px sans-serif';ctx.textAlign='left';
+    ctx.fillText('높이 차 '+fmt(Math.abs(A.h-B.h),'m')+' 그대로',mx+6,(Y(a.y)+Y(b.y))/2+5);
+  }
+  // 공
+  ball(X(a.x),Math.min(Y(a.y),Y(0)-ballR(A.m)),ballR(A.m),'#ff9f43','A');
+  ball(X(b.x),Math.min(Y(b.y),Y(0)-ballR(B.m)),ballR(B.m),'#4dd0e1','B');
+  // 속도 화살표
+  if($('vec').checked){
+    const k=6; // 1 m/s = 6 px
+    [[A,a,'#ff9f43'],[B,b,'#4dd0e1']].forEach(([o,p])=>{
+      if(p.landed||(sim.tc!==null&&t>=sim.tc))return;
+      arrow(X(p.x),Y(p.y),X(p.x)+o.v*k,Y(p.y),'#4dd0e1');
+      arrow(X(p.x),Y(p.y),X(p.x),Y(p.y)+p.vy*k,'#ff6b6b');
+    });
+  }
+  // 착지 시간 표시
+  [[A,a,'#ff9f43','A'],[B,b,'#4dd0e1','B']].forEach(([o,p,c,l],i)=>{
+    const same=Math.abs((A.x+A.v*A.T)-(B.x+B.v*B.T))<0.05;
+    if(p.landed&&sim.tc===null&&!same){ctx.fillStyle=c;ctx.font='bold 15px sans-serif';ctx.textAlign='center';
+      ctx.fillText(l+' '+o.T.toFixed(2)+'초',X(p.x),Y(0)+44+(i*20));}
+  });
+  // 충돌
+  if(sim.tc!==null&&t>=sim.tc-1e-9){
+    const cx=(X(a.x)+X(b.x))/2, cy=Y(a.y);
+    ctx.strokeStyle='#ffd166';ctx.lineWidth=3;
+    for(let i=0;i<10;i++){const an=i*Math.PI/5;ctx.beginPath();ctx.moveTo(cx+18*Math.cos(an),cy+18*Math.sin(an));ctx.lineTo(cx+34*Math.cos(an),cy+34*Math.sin(an));ctx.stroke();}
+    banner('충돌! '+sim.tc.toFixed(2)+'초 · 그동안 '+fmt(0.5*g*sim.tc*sim.tc,'m')+' 떨어짐 · A는 수평으로 '+fmt(A.v*sim.tc,'m')+' 이동');
+  }else if(t>=sim.end-1e-9){
+    const xa=A.x+A.v*A.T,xb=B.x+B.v*B.T;
+    if(Math.abs(xa-xb)<0.05){
+      banner('같은 곳에 떨어짐 · A '+A.T.toFixed(2)+'초, B '+B.T.toFixed(2)+'초 (공중에서 만나지는 않음)');
+      // 출발점 → 착지점 거리 비 (예: 1 : 2)
+      const da=Math.abs(xa-A.x),db=Math.abs(xb-B.x),yb=Y(0)+46;
+      bracket(X(A.x),X(xa),yb,'#ff9f43',fmt(da,'m'));
+      bracket(X(xa),X(B.x),yb,'#4dd0e1',fmt(db,'m'));
+      if(da>0.01&&db>0.01){const rr=db/da;ctx.fillStyle='#fff';ctx.font='bold 17px sans-serif';ctx.textAlign='center';
+        ctx.fillText('A : B 수평 이동 = 1 : '+(Math.abs(rr-Math.round(rr))<0.01?Math.round(rr):rr.toFixed(2)),X(xa),yb+48);}
+    }else if(Math.abs(A.T-B.T)<1e-6) banner('동시에 닿음! ('+A.T.toFixed(2)+'초) — 질량 · 수평 속력과 상관없음');
+    else banner((A.T<B.T?'A':'B')+'가 먼저 닿음 — 낮은 쪽이 먼저 (A '+A.T.toFixed(2)+'초, B '+B.T.toFixed(2)+'초)');
+  }
+  // 읽기 칸
+  const gap=Math.abs(a.x-b.x);
+  $('read').innerHTML=
+    `시간 <b>${Math.min(t,sim.end).toFixed(2)} s</b><br>`+
+    `<span class="ca">A 높이 ${Math.max(0,a.y).toFixed(1)} m · 수평 ${fmt(a.x-A.x,'m')} · 닿는 시간 ${A.T.toFixed(2)} s</span><br>`+
+    `<span class="cb">B 높이 ${Math.max(0,b.y).toFixed(1)} m · 수평 ${fmt(b.x-B.x,'m')} · 닿는 시간 ${B.T.toFixed(2)} s</span><br>`+
+    `A와 B 사이 수평 거리 <b>${gap.toFixed(1)} m</b><br>`+
+    `연직 속력 <span style="color:#ff6b6b">A ${a.vy.toFixed(1)} · B ${b.vy.toFixed(1)} m/s</span>`+
+    (Math.abs(A.h-B.h)>1e-6?'<br><span class="small">높이가 다르면 연직 위치 차이가 늘 그대로 → 공중에서 만날 수 없음</span>':'');
+}
+function banner(txt){
+  ctx.font='bold 22px sans-serif';const w=ctx.measureText(txt).width+30;
+  ctx.fillStyle='#0f1630ee';ctx.fillRect(W/2-w/2,10,w,40);ctx.strokeStyle='#ffd166';ctx.lineWidth=2;ctx.strokeRect(W/2-w/2,10,w,40);
+  ctx.fillStyle='#ffd166';ctx.textAlign='center';ctx.fillText(txt,W/2,38);
+}
+function bracket(x1,x2,y,c,l){
+  ctx.strokeStyle=c;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x1,y-6);ctx.lineTo(x1,y+6);ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.moveTo(x2,y-6);ctx.lineTo(x2,y+6);ctx.stroke();
+  ctx.fillStyle=c;ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText(l,(x1+x2)/2,y+20);
+}
+function ball(x,y,R,c,l){
+  ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,R,0,7);ctx.fill();
+  ctx.fillStyle='#0b1020';ctx.font='bold '+Math.round(R*1.1)+'px sans-serif';ctx.textAlign='center';ctx.fillText(l,x,y+R*.38);
+}
+function arrow(x1,y1,x2,y2,c){
+  const L=Math.hypot(x2-x1,y2-y1);if(L<5)return;
+  ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const an=Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-12*Math.cos(an-.45),y2-12*Math.sin(an-.45));ctx.lineTo(x2-12*Math.cos(an+.45),y2-12*Math.sin(an+.45));ctx.closePath();ctx.fill();
+}
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(running&&!paused&&sim){t+=dt*(+$('slow').value);if(t>=sim.end){t=sim.end;running=false;$('goBtn').textContent='▶ 출발';}}
+  draw();requestAnimationFrame(loop);
+}
+resize();setPreset(1);requestAnimationFrame(loop);
+</script>
+<script src="../common/common.js"></script>
+</body>
+</html>
