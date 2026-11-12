@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>광합성색소 분리 수행평가 준비</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@700&display=swap">
+<style>
+/* 배치: 가운데 좁은 기둥(760px) 한 줄 읽기. 위에서부터 실험 → 결과 그림 → 계산 → 답안 → 스스로 점검 */
+:root{
+  --bg:#f6f8f4; --surface:#ffffff; --fg:#1c2620; --muted:#5b6a60; --line:#d9e0d8;
+  --accent:#1f6b45; --accent-soft:#e3efe6; --warn:#8a5a00; --warn-soft:#fbf1d9;
+  --plate:#fbfbf7; --plate-edge:#b9c2b8;
+  --carotene:#e07a1f; --xantho:#e2c230; --chla:#1f8f7a; --chlb:#8fae2e;
+  --font-body:"Noto Sans KR",system-ui,"Malgun Gothic",sans-serif;
+  --font-head:"Gowun Batang","Noto Sans KR","Malgun Gothic",serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121814; --surface:#1a221d; --fg:#e7ede8; --muted:#9fb0a5; --line:#2e3a32;
+  --accent:#6fcf9a; --accent-soft:#1f3329; --warn:#f0c66a; --warn-soft:#33290f;
+  --plate:#e9ebe3; --plate-edge:#6d776f; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#121814; --surface:#1a221d; --fg:#e7ede8; --muted:#9fb0a5; --line:#2e3a32;
+  --accent:#6fcf9a; --accent-soft:#1f3329; --warn:#f0c66a; --warn-soft:#33290f;
+  --plate:#e9ebe3; --plate-edge:#6d776f; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+header .eyebrow{font-size:13px;color:var(--muted);letter-spacing:.04em}
+h1{font-family:var(--font-head);font-size:clamp(26px,6vw,34px);line-height:1.3;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--font-head);font-size:22px;line-height:1.35;margin:0 0 12px;text-wrap:balance}
+h3{font-size:16px;margin:0 0 4px}
+p{margin:0 0 10px} p:last-child{margin-bottom:0}
+.lead{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.key{background:var(--accent-soft);border-radius:14px;padding:16px 18px}
+.key b{color:var(--accent)}
+.warn{background:var(--warn-soft);border-radius:14px;padding:16px 18px}
+.warn h3{color:var(--warn)}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;min-width:0}
+ol.steps li::before{content:counter(s);width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--bg);
+  display:grid;place-items:center;font-weight:700;font-size:15px}
+ol.steps .why{color:var(--muted);font-size:15px}
+ol.steps .why b{color:var(--accent)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px;white-space:nowrap}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+.fig{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:center}
+@media (max-width:620px){.fig{grid-template-columns:1fr}}
+svg{max-width:100%;height:auto;display:block;margin:0 auto}
+svg text{font-family:var(--font-body);fill:var(--fg)}
+.frac{display:inline-grid;text-align:center;vertical-align:middle;margin:0 6px}
+.frac span:first-child{border-bottom:1.5px solid var(--fg);padding:0 8px 2px}
+.frac span:last-child{padding:2px 8px 0}
+.frac{line-height:1.5;margin-block:4px}
+.calc{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.calc label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.calc input{width:120px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+.calc input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.calc output{font-size:20px;font-weight:700;color:var(--accent);padding-bottom:6px;min-width:0}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+details+details{margin-top:0}
+summary{cursor:pointer;font-weight:500}
+details[open] summary{margin-bottom:8px}
+.ans{color:var(--fg)} .ans b{color:var(--accent)}
+.qa{display:flex;flex-direction:column;gap:10px}
+.say{font:500 14px/1 var(--font-body);padding:9px 14px;border-radius:999px;border:1px solid var(--accent);
+  background:var(--surface);color:var(--accent);cursor:pointer;min-height:36px}
+.say[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.say:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.saybar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.saybar small{color:var(--muted);font-size:13px}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+.play{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.play audio{flex:1 1 220px;min-width:0;height:40px;max-width:100%}
+.qa details summary .n{display:inline-block;min-width:1.9em;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+.grp{font-size:13px;color:var(--muted);letter-spacing:.03em;margin:10px 0 0}
+</style>
+
+</head><body>
+<main>
+<header>
+  <div class="eyebrow">여의도여고 2학년 · 세포와 물질대사 · 교과서 105쪽 탐구</div>
+  <h1>광합성색소 분리하기<br>수행평가 준비</h1>
+  <div class="saybar">
+    <button type="button" class="say" id="z-minus" aria-label="작게 보기">가 −</button>
+    <button type="button" class="say" id="z-plus" aria-label="크게 보기">가 +</button>
+    <small id="z-now">크기 100%</small>
+  </div>
+</header>
+
+<section>
+  <div class="warn">
+    <h3>꼭 참고</h3>
+    <p>이 자료는 <b>비상교육 교과서</b>(세포와 물질대사 105쪽 탐구)를 바탕으로 만들었습니다. 다른 교과서는 실험 조건과 결과가 다를 수 있습니다. 학교 학습지에 다른 표현이 있으면 학교 학습지를 따르세요.</p>
+  </div>
+</section>
+
+<section>
+  <h2>꼭 외울 네 가지</h2>
+  <div class="key">
+    <p>① 광합성 색소는 물이 아니라 <b>유기 용매</b>(석유 에테르 · 아세톤)에 녹는다.<br>
+    ② 전개 순서: <b>카로틴 &gt; 잔토필 &gt; 엽록소 a &gt; 엽록소 b</b><br>
+    ③ 전개율(R<sub>f</sub>) = <span class="frac"><span>원점에서 색소까지의 거리</span><span>원점에서 용매 전선까지의 거리</span></span><br>
+    ④ 전개율이 다른 까닭: 색소마다 <b>분자량</b>, 전개액에 대한 <b>용해도</b>, TLC 판에 대한 <b>흡착력</b>이 다르다.</p>
+  </div>
+</section>
+
+<section>
+  <h2>실험 순서</h2>
+  <div class="play"><button type="button" class="say">▶ 설명 듣기</button><audio controls preload="none" src="audio/1.mp3"></audio></div>
+  <div class="key"><p><b>순서 한 줄</b> 추출 → 층 분리 → 원점 표시 → 색소 찍기 → 전개 → 표시 → 측정</p></div>
+  <div class="card">
+  <ol class="steps">
+    <li><div><h3>색소 추출</h3>
+      <p>원심관에 시금치 잎 분말 1 g과 추출액(석유 에테르 : 아세톤 = 7 : 3) 5 mL를 넣고, 뚜껑을 닫아 잘 흔들어 섞는다.</p>
+      <p class="why"><b>까닭</b> 광합성 색소는 물에 녹지 않고 유기 용매에 잘 녹으므로 유기 용매로 뽑아낸다.</p></div></li>
+    <li><div><h3>층 분리</h3>
+      <p>용액이 2개의 층으로 나뉠 때까지 세워 놓는다.</p>
+      <p class="why"><b>까닭</b> 가루 찌꺼기가 가라앉고, 색소가 녹아 있는 맑은 <b>상층액</b>이 위에 모인다.</p></div></li>
+    <li><div><h3>원점 표시</h3>
+      <p>TLC 판의 한쪽 끝에서 1 cm쯤 떨어진 곳에 연필로 선을 긋고 원점을 표시한다.</p>
+      <p class="why"><b>까닭</b> 볼펜 잉크는 전개액에 녹아 색소와 함께 번진다. 연필심은 녹지 않는다.</p></div></li>
+    <li><div><h3>색소 찍기</h3>
+      <p>상층액을 모세관에 묻혀 TLC 판의 원점에 찍고 말린다. 이 과정을 10회~20회 되풀이한다.</p>
+      <p class="why"><b>까닭</b> 점은 작게 유지하면서 색소를 진하게 모으려는 것이다.</p></div></li>
+    <li><div><h3>전개</h3>
+      <p>바이알에 전개액을 1 mL~2 mL 넣고, TLC 판을 <b>원점이 전개액에 잠기지 않게</b> 세워 넣은 뒤 뚜껑을 닫는다. 전개액은 스포이트로 벽에 묻지 않게 바닥부터 넣는다.</p>
+      <p class="why"><b>까닭</b> 원점이 잠기면 색소가 전개액 속으로 녹아 나간다. 뚜껑은 전개액이 날아가는 것을 막는다.</p></div></li>
+    <li><div><h3>표시</h3>
+      <p>전개액이 TLC 판의 위쪽 가까이 올라가면 판을 꺼내, 전개액이 올라간 끝(용매 전선)과 나뉜 색소의 위치를 연필로 표시한다.</p>
+      <p class="why"><b>까닭</b> 전개액은 금방 날아가 용매 전선이 보이지 않게 되므로 꺼내자마자 표시한다.</p></div></li>
+    <li><div><h3>측정</h3>
+      <p>원점에서 용매 전선까지의 거리와 원점에서 각 색소까지의 거리를 재고 전개율을 구한다.</p>
+      <p class="why"><b>까닭</b> 색소 띠의 가운데까지 잰다.</p></div></li>
+  </ol>
+  </div>
+</section>
+
+<section>
+  <h2>수행평가 예상 질문과 답</h2>
+  <p class="lead">중요한 것부터 차례로 놓았다. 답을 먼저 외우고, 「답 모두 가리기」를 눌러 질문만 보고 써 본다. 질문을 누르면 그 답만 열리고 닫힌다.</p>
+  <div class="saybar"><button type="button" class="say" id="hide-ans" aria-pressed="false">답 모두 가리기</button></div>
+  <div class="play"><button type="button" class="say">▶ 서술형 설명 듣기</button><audio controls preload="none" src="audio/4.mp3"></audio></div>
+  <div class="play"><button type="button" class="say">▶ 나머지 질문 듣기</button><audio controls preload="none" src="audio/2.mp3"></audio></div>
+  <div class="qa" id="qa-all">
+<p class="grp">가장 중요한 서술형</p>
+<details open><summary><span class="n">1.</span>광합성 색소마다 전개율이 다른 이유를 적으시오.</summary><p class="ans">광합성 색소마다 <b>분자량</b>, 전개액(유기 용매)에 대한 <b>용해도</b>, TLC 판에 대한 <b>흡착력</b>이 서로 다르기 때문에 TLC 판을 따라 이동하는 속도가 달라 전개율이 다르다.</p></details>
+<details open><summary><span class="n">2.</span>색소를 추출하고 전개할 때 물이 아니라 유기 용매를 사용하는 이유를 적으시오.</summary><p class="ans">광합성 색소는 물에 녹지 않고 <b>유기 용매에 잘 녹기 때문</b>이다.</p></details>
+<details open><summary><span class="n">3.</span>분자량, 용해도, TLC 판에 대한 흡착력이 전개율에 어떤 영향을 주는지 적으시오.</summary><p class="ans">색소의 <b>분자량이 작을수록</b>, 전개액에 대한 <b>용해도가 클수록</b>, TLC 판에 대한 <b>흡착력이 약할수록</b> 색소가 멀리 이동하여 전개율이 크다. 반대로 분자량이 크고, 용해도가 작고, 흡착력이 강할수록 전개율이 작다.</p></details>
+<p class="grp">교과서 결과 및 정리</p>
+<details open><summary><span class="n">4.</span>시금치 잎의 색소는 몇 종류로 분리되었는가?</summary><p class="ans"><b>네 종류</b>로 분리되었다. 적황색의 카로틴, 담황색의 잔토필, 청록색의 엽록소 a, 황록색의 엽록소 b이다.</p></details>
+<details open><summary><span class="n">5.</span>각 색소의 전개율을 구하고, 색소의 색깔과 전개율을 참고하여 분리된 색소의 종류를 알아보자.</summary><p class="ans">전개율은 원점에서 색소까지의 거리를 원점에서 용매 전선까지의 거리로 나눈 값이다. 적황색 띠는 카로틴, 담황색 띠는 잔토필, 청록색 띠는 엽록소 a, 황록색 띠는 엽록소 b이다. 전개율은 <b>카로틴 &gt; 잔토필 &gt; 엽록소 a &gt; 엽록소 b</b> 순으로 알려져 있다.</p></details>
+<details open><summary><span class="n">6.</span>색소마다 전개율이 다른 까닭은 무엇인지 토의해 보자.</summary><p class="ans">색소마다 <b>분자량</b>, 전개액(유기 용매)에 대한 <b>용해도</b>, TLC 판에 대한 <b>흡착력</b>이 서로 다르기 때문에 TLC 판을 따라 이동하는 속도가 달라 전개율이 다르다.</p></details>
+<p class="grp">교과서 본문</p>
+<details open><summary><span class="n">7.</span>광합성에서 가장 중심적인 역할을 하는 색소는?</summary><p class="ans"><b>엽록소 a</b>이다.</p></details>
+<details open><summary><span class="n">8.</span>카로티노이드(카로틴 · 잔토필)가 하는 일 두 가지는?</summary><p class="ans">빛에너지를 흡수하여 엽록소로 전달하는 보조 색소이며, 과도한 빛으로부터 엽록소를 보호한다.</p></details>
+<details open><summary><span class="n">9.</span>가을이 되면 은행잎이 노랗게 변하는 까닭은?</summary><p class="ans">가을이 되어 온도에 민감한 엽록소가 파괴되면, 엽록소 때문에 드러나지 않던 카로티노이드 색소의 색깔이 드러나기 때문이다.</p></details>
+<p class="grp">실험 과정 · 전개율</p>
+<details open><summary><span class="n">10.</span>용액이 2개 층으로 나뉜 뒤 상층액을 사용하는 까닭은?</summary><p class="ans">가루 찌꺼기 없이 색소가 녹아 있는 맑은 부분만 TLC 판에 찍기 위해서이다.</p></details>
+<details open><summary><span class="n">11.</span>원점을 볼펜이 아니라 연필로 표시하는 까닭은?</summary><p class="ans">볼펜 잉크는 전개액에 녹아 색소와 함께 전개되기 때문이다. 연필심은 전개액에 녹지 않는다.</p></details>
+<details open><summary><span class="n">12.</span>TLC 판의 원점이 전개액에 잠기지 않게 하는 까닭은?</summary><p class="ans">원점이 전개액에 잠기면 색소가 TLC 판을 따라 올라가지 않고 전개액 속으로 녹아 나가기 때문이다.</p></details>
+<details open><summary><span class="n">13.</span>상층액을 10회~20회 찍고 말리는 까닭은?</summary><p class="ans">점을 작게 유지하면서 색소의 양을 늘려, 색소 띠가 또렷하게 분리되게 하기 위해서이다.</p></details>
+<details open><summary><span class="n">14.</span>TLC 판을 꺼내자마자 용매 전선을 연필로 표시하는 까닭은?</summary><p class="ans">전개액이 금방 증발하여 용매 전선의 위치를 알 수 없게 되기 때문이다.</p></details>
+<details open><summary><span class="n">15.</span>전개율이 1보다 클 수 있는가?</summary><p class="ans">없다. 색소는 용매 전선보다 멀리 이동할 수 없으므로 전개율은 0과 1 사이이다.</p></details>
+<details open><summary><span class="n">16.</span>용매 전선까지 8.0 cm인 판에서 전개율이 0.50인 색소는 원점에서 몇 cm에 있는가?</summary><p class="ans">8.0 × 0.50 = <b>4.0 cm</b></p></details>
+  </div>
+</section>
+
+<section>
+  <h2>결과 그림과 색</h2>
+  <div class="play"><button type="button" class="say">▶ 설명 듣기</button><audio controls preload="none" src="audio/3.mp3"></audio></div>
+  <div class="card fig">
+    <svg viewBox="0 0 300 380" role="img" aria-label="TLC 판 결과. 위에서부터 카로틴, 잔토필, 엽록소 a, 엽록소 b 순서로 색소 띠가 나뉘어 있다.">
+      <rect x="60" y="20" width="70" height="340" rx="3" fill="var(--plate)" stroke="var(--plate-edge)"/>
+      <line x1="60" y1="60" x2="130" y2="60" stroke="var(--plate-edge)" stroke-dasharray="4 3"/>
+      <line x1="60" y1="320" x2="130" y2="320" stroke="var(--plate-edge)" stroke-dasharray="4 3"/>
+      <ellipse cx="95" cy="73" rx="16" ry="6" fill="var(--carotene)"/>
+      <ellipse cx="95" cy="138" rx="16" ry="6" fill="var(--xantho)"/>
+      <ellipse cx="95" cy="203" rx="16" ry="7" fill="var(--chla)"/>
+      <ellipse cx="95" cy="242" rx="16" ry="7" fill="var(--chlb)"/>
+      <circle cx="95" cy="320" r="3" fill="var(--plate-edge)"/>
+      <text x="140" y="64" font-size="12" fill-opacity=".7">용매 전선</text>
+      <text x="140" y="78" font-size="13" font-weight="700">카로틴</text>
+      <text x="140" y="143" font-size="13" font-weight="700">잔토필</text>
+      <text x="140" y="208" font-size="13" font-weight="700">엽록소 a</text>
+      <text x="140" y="247" font-size="13" font-weight="700">엽록소 b</text>
+      <text x="140" y="324" font-size="12" fill-opacity=".7">원점(출발선)</text>
+      <!-- l -->
+      <line x1="30" y1="60" x2="30" y2="320" stroke="var(--fg)" stroke-width="1.2"/>
+      <line x1="25" y1="60" x2="35" y2="60" stroke="var(--fg)" stroke-width="1.2"/>
+      <line x1="25" y1="320" x2="35" y2="320" stroke="var(--fg)" stroke-width="1.2"/>
+      <text x="14" y="194" font-size="14" font-style="italic">l</text>
+      <!-- a -->
+      <line x1="48" y1="203" x2="48" y2="320" stroke="var(--accent)" stroke-width="1.2"/>
+      <line x1="43" y1="203" x2="53" y2="203" stroke="var(--accent)" stroke-width="1.2"/>
+      <line x1="43" y1="320" x2="53" y2="320" stroke="var(--accent)" stroke-width="1.2"/>
+      <text x="37" y="266" font-size="14" font-style="italic" style="fill:var(--accent)">a</text>
+    </svg>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>색소</th><th>색</th><th>구분</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot" style="background:var(--carotene)"></span>카로틴</td><td>적황색</td><td>보조 색소</td></tr>
+          <tr><td><span class="dot" style="background:var(--xantho)"></span>잔토필</td><td>담황색</td><td>보조 색소</td></tr>
+          <tr><td><span class="dot" style="background:var(--chla)"></span>엽록소 a</td><td>청록색</td><td><b>주색소</b></td></tr>
+          <tr><td><span class="dot" style="background:var(--chlb)"></span>엽록소 b</td><td>황록색</td><td>보조 색소</td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="margin-top:10px;font-size:14px">그림의 a는 엽록소 a까지의 거리, l은 용매 전선까지의 거리.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>전개율 계산</h2>
+  <div class="card">
+    <p>전개율(R<sub>f</sub>) = <span class="frac"><span>원점에서 색소까지의 거리 (a)</span><span>원점에서 용매 전선까지의 거리 (l)</span></span></p>
+    <p class="lead" style="font-size:15px">색소 띠의 가운데까지 잰다. 단위가 없고 언제나 0과 1 사이다.</p>
+  </div>
+  <div class="card">
+    <h3>직접 넣어 보기</h3>
+    <div class="calc">
+      <label for="rf-a">색소까지 거리 a (cm)<input id="rf-a" type="number" inputmode="decimal" min="0" step="0.1" value="4.5"></label>
+      <label for="rf-l">용매 전선까지 거리 l (cm)<input id="rf-l" type="number" inputmode="decimal" min="0" step="0.1" value="10"></label>
+      <output id="rf-out" for="rf-a rf-l">R&#8202;f = 0.45</output>
+    </div>
+  </div>
+</section>
+
+<footer>비상교육 교과서(세포와 물질대사)를 바탕으로 만든 자료입니다. 수행평가 채점 기준은 학교 선생님 안내가 우선입니다.</footer>
+</main>
+
+<script>
+(function(){
+  var a=document.getElementById('rf-a'), l=document.getElementById('rf-l'), o=document.getElementById('rf-out');
+  function run(){
+    var x=parseFloat(a.value), y=parseFloat(l.value);
+    if(!(x>=0) || !(y>0)){ o.textContent='두 거리를 숫자로 넣으세요'; return; }
+    if(x>y){ o.textContent='a는 l보다 클 수 없어요'; return; }
+    o.textContent='R f = '+(x/y).toFixed(2);
+  }
+  a.addEventListener('input',run); l.addEventListener('input',run); run();
+})();
+(function(){
+  var b=document.getElementById('hide-ans'), box=document.getElementById('qa-all');
+  b.addEventListener('click',function(){
+    var hide=b.getAttribute('aria-pressed')!=='true';
+    [].forEach.call(box.querySelectorAll('details'),function(d){ d.open=!hide });
+    b.setAttribute('aria-pressed',hide?'true':'false'); b.textContent=hide?'답 모두 보기':'답 모두 가리기';
+  });
+})();
+(function(){
+  var steps=[0.85,1,1.15,1.3,1.5,1.75,2], i=1, m=document.querySelector('main'), now=document.getElementById('z-now');
+  try{ var s=parseInt(localStorage.getItem('zoomStep'),10); if(s>=0 && s<steps.length) i=s; }catch(e){}
+  function apply(){ m.style.zoom=steps[i]; now.textContent='크기 '+Math.round(steps[i]*100)+'%'; try{localStorage.setItem('zoomStep',i)}catch(e){} }
+  document.getElementById('z-minus').addEventListener('click',function(){ if(i>0){i--;apply()} });
+  document.getElementById('z-plus').addEventListener('click',function(){ if(i<steps.length-1){i++;apply()} });
+  apply();
+})();
+(function(){
+  var au=[].slice.call(document.querySelectorAll('audio'));
+  au.forEach(function(a){
+    var b=a.previousElementSibling, label=b.textContent.replace('▶ ','');
+    b.addEventListener('click',function(){ if(a.paused){ a.play().catch(function(){}) } else a.pause() });
+    a.addEventListener('play',function(){ au.forEach(function(x){ if(x!==a) x.pause() }); b.textContent='■ 멈춤'; b.setAttribute('aria-pressed','true') });
+    a.addEventListener('pause',function(){ b.textContent='▶ '+label; b.setAttribute('aria-pressed','false') });
+  });
+})();
+</script>
+</body></html>
