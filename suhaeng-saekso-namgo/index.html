@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>잎의 색소 분리 수행평가 준비</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@700&display=swap">
 <style>
 /* 배치: 가운데 좁은 기둥(760px) 한 줄 읽기. 위에서부터 실험 → 결과 그림 → 계산 → 답안 → 스스로 점검 */
@@ -79,8 +77,16 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 .play audio{flex:1 1 220px;min-width:0;height:40px;max-width:100%}
 .qa details summary .n{display:inline-block;min-width:1.9em;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
 .grp{font-size:13px;color:var(--muted);letter-spacing:.03em;margin:10px 0 0}
+.who{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:0 0 10px}
+.who b{font-family:var(--font-head);font-size:20px}
+.who span{color:var(--muted);font-size:14px}
+dl.f{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:8px 12px;margin:0}
+dl.f dt{color:var(--accent);font-weight:700;font-size:14px;padding-top:2px}
+dl.f dd{margin:0}
+.one{background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-top:12px}
+table.big th,table.big td{min-width:7.5em}
+table.big td:first-child,table.big th:first-child{min-width:4.5em;font-weight:700}
 </style>
-
 </head><body>
 <main>
 <header>
@@ -112,7 +118,7 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 
 <section>
   <h2>실험 순서</h2>
-  <div class="play"><button type="button" class="say">▶ 설명 듣기</button><audio controls preload="none" src="audio/1.mp3"></audio></div>
+  <div class="play"><button type="button" class="say">▶ 설명 듣기</button><audio controls preload="none" src="audio/1.mp3?v=2"></audio></div>
   <div class="key"><p><b>순서 한 줄</b> 추출 → 선 긋기 → 전개액 넣기 → 색소 찍기 → 전개 → 측정</p></div>
   <div class="card">
   <ol class="steps">
@@ -141,10 +147,10 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 <section>
   <h2>수행평가 예상 질문과 답</h2>
   <p class="lead">중요한 것부터 차례로 놓았다. 답을 먼저 외우고, 「답 모두 가리기」를 눌러 질문만 보고 써 본다. 질문을 누르면 그 답만 열리고 닫힌다.</p>
-  <div class="saybar"><button type="button" class="say" id="hide-ans" aria-pressed="false">답 모두 가리기</button></div>
-  <div class="play"><button type="button" class="say">▶ 서술형 설명 듣기</button><audio controls preload="none" src="audio/4.mp3"></audio></div>
-  <div class="play"><button type="button" class="say">▶ 나머지 질문 듣기</button><audio controls preload="none" src="audio/2.mp3"></audio></div>
-  <div class="qa" id="qa-all">
+  <div class="saybar"><button type="button" class="say hide-ans" data-for="qa-1" aria-pressed="false">답 모두 가리기</button></div>
+  <div class="play"><button type="button" class="say">▶ 서술형 설명 듣기</button><audio controls preload="none" src="audio/2.mp3?v=2"></audio></div>
+  <div class="play"><button type="button" class="say">▶ 나머지 질문 듣기</button><audio controls preload="none" src="audio/3.mp3?v=2"></audio></div>
+  <div class="qa" id="qa-1">
 <p class="grp">가장 중요한 서술형</p>
 <details open><summary><span class="n">1.</span>광합성 색소마다 전개율이 다른 이유를 적으시오.</summary><p class="ans">광합성 색소마다 <b>분자량</b>, 전개액(유기 용매)에 대한 <b>용해도</b>, TLC 판에 대한 <b>흡착력</b>이 서로 다르기 때문에 TLC 판을 따라 이동하는 속도가 달라 전개율이 다르다.</p></details>
 <details open><summary><span class="n">2.</span>색소를 추출하고 전개할 때 물이 아니라 유기 용매를 사용하는 이유를 적으시오.</summary><p class="ans">광합성 색소는 물에 녹지 않고 <b>유기 용매에 잘 녹기 때문</b>이다.</p></details>
@@ -170,7 +176,7 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 
 <section>
   <h2>결과 그림과 색</h2>
-  <div class="play"><button type="button" class="say">▶ 설명 듣기</button><audio controls preload="none" src="audio/3.mp3"></audio></div>
+  <div class="play"><button type="button" class="say">▶ 설명 듣기</button><audio controls preload="none" src="audio/4.mp3?v=2"></audio></div>
   <div class="card fig">
     <svg viewBox="0 0 300 380" role="img" aria-label="TLC 판 결과. 위에서부터 카로틴, 잔토필, 엽록소 a, 엽록소 b 순서로 색소 띠가 나뉘어 있다.">
       <rect x="60" y="20" width="70" height="340" rx="3" fill="var(--plate)" stroke="var(--plate-edge)"/>
@@ -231,24 +237,15 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 
 <footer>여의도고등학교 학교 학습지와 천재교육 교과서를 바탕으로 만든 자료입니다. 수행평가 채점 기준은 학교 선생님 안내가 우선입니다.</footer>
 </main>
-
 <script>
 (function(){
-  var a=document.getElementById('rf-a'), l=document.getElementById('rf-l'), o=document.getElementById('rf-out');
-  function run(){
-    var x=parseFloat(a.value), y=parseFloat(l.value);
-    if(!(x>=0) || !(y>0)){ o.textContent='두 거리를 숫자로 넣으세요'; return; }
-    if(x>y){ o.textContent='a는 l보다 클 수 없어요'; return; }
-    o.textContent='R f = '+(x/y).toFixed(2);
-  }
-  a.addEventListener('input',run); l.addEventListener('input',run); run();
-})();
-(function(){
-  var b=document.getElementById('hide-ans'), box=document.getElementById('qa-all');
-  b.addEventListener('click',function(){
-    var hide=b.getAttribute('aria-pressed')!=='true';
-    [].forEach.call(box.querySelectorAll('details'),function(d){ d.open=!hide });
-    b.setAttribute('aria-pressed',hide?'true':'false'); b.textContent=hide?'답 모두 보기':'답 모두 가리기';
+  [].forEach.call(document.querySelectorAll('.hide-ans'),function(b){
+    var box=document.getElementById(b.getAttribute('data-for'));
+    b.addEventListener('click',function(){
+      var hide=b.getAttribute('aria-pressed')!=='true';
+      [].forEach.call(box.querySelectorAll('details'),function(d){ d.open=!hide });
+      b.setAttribute('aria-pressed',hide?'true':'false'); b.textContent=hide?'답 모두 보기':'답 모두 가리기';
+    });
   });
 })();
 (function(){
@@ -267,6 +264,17 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
     a.addEventListener('play',function(){ au.forEach(function(x){ if(x!==a) x.pause() }); b.textContent='■ 멈춤'; b.setAttribute('aria-pressed','true') });
     a.addEventListener('pause',function(){ b.textContent='▶ '+label; b.setAttribute('aria-pressed','false') });
   });
+})();
+
+(function(){
+  var a=document.getElementById('rf-a'), l=document.getElementById('rf-l'), o=document.getElementById('rf-out');
+  function run(){
+    var x=parseFloat(a.value), y=parseFloat(l.value);
+    if(!(x>=0) || !(y>0)){ o.textContent='두 거리를 숫자로 넣으세요'; return; }
+    if(x>y){ o.textContent='a는 l보다 클 수 없어요'; return; }
+    o.textContent='R f = '+(x/y).toFixed(2);
+  }
+  a.addEventListener('input',run); l.addEventListener('input',run); run();
 })();
 </script>
 </body></html>
